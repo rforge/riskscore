@@ -1,20 +1,20 @@
 R2 <- function(object,
-               who,
+               models,
                what,
                times,
-               nullModel=1){
+               reference=1){
   
   stopifnot(class(object)[1] == "pec")
   
-  message("Using model ",names(object$models)[nullModel]," as reference (null model) for R^2")
+  message("Using model ",names(object$models)[reference]," as reference (null model) for R^2")
 
   # -------------------------find the models-------------------------
   
-  if (missing(who))
-    who <- (1:length(object$models))[-nullModel]
+  if (missing(models))
+    models <- (1:length(object$models))[-reference]
   else
-    if (!is.numeric(who))
-      who <- match(who,names(object$models))
+    if (!is.numeric(models))
+      models <- match(models,names(object$models))
 
   # -------------------------find the estimates-------------------------
 
@@ -39,17 +39,21 @@ R2 <- function(object,
 
   nix <- lapply(what,function(e){
     if (is.null(object[[e]])) stop("No values for computing R^2")
-    ref.error <- object[[e]][[nullModel]]
-    out <- data.frame(do.call("cbind",lapply(1:length(who),function(w){
-      rr <- 1-object[[e]][[who[w]]]/ref.error
+    ref.error <- object[[e]][[reference]]
+    out <- data.frame(do.call("cbind",lapply(1:length(models),function(w){
+      rr <- 1-object[[e]][[models[w]]]/ref.error
       rr[ref.error==0] <- 0
       rr
     })))
-    names(out) <- names(object$models)[who]
-    cat("R^2 based on the estimate stored in ",what,":\n\n")
-    
-    print(cbind(time=times,RR=rbind(0,out)[1+sindex(object.times,times),,drop=FALSE]))
+    names(out) <- names(object$models)[models]
+    ## cat("R^2 based on the estimate stored in ",what,":\n\n")
+    ## print(cbind(time=times,RR=rbind(0,out)[1+sindex(object.times,times),,drop=FALSE]))
+    cbind(time=times,RR=rbind(0,out)[1+sindex(object.times,times),,drop=FALSE])
   })
-
+  class(nix) <- "R2"
   invisible(nix)
+}
+
+print.R2 <- function(x,...){
+  print(x)
 }

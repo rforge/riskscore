@@ -1,5 +1,5 @@
 crps <- function(object,
-                 who,
+                 models,
                  what,
                  times,
                  ## weights=NULL,
@@ -7,10 +7,10 @@ crps <- function(object,
   stopifnot(class(object)[1] == "pec")
   
   ## find the prediction models
-  if (missing(who)) who <- 1:length(object$models)
+  if (missing(models)) models <- 1:length(object$models)
   else
-    if (!is.numeric(who))
-      who <- names(object$models)[match(who,names(object$models))]
+    if (!is.numeric(models))
+      models <- names(object$models)[match(models,names(object$models))]
   
   ## times
   object.times <- object$time
@@ -33,7 +33,7 @@ crps <- function(object,
   ##   }
   ##   else weigths <- NULL
   out <- lapply(what,function(w){
-    est <- object[[w]][who]
+    est <- object[[w]][models]
     ##     if (length(weights>0)){
     ##       print("Weighted sum")
     ##       xmat <- lapply(xmat,function(u){u*weights})
@@ -65,3 +65,6 @@ crps <- function(object,
   }
   out
 }
+## the name ibs is more intuitive for integrated Brier score
+## whereas continuous ranked probability score is less well known
+ibs <- crps

@@ -242,7 +242,6 @@ Copenhagen
 }
 \author{Thomas A Gerds \email{tag@biostat.ku.dk}}
 
-\seealso{}
 
 \examples{
 \dontrun{

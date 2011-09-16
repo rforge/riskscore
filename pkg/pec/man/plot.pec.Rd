@@ -30,7 +30,7 @@
 \arguments{
   \item{x}{ Object of class \code{pec} obtained with function \code{\link{pec}}.
   }
-  \item{what}{ The name of the entry in \code{x} Defauls to \code{PredErr} 
+  \item{what}{The name of the entry in \code{x}. Defauls to \code{PredErr} 
     Other choices are \code{AppErr}, \code{BootCvErr}, \code{Boot632}, \code{Boot632plus}.
   }
   \item{models}{ Specifies models in \code{x$models} for which the prediction
