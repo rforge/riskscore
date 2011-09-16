@@ -1,6 +1,7 @@
 useDynLib(pec)
 export("pec",
        "crps",
+       "ibs",
        "ipcw",
        "cindex",
        "R2",
@@ -28,6 +29,8 @@ S3method(ipcw,marginal)
 S3method(ipcw,none)
 S3method(ipcw,nonpar)
 S3method(ipcw,aalen)
+
+S3method(print,R2)
 
 S3method(plot,pec)
 S3method(print,pec)
