@@ -58,7 +58,7 @@ plotPredictSurvProb <- function(x,
   y <- predictSurvProb(x, newdata=newdata, times=orig.X)
    
   # }}}
-  # {{{  plot arguments
+  # {{{ plot arguments
 
   nlines <- NROW(y)
   

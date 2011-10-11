@@ -11,8 +11,6 @@ pecCforest <- function(formula,data,...){
 
 predictSurvProb.pecCforest <- function (object, newdata, times, ...) {
   ## require(party)
-  N <- NROW(newdata)
-  NT <- length(times)
   survObj <- treeresponse(object$forest,newdata=newdata)
   p <- do.call("rbind",lapply(survObj,function(x){
     predictSurvProb(x,newdata=newdata[1,,drop=FALSE],times=times)

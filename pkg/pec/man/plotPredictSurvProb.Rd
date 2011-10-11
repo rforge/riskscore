@@ -54,7 +54,9 @@ plotPredictSurvProb(x,
   }
   \item{percent}{Logical. If \code{TRUE} the y-axis is labeled in percent.
   }
-  \item{\dots}{ Extra arguments that are passed to \code{\link{plot}}.
+  \item{\dots}{Parameters that are filtered by \code{\link{SmartControl}} and
+    then passed to the functions: \code{\link{plot}}, \code{\link{axis}},
+    \code{\link{legend}}.
   }
 }
 
@@ -77,4 +79,20 @@ plotPredictSurvProb(x,
 \author{Ulla B. Mogensen  \email{ulmo@biostat.ku.dk}, Thomas A. Gerds \email{tag@biostat.ku.dk} }
 \seealso{{\code{\link{predictSurvProb}}}{\code{\link{prodlim}}}}
 
+\examples{
+# generate some survival data
+d <- SimSurv(100)
+# then fit a Cox model 
+coxmodel <- cph(Surv(time,status)~X1+X2,data=d,surv=TRUE)
+# plot predicted survival probabilities for all time points
+ttt <- sort(unique(d$time))
+# and for selected predictor values:
+ ndat <- data.frame(X1=c(0.25,0.25,-0.05,0.05),X2=c(0,1,0,1))
+plotPredictSurvProb(coxmodel,newdata=ndat,times=ttt)
+
+# the same can be done e.g. for a randomSurvivalForest model
+library(randomSurvivalForest)
+rsfmodel <- rsf(Survrsf(time,status)~X1+X2,data=d)
+plotPredictSurvProb(rsfmodel,newdata=ndat,times=ttt)
+}
 \keyword{survival}

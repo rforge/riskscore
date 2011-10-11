@@ -99,8 +99,25 @@
 }
 
 \seealso{\code{\link{predict}},\code{\link{survfit}}}
-% \examples{
+\examples{
+# generate some survival data
+d <- SimSurv(100)
+# then fit a Cox model 
+coxmodel <- cph(Surv(time,status)~X1+X2,data=d,surv=TRUE)
 
-% }
+# predicted survival probabilities can be extracted
+# at selected time-points:
+ttt <- quantile(d$time)
+# for selected predictor values:
+ndat <- data.frame(X1=c(0.25,0.25,-0.05,0.05),X2=c(0,1,0,1))
+# as follows
+predictSurvProb(coxmodel,newdata=ndat,times=ttt)
+
+# the same can be done e.g. for a randomSurvivalForest model
+library(randomSurvivalForest)
+rsfmodel <- rsf(Survrsf(time,status)~X1+X2,data=d)
+predictSurvProb(rsfmodel,newdata=ndat,times=ttt)
+
+}
 
 \keyword{survival}% at least one, from doc/KEYWORDS
