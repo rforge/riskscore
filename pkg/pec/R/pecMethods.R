@@ -31,6 +31,7 @@ pec.list <- function(object,
                      testTimes,
                      confInt=FALSE,
                      confLevel=0.95,
+                     doMC=FALSE,
                      verbose=TRUE,
                      savePath=NULL,
                      ...)
@@ -253,7 +254,7 @@ pec.list <- function(object,
   # {{{ ---------------------------Apparent error---------------------------
 
   AppErr <- lapply(1:NF,function(f){
-    message(f)
+    ## message(f)
     fit <- object[[f]]
     extraArgs <- model.args[[f]]
     if (predictHandlerFun=="predictEventProb"){
@@ -273,7 +274,7 @@ pec.list <- function(object,
   # {{{------------------------No information error------------------------
   if (splitMethod$internal.name %in% c("Boot632plus")){
     if (verbose==TRUE){
-      message("Computing noinformation error using on all permutations")
+      message("Computing noinformation error using all permutations")
     }
     if (noinf.permute==FALSE){
       NoInfErr <- lapply(1:NF,function(f){
@@ -344,7 +345,7 @@ pec.list <- function(object,
     if (missing(testTimes)){
       testTimes <- NULL
     }
-    BootCv <- bootstrapCrossValidation(object=object,data=data,Y=Y,status=status,event=event,times=times,cause=cause,ipcw=ipcw,ipcw.refit=ipcw.refit,ipcw.call=ipcw.call,splitMethod=splitMethod,multiSplitTest=multiSplitTest,testIBS=testIBS,testTimes=testTimes,confInt=confInt,confLevel=confLevel,getFromModel=model.parms,giveToModel=model.args,predictHandlerFun=predictHandlerFun,keepMatrix=keep.matrix,keepResiduals=keep.residuals,verbose=verbose,savePath=savePath)
+    BootCv <- bootstrapCrossValidation(object=object,data=data,Y=Y,status=status,event=event,times=times,cause=cause,ipcw=ipcw,ipcw.refit=ipcw.refit,ipcw.call=ipcw.call,splitMethod=splitMethod,multiSplitTest=multiSplitTest,testIBS=testIBS,testTimes=testTimes,confInt=confInt,confLevel=confLevel,getFromModel=model.parms,giveToModel=model.args,predictHandlerFun=predictHandlerFun,keepMatrix=keep.matrix,keepResiduals=keep.residuals,doMC=doMC,verbose=verbose,savePath=savePath)
     BootstrapCrossValErr <- BootCv$BootstrapCrossValErr
     Residuals <- BootCv$Residuals
     names(BootstrapCrossValErr) <- names(object)

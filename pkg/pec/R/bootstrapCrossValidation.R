@@ -19,6 +19,7 @@ bootstrapCrossValidation <- function(object,
                                      giveToModel,
                                      predictHandlerFun,
                                      keepMatrix,
+                                     doMC,
                                      verbose,
                                      savePath){
   # {{{ initializing
@@ -29,7 +30,7 @@ bootstrapCrossValidation <- function(object,
   NF <- length(object) 
   ResampleIndex <- splitMethod$index
   # }}}
-  Looping <- lapply(1:B,function(b){
+  step <- function(b){
     if (verbose==TRUE) internalTalk(b,B)
     # {{{ training and validation data
     vindex.b <- match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0
@@ -151,7 +152,21 @@ bootstrapCrossValidation <- function(object,
       loopOut=c(loopOut,list(ModelParameters=ModelParameters))
     }
     loopOut
-  })
+  }
+  ## useSF <- TRUE
+  ## if (useSF){
+  ## sfLibrary(pec)
+  ## Looping <- sfLapply(1:B,step)
+  ## }
+  ## else
+  if (doMC){
+    require(doMC)
+    registerDoMC()
+    Looping <- foreach (b=1:B) %dopar% step(b)
+  }
+  else{
+    Looping <- lapply(1:B,step)
+  }
   # }}}
   # {{{ output
   ## 

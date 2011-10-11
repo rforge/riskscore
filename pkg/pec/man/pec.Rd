@@ -54,6 +54,7 @@ pec(object,...)
                      testTimes,
                      confInt=FALSE,
                      confLevel=0.95,
+                     doMC=FALSE,
                      verbose=TRUE,
                      savePath=NULL,
                      ...)
@@ -262,6 +263,11 @@ pec(object,...)
   \item{confLevel}{
     Experimental.
   }
+  \item{doMC}{
+    For parallel bootstrap crossvalidation. If \code{TRUE} the loop over
+    \code{1:B} will be parallized using the functionality of the
+    package \code{doMC}.
+  }
   \item{verbose}{if \code{TRUE} report details of
     the progress, e.g. count the steps in cross-validation.
   }
@@ -418,10 +424,12 @@ dat <- data.frame(time=pmin(T,C),status=as.numeric(T<=C),X1=X1,X2=X2)
 
 # fit some candidate Cox models and compute the Kaplan-Meier estimate 
 
-Models <- list("Kaplan.Meier"=survfit(Surv(time,status)~1,data=dat),
-               "Cox.X1"=coxph(Surv(time,status)~X1,data=dat),
-               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat),
-               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat))
+#Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,y=TRUE),
+#               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,y=TRUE),
+#               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,y=TRUE))
+Models <- list("Cox.X1"=cph(Surv(time,status)~X1,data=dat,surv=TRUE),
+               "Cox.X2"=cph(Surv(time,status)~X2,data=dat,surv=TRUE),
+               "Cox.X1.X2"=cph(Surv(time,status)~X1+X2,data=dat,surv=TRUE))
 
 # compute the apparent prediction error 
 PredError <- pec(object=Models,
@@ -451,6 +459,19 @@ PredError.632plus <- pec(object=Models,
 print(PredError.632plus,times=seq(5,30,5))
 summary(PredError.632plus)
 plot(PredError.632plus,xlim=c(0,30))
+
+# do the same again but now parallized
+set.seed(17100)
+PredError.632plus <- pec(object=Models,
+                  formula=Surv(time,status)~X1+X2,
+                  data=dat,
+                  exact=TRUE,
+                  cens.model="marginal",
+                  splitMethod="Boot632plus",
+                  B=100,
+                  doMC=TRUE,
+                  verbose=TRUE)
+
 
 # ---------------- competing risks -----------------
 
