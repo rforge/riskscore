@@ -4,7 +4,7 @@ set.seed(17)
 d <- SimSurv(100)
 f <- coxph(Surv(time,status)~X2,data=d)
 set.seed(13)
-a=pec(f,method="bootcv",B=3,M=63,keep.index=TRUE,verbose=F)
+a=pec(f,splitMethod="bootcv",B=3,M=63,keep.index=TRUE,verbose=F)
 b=a$splitMethod$index
 set.seed(13)
 c=pec:::resolvesplitMethod(splitMethod="bootcv",N=100,M=63,B=3)$index
@@ -85,6 +85,7 @@ plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
 ## plot(b632,xlim=c(0,100))
 ## plot(b632a,add=T,lty=3)
 # }}}
+
 
 
          

@@ -1,7 +1,6 @@
 
 ## rsf.default=randomSurvivalForest:::rsf.default 
-predictSurvProb.rsf <- function (object, newdata, times, ...)  
-{ 
+predictSurvProb.rsf <- function (object, newdata, times, ...)  { 
   N <- NROW(newdata) 
   class(object) <- c("rsf", "grow")
   S <- exp(-predict.rsf(object, test=newdata)$ensemble)

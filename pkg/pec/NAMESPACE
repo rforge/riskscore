@@ -31,6 +31,7 @@ S3method(ipcw,nonpar)
 S3method(ipcw,aalen)
 
 S3method(print,R2)
+S3method(print,crps)
 
 S3method(plot,pec)
 S3method(print,pec)

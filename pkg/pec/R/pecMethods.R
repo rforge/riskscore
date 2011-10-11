@@ -251,6 +251,7 @@ pec.list <- function(object,
   }
   # }}}
   # {{{ ---------------------------Apparent error---------------------------
+
   AppErr <- lapply(1:NF,function(f){
     message(f)
     fit <- object[[f]]
@@ -267,9 +268,13 @@ pec.list <- function(object,
   })
 
   names(AppErr) <- names(object)
+
   # }}}
   # {{{------------------------No information error------------------------
   if (splitMethod$internal.name %in% c("Boot632plus")){
+    if (verbose==TRUE){
+      message("Computing noinformation error using on all permutations")
+    }
     if (noinf.permute==FALSE){
       NoInfErr <- lapply(1:NF,function(f){
         fit <- object[[f]]
@@ -283,6 +288,9 @@ pec.list <- function(object,
       })
       names(NoInfErr) <- names(object)
     }else{
+      if (verbose==TRUE){
+        message("Noinformation error simulation loop (B=",B,")")
+      }
       NoInfErrList <- lapply(1:B,function(b){
         if (verbose==TRUE){
           internalTalk(b,B,sign=".")
@@ -330,6 +338,9 @@ pec.list <- function(object,
   # {{{ ----------------------BootstrapCrossValidation----------------------
 
   if (splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632")){
+    if (verbose==TRUE){
+      message("Split sample loop (B=",B,")")
+    }
     if (missing(testTimes)){
       testTimes <- NULL
     }

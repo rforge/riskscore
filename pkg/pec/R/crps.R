@@ -2,17 +2,16 @@ crps <- function(object,
                  models,
                  what,
                  times,
-                 ## weights=NULL,
                  start){
   stopifnot(class(object)[1] == "pec")
   
-  ## find the prediction models
+  # {{{find the prediction models
   if (missing(models)) models <- 1:length(object$models)
   else
     if (!is.numeric(models))
       models <- names(object$models)[match(models,names(object$models))]
-  
-  ## times
+  # }}}
+  # {{{times
   object.times <- object$time
   if(missing(times)) times <- object$maxtime
   if (any(times>object$maxtime)) {
@@ -21,23 +20,17 @@ crps <- function(object,
   }
   if (!(object$exact || length(object.times)>100))
     warning("Only ", length(time)," time point",ifelse(length(times)==1,"","s")," used")
-  
   ##  time range
   if (missing(start)) start <- object$start
-  ## list of values 
+  # }}}
+  # {{{ what errors
   if (missing(what) || is.null(what)){
     what <- grep(c("Err$"),names(object),val=TRUE)
   }
-  ##   if (length(weights)>0){
-  ##     stopifnot(length(weights)==length(object$time))
-  ##   }
-  ##   else weigths <- NULL
+  # }}}
+  # {{{ for each element of what: evaluate crps at times
   out <- lapply(what,function(w){
     est <- object[[w]][models]
-    ##     if (length(weights>0)){
-    ##       print("Weighted sum")
-    ##       xmat <- lapply(xmat,function(u){u*weights})
-    ## }
     y <- sapply(times,function(t){
       intx <- sapply(est, function(y){
         Dint(x=object.times,
@@ -51,6 +44,8 @@ crps <- function(object,
       colnames(y) <- paste("IBS[",start,";",tnames,"]",sep="")
       y}
   })
+  # }}}
+  # {{{ prepare output
   NW <- length(what)
   NT <- length(times)
   if (NW==1)
@@ -63,6 +58,8 @@ crps <- function(object,
       colnames(out) <- what
     }
   }
+  # }}}
+  class(out) <- "crps"
   out
 }
 ## the name ibs is more intuitive for integrated Brier score
