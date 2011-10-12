@@ -152,11 +152,12 @@ bootstrapCrossValidation <- function(object,
     }
     loopOut
   }
+  b <- 1
   if (require(foreach)){
-    Looping <- foreach (b=1:B) %dopar% step(b)
+    Looping <- foreach (b= 1:B) %dopar% step(b)
   }
   else{
-    Looping <- lapply(1:B,step)
+    Looping <- lapply(1:B,function(b){step(b)})
   }
   # }}}
   # {{{ output
