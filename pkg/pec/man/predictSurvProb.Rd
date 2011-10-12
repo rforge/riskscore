@@ -50,13 +50,14 @@
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{object}{A model for which predicted probabilities are desired.}
-  \item{newdata}{A data frame containing predictor variable combinations for
-    which predictions are desired}
+ \item{object}{A fitted model from which to extract predicted survival probabilities}
+ \item{newdata}{A data frame containing predictor variable combinations for
+   which to compute predicted survival probabilities.
+ }
   \item{times}{A vector of times in the range of the response
     variable, e.g. times when the response is a survival object, at
-    which the exceedance probabilities (i.e. the survival probabilities) are
-    returned.}
+    which to return the survival probabilities.
+  }
    \item{train.data}{An optional data frame which contains the
      response and predictor variable combinations
      in which the prediction model was trained}
@@ -117,7 +118,6 @@ predictSurvProb(coxmodel,newdata=ndat,times=ttt)
 library(randomSurvivalForest)
 rsfmodel <- rsf(Survrsf(time,status)~X1+X2,data=d)
 predictSurvProb(rsfmodel,newdata=ndat,times=ttt)
-
 }
 
 \keyword{survival}% at least one, from doc/KEYWORDS

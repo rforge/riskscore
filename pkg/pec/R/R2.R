@@ -2,8 +2,7 @@ R2 <- function(object,
                models,
                what,
                times,
-               reference=1,
-               verbose=TRUE){
+               reference=1){
   
   stopifnot(class(object)[1] == "pec")
   

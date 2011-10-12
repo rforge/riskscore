@@ -54,7 +54,6 @@ pec(object,...)
                      testTimes,
                      confInt=FALSE,
                      confLevel=0.95,
-                     doMC=FALSE,
                      verbose=TRUE,
                      savePath=NULL,
                      ...)
@@ -263,11 +262,6 @@ pec(object,...)
   \item{confLevel}{
     Experimental.
   }
-  \item{doMC}{
-    For parallel bootstrap crossvalidation. If \code{TRUE} the loop over
-    \code{1:B} will be parallized using the functionality of the
-    package \code{doMC}.
-  }
   \item{verbose}{if \code{TRUE} report details of
     the progress, e.g. count the steps in cross-validation.
   }
@@ -414,22 +408,13 @@ pec(object,...)
 # with survival response and two predictors
 
 set.seed(130971)
-N <- 300
-X1 <- rnorm(N,mean=10,sd=5)
-X2 <- rbinom(N,1,.4)
-linPred <- .00001+0.2*X1+2.3*X2
-T <- sapply(linPred,function(lp){rexp(n=1,exp(-lp))})
-C <- rexp(n=300,exp(-mean(linPred)))
-dat <- data.frame(time=pmin(T,C),status=as.numeric(T<=C),X1=X1,X2=X2)
+dat <- SimSurv(300)
 
 # fit some candidate Cox models and compute the Kaplan-Meier estimate 
 
-#Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,y=TRUE),
-#               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,y=TRUE),
-#               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,y=TRUE))
-Models <- list("Cox.X1"=cph(Surv(time,status)~X1,data=dat,surv=TRUE),
-               "Cox.X2"=cph(Surv(time,status)~X2,data=dat,surv=TRUE),
-               "Cox.X1.X2"=cph(Surv(time,status)~X1+X2,data=dat,surv=TRUE))
+Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat,y=TRUE),
+              "Cox.X2"=coxph(Surv(time,status)~X2,data=dat,y=TRUE),
+              "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat,y=TRUE))
 
 # compute the apparent prediction error 
 PredError <- pec(object=Models,
@@ -462,6 +447,8 @@ plot(PredError.632plus,xlim=c(0,30))
 
 # do the same again but now parallized
 set.seed(17100)
+library(doMC)
+registerDoMC()
 PredError.632plus <- pec(object=Models,
                   formula=Surv(time,status)~X1+X2,
                   data=dat,
@@ -469,12 +456,12 @@ PredError.632plus <- pec(object=Models,
                   cens.model="marginal",
                   splitMethod="Boot632plus",
                   B=100,
-                  doMC=TRUE,
                   verbose=TRUE)
 
 
 # ---------------- competing risks -----------------
 
+\dontrun{
 library(survival)
 library(compRisk)
 library(cmprsk)
@@ -485,7 +472,6 @@ f2  <- CRR(Hist(time,status)~sex,cause=2,data=pbc)
 f3  <- compRisk(Hist(time,status)~sex+edema,cause=2,data=pbc)
 f4  <- compRisk(Hist(time,status)~sex+edema,cause=2,data=pbc,link="prop")
 p1 <- pec(list(f1,f2,f3,f4),formula=Hist(time,status)~1,data=pbc,cause=2)
-
-
- }
+}
+}
 \keyword{survival}% at least one, from doc/KEYWORDS

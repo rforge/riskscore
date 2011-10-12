@@ -16,6 +16,7 @@ selectCox <- function(formula,data,rule="aic"){
   class(out) <- "selectCox"
   out
 }
+
 predictSurvProb.selectCox <- function(object,newdata,times,...){
    predictSurvProb(object[[1]],newdata=newdata,times=times,...)
  }

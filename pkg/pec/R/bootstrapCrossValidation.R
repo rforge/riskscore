@@ -19,7 +19,6 @@ bootstrapCrossValidation <- function(object,
                                      giveToModel,
                                      predictHandlerFun,
                                      keepMatrix,
-                                     doMC,
                                      verbose,
                                      savePath){
   # {{{ initializing
@@ -153,15 +152,7 @@ bootstrapCrossValidation <- function(object,
     }
     loopOut
   }
-  ## useSF <- TRUE
-  ## if (useSF){
-  ## sfLibrary(pec)
-  ## Looping <- sfLapply(1:B,step)
-  ## }
-  ## else
-  if (doMC){
-    require(doMC)
-    registerDoMC()
+  if (require(foreach)){
     Looping <- foreach (b=1:B) %dopar% step(b)
   }
   else{
