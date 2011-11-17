@@ -336,7 +336,6 @@ pec.list <- function(object,
 
   # }}}
   # {{{ ----------------------BootstrapCrossValidation----------------------
-
   if (splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632")){
     if (verbose==TRUE){
       message("Split sample loop (B=",B,")")

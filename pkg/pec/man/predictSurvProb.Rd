@@ -1,6 +1,7 @@
 \name{predictSurvProb}
 \alias{predictSurvProb}
 \alias{predictSurvProb.aalen}
+\alias{predictSurvProb.ARR}
 \alias{predictSurvProb.cox.aalen}
 \alias{predictSurvProb.coxph}
 \alias{predictSurvProb.cph}
@@ -32,6 +33,7 @@
 \usage{
  predictSurvProb(object, newdata, times, ...)
 \method{predictSurvProb}{aalen}(object, newdata, times,...)
+\method{predictSurvProb}{ARR}(object, newdata, times,...)
 \method{predictSurvProb}{cox.aalen}(object, newdata, times,...)
 \method{predictSurvProb}{coxph}(object, newdata, times,...)
 \method{predictSurvProb}{cph}(object, newdata, times,...)

@@ -38,6 +38,14 @@ predictEventProb.compRisk <- function(object,newdata,times,cause,...){
   cbind(0,p)[,pos+1,drop=FALSE]
 }
 
+predictEventProb.ARR <- function(object,newdata,times,cause,...){
+  if (missing(times))stop("Argument times is missing")
+  temp <- predict(object,newdata=newdata,times=times)
+  p <- temp$P1
+  pos <- sindex(jump.times=temp$time,eval.times=times)
+  cbind(0,p)[,pos+1,drop=FALSE]
+}
+
 
 predictEventProb.cumincCox <- function (object, newdata, times, cause, ...) {
   survtype <- object$survtype
