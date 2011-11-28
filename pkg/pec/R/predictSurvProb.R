@@ -124,7 +124,11 @@ predictSurvProb.rpart <- function(object,newdata,times,train.data,...){
 
 
 predictSurvProb.coxph <- function(object,newdata,times,...){
+
+  ## baselineHazard.coxph(object,times)
   ## require(survival)
+  ## new feature of the survival package requires that the
+  ## original data are included
   survival.survfit.coxph <- getFromNamespace("survfit.coxph",ns="survival")
   survival.summary.survfit <- getFromNamespace("summary.survfit",ns="survival")
   survfit.object <- survival.survfit.coxph(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)

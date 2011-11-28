@@ -21,7 +21,7 @@ predictEventProb.prodlim <- function(object,newdata,times,cause,...){
   p
 }
 
-predictEventProb.CRR <- function(object,newdata,times,cause,...){
+predictEventProb.FGR <- function(object,newdata,times,cause,...){
   ## require(cmprsk)
   # require(compRisk)
   p <- predict(object=object,newdata=newdata,times=times)
@@ -30,10 +30,10 @@ predictEventProb.CRR <- function(object,newdata,times,cause,...){
   p
 }
 
-predictEventProb.compRisk <- function(object,newdata,times,cause,...){
+predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata,times=times)
-  p <- temp$P1
+  p <- temp$cuminc
   pos <- sindex(jump.times=temp$time,eval.times=times)
   cbind(0,p)[,pos+1,drop=FALSE]
 }
@@ -57,7 +57,9 @@ predictEventProb.cumincCox <- function (object, newdata, times, cause, ...) {
   causes <- object$causes
   stopifnot(match(as.character(cause),causes,nomatch=0)!=0)
   # predict cumulative cause specific hazards
-  cumHaz1 <- -log(predictSurvProb(object$models[[paste("Cause",cause)]],times=eTimes,newdata=newdata))
+  cumHaz1 <- -log(predictSurvProb(object$models[[paste("Cause",cause)]],
+                                  times=eTimes,
+                                  newdata=newdata))
   if (length(eTimes)==1)
     Haz1 <- cumHaz1
   else
