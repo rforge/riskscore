@@ -47,7 +47,7 @@ predictEventProb.ARR <- function(object,newdata,times,cause,...){
 }
 
 
-predictEventProb.cumincCox <- function (object, newdata, times, cause, ...) {
+predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ...) {
   survtype <- object$survtype
   N <- NROW(newdata)
   NC <- length(object$model)
@@ -80,7 +80,7 @@ predictEventProb.cumincCox <- function (object, newdata, times, cause, ...) {
   cbind(0,cuminc1)[,pos+1,drop=FALSE]
 }
 
-## predictUpdateProb.cumincCox <- function (object, newdata,times,horizon, cause, ...) {
+## predictUpdateProb.CSC <- function (object, newdata,times,horizon, cause, ...) {
   ## survtype <- object$survtype
   ## N <- NROW(newdata)
   ## NC <- length(object$model)

@@ -310,12 +310,12 @@ predictSurvProb.phnnet <- function(object,newdata,times,train.data,...){
 }
 
 
-predictSurvProb.riskRegression <- function(object,newdata,times,cause,...){
+predictSurvProb.riskRegression <- function(object,newdata,times,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata)
   p <- 1-temp$cuminc
   pos <- sindex(jump.times=temp$time,eval.times=times)
-  cbind(0,p)[,pos+1,drop=FALSE]
+  cbind(1,p)[,pos+1,drop=FALSE]
 }
 
 
