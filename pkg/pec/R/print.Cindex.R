@@ -3,6 +3,7 @@ print.Cindex <- function(x,
                          what=NULL,
                          times,
                          ...){
+  ccr <- attr(x$response,"model")=="competing.risks"
   cat("\nThe c-index for right censored event times\n\n")
   # {{{ echo models
   cat("Prediction models:\n\n")
@@ -51,8 +52,20 @@ print.Cindex <- function(x,
     cat("\nEstimated C-index in % at",colnames(out[[1]]),"\n\n")
     outMat <- 100*do.call("cbind",out)
     colnames(outMat) <- what
-    if (!is.null(x$Pairs))
-      outMat <- cbind(outMat,Pairs=round(x$Pairs[[1]],1),Concordant=round(unlist(x$Concordant),1))
+    if (ccr){
+      if (!is.null(x$Pairs))
+        outMat <- cbind(outMat,
+                        "Pairs (Di=1,Ti<Tj)"=round(unlist(sapply(x$Pairs,function(x)x$A),1)),
+                        "Concordant"=round(unlist(sapply(x$Concordant,function(x)x$A),1)),
+                        "Pairs (Di=1,Dj=2)"=round(unlist(sapply(x$Pairs,function(x)x$B),1)),
+                        "Concordant"=round(unlist(sapply(x$Concordant,function(x)x$B),1)))
+    }
+    else{
+      if (!is.null(x$Pairs))
+        outMat <- cbind(outMat,
+                        Pairs=round(x$Pairs[[1]],1),
+                        Concordant=round(unlist(sapply(x$Concordant,function(x)x),1)))
+    }
     print(outMat,digits)
   }
   # }}}

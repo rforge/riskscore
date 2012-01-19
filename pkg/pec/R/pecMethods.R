@@ -227,7 +227,12 @@ if (reference==TRUE) {
     if (ipcw.refit==TRUE)
       stop("pec: internal refitting of censoring distribution not (not yet) supported for competing risks")
     ipcw.call <- NULL
-    ipcw <- ipcw(formula=iFormula,data=iData,method=cens.model,times=times,subjectTimes=Y,subjectTimesLag=1)
+    ipcw <- ipcw(formula=iFormula,
+                 data=iData,
+                 method=cens.model,
+                 times=times,
+                 subjectTimes=Y,
+                 subjectTimesLag=1)
     ipcw$dim <- if (cens.model %in% c("marginal","none")) 0 else 1
   }
   else{
@@ -258,25 +263,13 @@ if (reference==TRUE) {
     extraArgs <- model.args[[f]]
     if (predictHandlerFun=="predictEventProb"){
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data,cause=cause),extraArgs))
+      if (class(object[[f]])=="matrix") pred <- pred[neworder,]
       ## if (f==2) browser()
-      .C("pecCR",
-         pec=double(NT),
-         as.double(Y),
-         as.double(status),
-         as.double(event),
-         as.double(times),
-         as.double(pred),
-         as.double(ipcw$IPCW.times),
-         as.double(ipcw$IPCW.subjectTimes),
-         as.integer(N),
-         as.integer(NT),
-         as.integer(ipcw$dim),
-         as.integer(NCOL(pred)>1),
-         NAOK=TRUE,
-         PACKAGE="pec")$pec
+      .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(NCOL(pred)>1),NAOK=TRUE,PACKAGE="pec")$pec
     }
     else{
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
+      if (class(object[[f]])=="matrix") pred <- pred[neworder,]
       .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(NCOL(pred)>1),NAOK=TRUE,PACKAGE="pec")$pec
     }
   })
