@@ -75,7 +75,7 @@ print.Cindex <- function(x,
     print(lapply(out,function(x)x*100),digits)
   }
   if(x$splitMethod$name=="BootCv")
-    cat("\nAppCindex    : Apparent performance\nBootCvCindex : Bootstrap crossvalidated performance\n\n")
+    cat("\nAppCindex    : Apparent (training data) performance\nBootCvCindex : Bootstrap crossvalidated performance\n\n")
   # }}}
   invisible(out)
 }

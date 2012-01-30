@@ -57,6 +57,8 @@ cindex(list(f,f2,f3),formula=Hist(time,status)~1,data=Melanoma)
 
 cindex(list(f,f2,f3),formula=Hist(time,status)~1,data=Melanoma,splitMethod="bootcv",B=10)
 
+cindex(list(f,f2,f3),formula=Hist(time,status)~age+thick+ulcer,data=Melanoma,cens.model="cox",splitMethod="bootcv",B=10)
+
 library(riskRegression)
 library(cmprsk)
 d <- get(load(file="~/tmp/train.b"))

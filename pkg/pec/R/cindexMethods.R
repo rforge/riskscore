@@ -212,15 +212,28 @@ cindex.list <- function(object,
         message("No covariates  specified: cens.model coerced to \"marginal\".\n")
       cens.model <- "marginal"}
   }
-  #  weights for T_i<=T_j
-  #  FIXED: the correct weights are G(T_i|X_j) and G(T_i-|X_i)
-  if (ipcw.refit==TRUE && splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632"))
-    ipcw.call <- list(weight.i=list(formula=formula,data=data,method=cens.model,times=NULL,subjectTimes=Y,subjectTimesLag=1,what="IPCW.subjectTimes"),
-                      weight.j=list(formula=formula,data=data,method=cens.model,times=unique.Y,subjectTimes=NULL,subjectTimesLag=0,what="IPCW.times"))
-  else
+  if (predictHandlerFun=="predictEventProb"){
+    iFormula <- as.formula(paste("Surv(itime,istatus)","~",as.character(formula)[[3]]))
+    iData <- data
+    iData$itime <- response[,"time"]
+    iData$istatus <- response[,"status"]
+    weight.i <- ipcw(formula=iFormula,data=iData,method=cens.model,times=NULL,subjectTimes=Y,subjectTimesLag=1,what="IPCW.subjectTimes")$IPCW.subjectTimes
+    weight.j <- ipcw(formula=iFormula,data=iData,method=cens.model,times=unique.Y,subjectTimes=NULL,subjectTimesLag=0,what="IPCW.times")$IPCW.times
     ipcw.call <- NULL
-  weight.i <- ipcw(formula=formula,data=data,method=cens.model,times=NULL,subjectTimes=Y,subjectTimesLag=1,what="IPCW.subjectTimes")$IPCW.subjectTimes
-  weight.j <- ipcw(formula=formula,data=data,method=cens.model,times=unique.Y,subjectTimes=NULL,subjectTimesLag=0,what="IPCW.times")$IPCW.times
+  }
+  else{
+    #  weights for T_i<=T_j
+    #  FIXED: the correct weights are G(T_i|X_j) and G(T_i-|X_i)
+    weight.i <- ipcw(formula=formula,data=data,method=cens.model,times=NULL,subjectTimes=Y,subjectTimesLag=1,what="IPCW.subjectTimes")$IPCW.subjectTimes
+    weight.j <- ipcw(formula=formula,data=data,method=cens.model,times=unique.Y,subjectTimes=NULL,subjectTimesLag=0,what="IPCW.times")$IPCW.times
+  }
+  if (ipcw.refit==TRUE)
+    stop("pec: internal refitting of censoring distribution not (not yet) supported for competing risks")
+  ## if (ipcw.refit==TRUE && splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632"))
+  ## ipcw.call <- list(weight.i=list(formula=formula,data=data,method=cens.model,times=NULL,subjectTimes=Y,subjectTimesLag=1,what="IPCW.subjectTimes"),
+  ## weight.j=list(formula=formula,data=data,method=cens.model,times=unique.Y,subjectTimes=NULL,subjectTimesLag=0,what="IPCW.times"))
+  ## else
+  ipcw.call <- NULL
   ## print(weight.j)
   # truncate the weights
   if (!missing(ipcw.limit) && ipcw.limit!=0){
@@ -257,7 +270,7 @@ cindex.list <- function(object,
     extraArgs <- model.args[[f]]
     if (predictHandlerFun=="predictEventProb"){
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=pred.times,train.data=data,cause=cause),extraArgs))
-      if (class(object[[f]])=="matrix") pred <- pred[neworder,]
+      if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
       if (length(pred.times)==1 && length(pred.times)<length(eval.times))
         pred <- rep(pred,length(eval.times))
       ## stop("Not yet defined: cindex for competing risks")
@@ -273,7 +286,7 @@ cindex.list <- function(object,
     }
     else{
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=pred.times,train.data=data),extraArgs))
-      if (class(object[[f]])=="matrix") pred <- pred[neworder,]
+      if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
       if (length(pred.times)==1 && length(pred.times)<length(eval.times))
         pred <- rep(pred,length(eval.times))
       AppCindexResult <- .C("cindex",cindex=double(NT),conc=double(NT),pairs=double(NT),as.integer(tindex),as.double(Y),as.integer(status),as.double(eval.times),as.double(weight.i),as.double(weight.j),as.double(pred),as.integer(N),as.integer(NT),as.integer(tiedPredictionsIn),as.integer(tiedOutcomeIn),as.integer(tiedMatchIn),as.integer(!is.null(dim(weight.j))),NAOK=TRUE,package="pec")

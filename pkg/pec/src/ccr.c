@@ -56,7 +56,7 @@ void ccr(double *C,
 	    }
 	    WBij = weight_i[i] * weight_i[j];
 	    /* time j must either be greater than time i */
-	    if (T[i]<T[j]){
+	    if (T[i]<T[j] || (T[j]==T[i] && Delta[j]==0)){
 	       /* Rprintf("case A i=%d\tj=%d\tT.i=%1.0f\tT.j=%1.0f\t\tD.i=%d\tD.j=%d\n",i+1,j+1,T[i],T[j],D[i],D[j]);  */
 	      Aij=1;
 	      weightedA=Aij/WAij;
