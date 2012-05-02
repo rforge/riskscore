@@ -228,7 +228,7 @@ predictSurvProb.prodlim <- function(object,newdata,times,...){
   }
   else{
     covars <- attr(terms(eval.parent(object$call$formula)),"term.labels")
-    if (!all(match(covars,names(newdata),nomatch=FALSE)))
+    ## if (!all(match(covars,names(newdata),nomatch=FALSE)))
       stop("Not all strata defining variables occur in newdata.")
 
     ## FIXME there are different ways to build strata levels

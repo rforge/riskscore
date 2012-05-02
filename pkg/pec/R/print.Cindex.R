@@ -30,7 +30,7 @@ print.Cindex <- function(x,
   # }}}
   # {{{ discover what to print
   if (missing(what) || is.null(what)){
-    what <- grep(c("Cindex$"),names(x),val=TRUE)
+    what <- grep(c("Cindex$"),names(x),value=TRUE)
   }
   # }}}
   # {{{ result table

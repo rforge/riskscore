@@ -389,12 +389,17 @@ pec(object,...)
   
   Thomas A. Gerds, Martin Schumacher (2007)
   Efron-Type Measures of Prediction Error for Survival Analysis
-  Biometrics (OnlineEarly Articles).
+  Biometrics, 63(4), 1283--1287
   doi:10.1111/j.1541-0420.2007.00832.x
 
   Martin Schumacher, Harald Binder, and Thomas Gerds. Assessment of
   survival prediction models based on microarray data. Bioinformatics,
   23(14):1768-74, 2007.
+
+  Mark A. van de Wiel, Johannes Berkhof, and Wessel N. van Wieringen
+  Testing the prediction error difference between 2 predictors
+  Biostatistics (2009) 10(3): 550-560
+  doi:10.1093/biostatistics/kxp011 
 }
 
 \author{Thomas Alexander Gerds \email{tag@biostat.ku.dk} }

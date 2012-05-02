@@ -1,5 +1,5 @@
 plot.Cindex <- function(x,ylim=c(.4,1),xlim=c(0,x$maxtime),abline=TRUE,...){
-  argList <- match.call(expand=TRUE)
+  argList <- match.call(expand.dots=TRUE)
   argList[[1]] <- as.name("list")
   argList <- eval(argList,parent.frame())
   argList <- c(list("what"=switch(x$splitMethod$internal.name,"noPlan"={"AppCindex"},
