@@ -1,0 +1,10 @@
+Package: highScore
+Type: Package
+Title: high Score
+Version: 1.1
+Date: 2011-08-15
+Author: Thomas Alexander Gerds
+Maintainer: Thomas Alexander Gerds <tagteam@sund.ku.dk>
+Description: WriteMe
+License: Foo
+Packaged: Mon Aug 15 15:58:13 2011 ;tagteam
