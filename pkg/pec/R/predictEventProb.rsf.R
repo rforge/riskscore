@@ -7,7 +7,7 @@ predictEventProb.rsf <- function(object,newdata,times,cause,...){
   cif <- getCIF[,,cause]
   Time <- ensbCHF$timeInterest
   pos <- sindex(jump.times=Time,eval.times=times)
-  p <- cbind(0,cif)[,pos+1,drop=FALSE]
+  p <- cbind(0,cif)[,pos+1]
   if (is.null(dim(p)))
     {if (length(p)!=length(times))
        stop("Prediction failed")}
@@ -17,4 +17,3 @@ predictEventProb.rsf <- function(object,newdata,times,cause,...){
   }
   p
 }
-
