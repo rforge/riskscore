@@ -75,7 +75,7 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
     cumHazOther <- lapply(causes[-match(cause,causes)],function(c){
       -log(predictSurvProb(object$models[[paste("Cause",c)]],times=eTimes,newdata=newdata))
     })
-    lagsurv <- exp(-cumHaz1- do.call("+",cumHazOther))
+    lagsurv <- exp(-cumHaz1 - Reduce("+",cumHazOther))
     cuminc1 <- t(apply(lagsurv*Haz1,1,cumsum))
   }
   else{

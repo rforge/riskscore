@@ -117,7 +117,7 @@ pec.list <- function(object,
 
   # }}}
   # {{{ prediction models
-if (reference==TRUE) {
+  if (reference==TRUE) {
     ProdLimform <- reformulate("1",response=formula[[2]])
     ## environment(ProdLimform) <- NULL
     ProdLimfit <- prodlim(ProdLimform,data)
@@ -125,9 +125,9 @@ if (reference==TRUE) {
     ProdLimfit$formula <- NULL
     ProdLimfit$call$formula=ProdLimform
     if (model.type=="competing.risks")
-    object <- c(list(AalenJohansen=ProdLimfit),object)
+      object <- c(list(AalenJohansen=ProdLimfit),object)
     else
-    object <- c(list(KaplanMeier=ProdLimfit),object)
+      object <- c(list(KaplanMeier=ProdLimfit),object)
   }
   if (is.null(names(object))){
     names(object) <- sapply(object,function(o)class(o)[1])
@@ -240,6 +240,17 @@ if (reference==TRUE) {
     ipcw <- ipcw(formula=formula,data=data,method=cens.model,times=times,subjectTimes=Y,subjectTimesLag=1)
     ipcw$dim <- if (cens.model %in% c("marginal","none")) 0 else 1
   }
+  ## force ipc weights not to exaggerate
+  ## weights should not be greater than 1/(sample size)
+  ## if (ipcw$dim==1){
+    ## ipcw$IPCW.times <- apply(ipcw$IPCW.times,1,function(x)pmax(x,1/N))
+  ## }
+  ## else{
+    ## ipcw$IPCW.times <- pmax(ipcw$IPCW.times,1/N)
+  ## }
+  ## ipcw$IPCW.subjectTimes <- pmax(ipcw$IPCW.subjectTimes,1/N)
+  ## browser()
+  
   #  wt <- ipcw$IPCW.times
   #  wt.obs <- ipcw$IPCW.subjectTimes
   #  if (NCOL(wt)>1) {stopifnot(length(wt)==(N*NT))}  else{stopifnot(length(wt)==NT)}
@@ -253,7 +264,6 @@ if (reference==TRUE) {
   }
   # }}}
   # {{{ ---------------------------Apparent error---------------------------
-
   AppErr <- lapply(1:NF,function(f){
     ## message(f)
     fit <- object[[f]]
@@ -262,19 +272,46 @@ if (reference==TRUE) {
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data,cause=cause),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
       ## if (f==2) browser()
-      .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(NCOL(pred)>1),NAOK=TRUE,PACKAGE="pec")$pec
+      .C("pecCR",
+         pec=double(NT),
+         as.double(Y),
+         as.double(status),
+         as.double(event),
+         as.double(times),
+         as.double(pred),
+         as.double(ipcw$IPCW.times),
+         as.double(ipcw$IPCW.subjectTimes),
+         as.integer(N),
+         as.integer(NT),
+         as.integer(ipcw$dim),
+         as.integer(NCOL(pred)>1),
+         NAOK=TRUE,
+         PACKAGE="pec")$pec
     }
     else{
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
-      .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(NCOL(pred)>1),NAOK=TRUE,PACKAGE="pec")$pec
+      .C("pec",
+         pec=double(NT),
+         as.double(Y),
+         as.double(status),
+         as.double(times),
+         as.double(pred),
+         as.double(ipcw$IPCW.times),
+         as.double(ipcw$IPCW.subjectTimes),
+         as.integer(N),
+         as.integer(NT),
+         as.integer(ipcw$dim),
+         as.integer(NCOL(pred)>1),
+         NAOK=TRUE,
+         PACKAGE="pec")$pec
     }
   })
 
   names(AppErr) <- names(object)
 
   # }}}
-  # {{{------------------------No information error------------------------
+# {{{------------------------No information error------------------------
   if (splitMethod$internal.name %in% c("Boot632plus")){
     if (verbose==TRUE){
       message("Computing noinformation error using all permutations")
@@ -340,6 +377,7 @@ if (reference==TRUE) {
 
   # }}}
   # {{{ ----------------------BootstrapCrossValidation----------------------
+
   if (splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632")){
     if (verbose==TRUE){
       message("Split sample loop (B=",B,")")
@@ -391,7 +429,7 @@ if (reference==TRUE) {
   }
 
   # }}}
-  # {{{ Bootstrap .632
+# {{{ Bootstrap .632
   if (splitMethod$internal.name=="Boot632"){
     B632Err <- lapply(1:NF,function(f){
       .368 * AppErr[[f]] + .632 * BootstrapCrossValErr[[f]]
@@ -455,9 +493,9 @@ if (reference==TRUE) {
   if (!is.null(model.parms))
     out <- c(out,list("ModelParameters"=BootCv$ModelParameters))
   
-  n.risk <- N - sindex(Y,times)
   
   if (!keep.index) splitMethod$index <- NULL
+  n.risk <- N - sindex(Y,times)
 
   # }}}
   # {{{ put out
