@@ -271,47 +271,24 @@ pec.list <- function(object,
     if (predictHandlerFun=="predictEventProb"){
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data,cause=cause),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
-      ## if (f==2) browser()
-      .C("pecCR",
-         pec=double(NT),
-         as.double(Y),
-         as.double(status),
-         as.double(event),
-         as.double(times),
-         as.double(pred),
-         as.double(ipcw$IPCW.times),
-         as.double(ipcw$IPCW.subjectTimes),
-         as.integer(N),
-         as.integer(NT),
-         as.integer(ipcw$dim),
-         as.integer(NCOL(pred)>1),
-         NAOK=TRUE,
-         PACKAGE="pec")$pec
+      dimPred <- 1
+      if (NT==1)
+        dimPred <- 2
+      if (N==1)
+        dimPred <- 0
+      .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),NAOK=TRUE,PACKAGE="pec")$pec
     }
     else{
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
-      .C("pec",
-         pec=double(NT),
-         as.double(Y),
-         as.double(status),
-         as.double(times),
-         as.double(pred),
-         as.double(ipcw$IPCW.times),
-         as.double(ipcw$IPCW.subjectTimes),
-         as.integer(N),
-         as.integer(NT),
-         as.integer(ipcw$dim),
-         as.integer(NCOL(pred)>1),
-         NAOK=TRUE,
-         PACKAGE="pec")$pec
+      .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),NAOK=TRUE,PACKAGE="pec")$pec
     }
   })
 
   names(AppErr) <- names(object)
 
   # }}}
-# {{{------------------------No information error------------------------
+  # {{{------------------------No information error------------------------
   if (splitMethod$internal.name %in% c("Boot632plus")){
     if (verbose==TRUE){
       message("Computing noinformation error using all permutations")
@@ -323,9 +300,9 @@ pec.list <- function(object,
         pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
         extraArgs <- model.args[[f]]
         if (predictHandlerFun=="predictEventProb")
-          .C("pec_noinfCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(NCOL(pred)>1),NAOK=TRUE,PACKAGE="pec")$pec
+          .C("pec_noinfCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),NAOK=TRUE,PACKAGE="pec")$pec
         else
-          .C("pec_noinf",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(NCOL(pred)>1),NAOK=TRUE,PACKAGE="pec")$pec
+          .C("pec_noinf",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),NAOK=TRUE,PACKAGE="pec")$pec
       })
       names(NoInfErr) <- names(object)
     }else{
@@ -348,11 +325,11 @@ pec.list <- function(object,
           pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times,train.data=data),extraArgs))
           if (predictHandlerFun=="predictEventProb"){
             pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times,train.data=data,cause=cause),extraArgs))
-            .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred.b),as.double(ipcw.b$IPCW.times),as.double(ipcw.b$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(NCOL(pred.b)>1),NAOK=TRUE,PACKAGE="pec")$pec
+            .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred.b),as.double(ipcw.b$IPCW.times),as.double(ipcw.b$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),NAOK=TRUE,PACKAGE="pec")$pec
           }
           else{
             pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times,train.data=data),extraArgs))
-            .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred.b),as.double(ipcw.b$IPCW.times),as.double(ipcw.b$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(NCOL(pred.b)>1),NAOK=TRUE,PACKAGE="pec")$pec
+            .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred.b),as.double(ipcw.b$IPCW.times),as.double(ipcw.b$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),NAOK=TRUE,PACKAGE="pec")$pec
           }
         })
         noinfPredErr
@@ -496,9 +473,8 @@ pec.list <- function(object,
   
   if (!keep.index) splitMethod$index <- NULL
   n.risk <- N - sindex(Y,times)
-
   # }}}
-  # {{{ put out
+# {{{ put out
   if(keep.models==TRUE)
     outmodels <- object
   else if (keep.models=="Call"){

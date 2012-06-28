@@ -468,14 +468,14 @@ PredError.632plus <- pec(object=Models,
 
 \dontrun{
 library(survival)
-library(compRisk)
+library(riskRegression)
 library(cmprsk)
 library(pec)
 data(pbc)
-f1  <- CRR(Hist(time,status)~sex+edema,cause=2,data=pbc)
-f2  <- CRR(Hist(time,status)~sex,cause=2,data=pbc)
-f3  <- compRisk(Hist(time,status)~sex+edema,cause=2,data=pbc)
-f4  <- compRisk(Hist(time,status)~sex+edema,cause=2,data=pbc,link="prop")
+f1  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc)
+f2  <- CSC(Hist(time,status)~sex,cause=2,data=pbc)
+f3  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
+f4  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
 p1 <- pec(list(f1,f2,f3,f4),formula=Hist(time,status)~1,data=pbc,cause=2)
 }
 }

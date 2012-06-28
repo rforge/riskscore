@@ -40,17 +40,21 @@ predictEventProb.FGR <- function(object,newdata,times,cause,...){
 predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata,times=times)
-  p <- temp$risk
   pos <- sindex(jump.times=temp$time,eval.times=times)
-  cbind(0,p)[,pos+1,drop=FALSE]
+  p <- cbind(0,temp$risk)[,pos+1,drop=FALSE]
+  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+    stop("Prediction failed")
+  p
 }
 
 predictEventProb.ARR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata,times=times)
-  p <- temp$P1
   pos <- sindex(jump.times=temp$time,eval.times=times)
-  cbind(0,p)[,pos+1,drop=FALSE]
+  p <- cbind(0,temp$P1)[,pos+1,drop=FALSE]
+  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+    stop("Prediction failed")
+  p
 }
 
 
@@ -84,7 +88,10 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
     cuminc1 <- t(apply(lagsurv*Haz1,1,cumsum))
   }
   pos <- sindex(jump.times=eTimes, eval.times=times)
-  cbind(0,cuminc1)[,pos+1,drop=FALSE]
+  p <- cbind(0,cuminc1)[,pos+1,drop=FALSE]
+  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+    stop("Prediction failed")
+  p
 }
 
 ## predictUpdateProb.CSC <- function (object, newdata,times,horizon, cause, ...) {
