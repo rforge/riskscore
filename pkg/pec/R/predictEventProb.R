@@ -16,11 +16,16 @@ predictEventProb.matrix <- function(object,newdata,times,...){
 predictEventProb.prodlim <- function(object,newdata,times,cause,...){
   require(prodlim)
   p <- predict(object=object,cause=cause,type="cuminc",newdata=newdata,times=times,mode="matrix",level.chaos=1)
-  if (NROW(p)==1) p <- as.vector(p)
-  p[is.na(p)] <- 0
+  ## if the model has no covariates
+  ## then all cases get the same prediction
+  ## in this exceptional case we proceed a vector
+  if (NROW(p)==1 && NROW(newdata)>1)
+    p <- as.vector(p)
+  ## p[is.na(p)] <- 0
   if (is.null(dim(p)))
-    {if (length(p)!=length(times))
-       stop("Prediction failed")}
+   {if (length(p)!=length(times))
+      stop("Prediction failed")
+  }
   else{
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
       stop("Prediction failed")
@@ -63,14 +68,17 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
   N <- NROW(newdata)
   NC <- length(object$model)
   eTimes <- object$eventTimes
+  ## browser()
   if (missing(cause))
     cause <- object$theCause
   causes <- object$causes
   stopifnot(match(as.character(cause),causes,nomatch=0)!=0)
+  if (survtype=="survival"){
+    if (object$theCause!=cause)
+      stop("Object can be used to predict cause ",object$theCause," but not ",cause,".\nNote: the cause can be specified in CSC(...,cause=).")
+    }
   # predict cumulative cause specific hazards
-  cumHaz1 <- -log(predictSurvProb(object$models[[paste("Cause",cause)]],
-                                  times=eTimes,
-                                  newdata=newdata))
+  cumHaz1 <- -log(predictSurvProb(object$models[[paste("Cause",cause)]],times=eTimes,newdata=newdata))
   if (length(eTimes)==1)
     Haz1 <- cumHaz1
   else

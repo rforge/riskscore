@@ -10,23 +10,29 @@ void pec(double *pec,
 	 double *weight_obs,
 	 int *N,
 	 int *NT,
-	 int *cmodel)
+	 int *cmodel,
+	 int *ConstantPrediction)
 {
   int s, i;
   double p, brier, gs, gi;
   
   for (s=0; s<(*NT);s++) {
     for (i=0; i<*N;i++){
+      /* prediction */
+      if (*ConstantPrediction==0){
 	p = pred[i + s * (*N)];
-	/* weights */
-	gs = weight[(i + s * (*N)) * (*cmodel) + s * (1-(*cmodel))];
-	gi = weight_obs[i];
-	
-	if (Y[i] <= times[s])
-	  brier = D[i] * p * p / gi;
-	else
-	  brier = (1-p)*(1-p) / gs;
-	pec[s] += brier / (double) (*N);
+      }
+      else{
+	p = pred[s];
+      }
+      /* weights */
+      gs = weight[(i + s * (*N)) * (*cmodel) + s * (1-(*cmodel))];
+      gi = weight_obs[i];
+      if (Y[i] <= times[s])
+	brier = D[i] * p * p / gi;
+      else
+	brier = (1-p)*(1-p) / gs;
+      pec[s] += brier / (double) (*N);
     }
   }
 }
@@ -43,7 +49,8 @@ void pecCR(double *pec,
 	   double *weight_obs,
 	   int *N,
 	   int *NT,
-	   int *cmodel)
+	   int *cmodel,
+	   int *ConstantPrediction)
 {
   int s, i;
   double p, brier, gs, gi;
@@ -52,7 +59,11 @@ void pecCR(double *pec,
     for (i=0; i<*N;i++){
       
       /* prediction */
+      if (*ConstantPrediction==0)
 	p = pred[i + s * (*N)];
+      else
+	p = pred[s];
+      
       /* weights */
       gs = weight[(i + s * (*N)) * (*cmodel) + s * (1-(*cmodel))];
       gi = weight_obs[i];
@@ -79,6 +90,7 @@ void pec_uncens(double *pec,
 		double *pred,
 		int *N,
 		int *NT,
+		int *ConstantPrediction,
 		int *survP)
 {
   int s, i;
@@ -87,7 +99,11 @@ void pec_uncens(double *pec,
   for (s=0; s<(*NT);s++) {
     for (i=0; i<*N;i++){
       /* prediction */
+      if (*ConstantPrediction==0)
 	p = pred[i + s * (*N)];
+      else
+	p = pred[s];
+
       if (*survP==1) 
 	if (Y[i] <= times[s])
 	  brier = p * p;
@@ -113,7 +129,8 @@ void pec_noinf(double *pec,
 	       double *weight_obs,
 	       int *N,
 	       int *NT,
-	       int *cmodel)
+	       int *cmodel,
+	       int *ConstantPrediction)
 {
   int s, i, j;
   double p, brier, gs, gi;
@@ -122,7 +139,7 @@ void pec_noinf(double *pec,
     for (j=0; j<*N; j++){
       
       /* prediction */
-      p = pred[j + s * (*N)];
+      p = pred[(j + s * (*N)) * (*ConstantPrediction) + s * (1-(*ConstantPrediction))];
       
       for (i=0; i<(*N); i++){
 	/* weights */
@@ -148,7 +165,8 @@ void pec_noinfCR(double *pec,
 		 double *weight_obs,
 		 int *N,
 		 int *NT,
-		 int *cmodel)
+		 int *cmodel,
+		 int *ConstantPrediction)
 {
   int s, i, j;
   double p, brier, gs, gi;
@@ -157,7 +175,7 @@ void pec_noinfCR(double *pec,
     for (j=0; j<*N; j++){
       
       /* prediction */
-      p = pred[j + s * (*N)];
+      p = pred[(j + s * (*N)) * (*ConstantPrediction) + s * (1-(*ConstantPrediction))];
       
       for (i=0; i<(*N); i++){
 	/* weights */
@@ -182,7 +200,8 @@ void pec_cmprsk(double *pec,
 		double *weight_obs,
 		int *N,
 		int *NT,
-		int *cmodel)
+		int *cmodel,
+		int *ConstantPrediction)
 {
   int s, i;
   double p, brier, gs, gi;
@@ -192,7 +211,11 @@ void pec_cmprsk(double *pec,
     for (i=0; i<(*N);i++){
       
       /* prediction */
+      if (*ConstantPrediction==0)
 	p = pred[i + s * (*N)];
+      else
+	p = pred[s];
+      
       /* weights */
       gs = weight[(i + s * (*N)) * (*cmodel) + s * (1-(*cmodel))];
       gi = weight_obs[i];

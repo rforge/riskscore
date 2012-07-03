@@ -472,11 +472,12 @@ library(riskRegression)
 library(cmprsk)
 library(pec)
 data(pbc)
-f1  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc)
-f2  <- CSC(Hist(time,status)~sex,cause=2,data=pbc)
+f1  <- CSC(Hist(time,status)~sex+edema,cause=1,data=pbc)
+f1a  <- CSC(Hist(time,status)~sex+edema,cause=1,data=pbc,survtype="surv")
+f2  <- CSC(Hist(time,status)~sex,data=pbc)
 f3  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
 f4  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
-p1 <- pec(list(f1,f2,f3,f4),formula=Hist(time,status)~1,data=pbc,cause=2)
+p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,status)~1,data=pbc,cause=2)
 }
 }
 \keyword{survival}% at least one, from doc/KEYWORDS

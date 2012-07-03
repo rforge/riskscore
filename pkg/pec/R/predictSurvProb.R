@@ -180,14 +180,18 @@ predictSurvProb.prodlim <- function(object,newdata,times,...){
                times=times,
                mode="matrix",
                level.chaos=1)
-  if (NROW(p)==1 && class(p)=="list")
+  if (NROW(newdata)==1 && class(p)=="list"){
     p <- unlist(p)
-  ## p[is.na(p)] <- 0
-  if (is.null(dim(p)))
-    {
-      if (length(p)!=length(times))
-        stop("Prediction failed")
-    }
+  }
+  if (NROW(p)==1 && NROW(newdata)>1){
+    ## if the model has no covariates
+    ## then all cases get the same prediction
+    ## in this exceptional case we proceed a vector
+    ## p[is.na(p)] <- 0
+    p <- as.vector(p)
+    if (length(p)!=length(times))
+      stop("Prediction failed")
+  }
   else{
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
       stop("Prediction failed")
