@@ -183,7 +183,7 @@ predictSurvProb.prodlim <- function(object,newdata,times,...){
   if (NROW(newdata)==1 && class(p)=="list"){
     p <- unlist(p)
   }
-  if (NROW(p)==1 && NROW(newdata)>1){
+  if (is.null(dim(p)) && NROW(newdata)>1){
     ## if the model has no covariates
     ## then all cases get the same prediction
     ## in this exceptional case we proceed a vector

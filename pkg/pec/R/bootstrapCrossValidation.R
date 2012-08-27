@@ -13,6 +13,7 @@ bootstrapCrossValidation <- function(object,
                                      keepResiduals,
                                      testIBS,
                                      testTimes,
+                                     newdata,
                                      confInt,
                                      confLevel,
                                      getFromModel,
@@ -36,7 +37,7 @@ bootstrapCrossValidation <- function(object,
     val.b <- data[vindex.b,,drop=FALSE]
     train.b <- data[ResampleIndex[,b],,drop=FALSE]
     ## print(c(NROW(train.b), NROW(val.b)))
-    NV=sum(vindex.b) # NROW(val.b)
+    NV=sum(vindex.b)                    # NROW(val.b)
     # }}}
     # {{{ IPCW
     if (ipcw.refit==TRUE){
@@ -132,7 +133,21 @@ bootstrapCrossValidation <- function(object,
             matrix(.C("pecResidualsCR",pec=double(NT),resid=double(NT*NV),as.double(Y[vindex.b]),as.double(status[vindex.b]),as.double(event[vindex.b]),as.double(times),as.double(pred.b),as.double(ipcwTimes.b),as.double(IPCW.subjectTimes.b),as.integer(NV),as.integer(NT),as.integer(ipcw$dim),as.integer(NROW(pred.b)>1),NAOK=TRUE,PACKAGE="pec")$resid,ncol=NT,byrow=FALSE)
           }
           else{
-            matrix(.C("pecResiduals",pec=double(NT),resid=double(NT*NV),as.double(Y[vindex.b]),as.double(status[vindex.b]),as.double(times),as.double(pred.b),as.double(ipcwTimes.b),as.double(IPCW.subjectTimes.b),as.integer(NV),as.integer(NT),as.integer(ipcw$dim),as.integer(NROW(pred.b)>1),NAOK=TRUE,PACKAGE="pec")$resid,ncol=NT,byrow=FALSE)
+            matrix(.C("pecResiduals",
+                      pec=double(NT),
+                      resid=double(NT*NV),
+                      as.double(Y[vindex.b]),
+                      as.double(status[vindex.b]),
+                      as.double(times),
+                      as.double(pred.b),
+                      as.double(ipcwTimes.b),
+                      as.double(IPCW.subjectTimes.b),
+                      as.integer(NV),
+                      as.integer(NT),
+                      as.integer(ipcw$dim),
+                      as.integer(NROW(pred.b)>1),
+                      NAOK=TRUE,
+                      PACKAGE="pec")$resid,ncol=NT,byrow=FALSE)
           }
         }
       })

@@ -13,7 +13,7 @@ export("pec",
        "selectCox",
        "pecCforest",
        "resolvesplitMethod",
-       "plotSurvProb",
+       ## "plotSurvProb",
        "plotPredictSurvProb",
        "plotPredictEventProb")
 
