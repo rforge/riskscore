@@ -36,6 +36,7 @@ cindex.list <- function(object,
                         confLevel=0.95,
                         verbose=TRUE,
                         savePath=NULL,
+                        slaveseed=NULL,
                         ...){
 
   # }}}
@@ -353,7 +354,7 @@ cindex.list <- function(object,
                                              keepMatrix=keep.matrix,
                                              keepResiduals=keep.residuals,
                                              verbose=verbose,
-                                             savePath=savePath)
+                                             savePath=savePath,slaveseed=slaveseed)
     BootstrapCrossValCindex <- BootCv$BootstrapCrossValCindex
     Residuals <- BootCv$Residuals
     names(BootstrapCrossValCindex) <- names(object)

@@ -23,7 +23,7 @@ CindexBootstrapCrossValidation <- function(object,
                                            predictHandlerFun,
                                            keepMatrix,
                                            verbose,
-                                           savePath){
+                                           savePath,slaveseed){
   
   # {{{ initializing
   B <- splitMethod$B
@@ -33,7 +33,7 @@ CindexBootstrapCrossValidation <- function(object,
   NF <- length(object) 
   ResampleIndex <- splitMethod$index
   # }}}
-  Looping <- lapply(1:B,function(b){
+  step <- function(b,seed){
     if (verbose==TRUE) internalTalk(b,B)
     # {{{ training and validation data
     vindex.b <- match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0
@@ -58,9 +58,12 @@ CindexBootstrapCrossValidation <- function(object,
       ipcw.b.i <- weights$weight.i[vindex.b]
       ipcw.b.j <- weights$weight.j[vindex.b]
     }
-    
     # }}}
     # {{{ Building the models in training data
+ if (!is.null(seed)) {
+      set.seed(seed)
+      ## if (verbose) message("seed:",seed)
+    }
     trainModels <- lapply(1:NF,function(f){
       fit.b <- internalReevalFit(object=object[[f]],
                                  data=train.b,
@@ -179,7 +182,18 @@ CindexBootstrapCrossValidation <- function(object,
       loopOut=c(loopOut,list(ModelParameters=ModelParameters))
     }
     loopOut
-  })
+  }
+  ## })
+    b <- 1
+  if (require(foreach)){
+    if (missing(slaveseed)||is.null(slaveseed))
+      slaveseed <- sample(1:1000000,size=B,replace=FALSE)
+    Looping <- foreach (b= 1:B) %dopar% step(b,slaveseed[[b]])
+  }
+  else{
+    Looping <- lapply(1:B,function(b){step(b,seed=NULL)})
+  }
+  
   # }}}
   # {{{ output
   ## 
