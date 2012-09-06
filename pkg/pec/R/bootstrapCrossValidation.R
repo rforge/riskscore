@@ -130,7 +130,22 @@ bootstrapCrossValidation <- function(object,
           NA
         else{
           if (predictHandlerFun == "predictEventProb"){
-            matrix(.C("pecResidualsCR",pec=double(NT),resid=double(NT*NV),as.double(Y[vindex.b]),as.double(status[vindex.b]),as.double(event[vindex.b]),as.double(times),as.double(pred.b),as.double(ipcwTimes.b),as.double(IPCW.subjectTimes.b),as.integer(NV),as.integer(NT),as.integer(ipcw$dim),as.integer(NROW(pred.b)>1),NAOK=TRUE,PACKAGE="pec")$resid,ncol=NT,byrow=FALSE)
+            matrix(.C("pecResidualsCR",
+                      pec=double(NT),
+                      resid=double(NT*NV),
+                      as.double(Y[vindex.b]),
+                      as.double(status[vindex.b]),
+                      as.double(event[vindex.b]),
+                      as.double(times),
+                      as.double(pred.b),
+                      as.double(ipcwTimes.b),
+                      as.double(IPCW.subjectTimes.b),
+                      as.integer(NV),
+                      as.integer(NT),
+                      as.integer(ipcw$dim),
+                      as.integer(is.null(dim(pred.b))),
+                      NAOK=TRUE,
+                      PACKAGE="pec")$resid,ncol=NT,byrow=FALSE)
           }
           else{
             matrix(.C("pecResiduals",
@@ -145,7 +160,7 @@ bootstrapCrossValidation <- function(object,
                       as.integer(NV),
                       as.integer(NT),
                       as.integer(ipcw$dim),
-                      as.integer(NROW(pred.b)>1),
+                      as.integer(is.null(dim(pred.b))),
                       NAOK=TRUE,
                       PACKAGE="pec")$resid,ncol=NT,byrow=FALSE)
           }
@@ -160,7 +175,21 @@ bootstrapCrossValidation <- function(object,
           NA
         else{
           if (predictHandlerFun=="predictEventProb")
-            pecOut <- .C("pecCR",pec=double(NT),as.double(Y[vindex.b]),as.double(status[vindex.b]),as.double(event[vindex.b]),as.double(times),as.double(pred.b),as.double(ipcwTimes.b),as.double(IPCW.subjectTimes.b),as.integer(NV),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred.b))),NAOK=TRUE,PACKAGE="pec")$pec
+            pecOut <- .C("pecCR",
+                         pec=double(NT),
+                         as.double(Y[vindex.b]),
+                         as.double(status[vindex.b]),
+                         as.double(event[vindex.b]),
+                         as.double(times),
+                         as.double(pred.b),
+                         as.double(ipcwTimes.b),
+                         as.double(IPCW.subjectTimes.b),
+                         as.integer(NV),
+                         as.integer(NT),
+                         as.integer(ipcw$dim),
+                         as.integer(is.null(dim(pred.b))),
+                         NAOK=TRUE,
+                         PACKAGE="pec")$pec
           else
             pecOut <- .C("pec",pec=double(NT),as.double(Y[vindex.b]),as.double(status[vindex.b]),as.double(times),as.double(pred.b),as.double(ipcwTimes.b),as.double(IPCW.subjectTimes.b),as.integer(NV),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred.b))),NAOK=TRUE,PACKAGE="pec")$pec
         }
