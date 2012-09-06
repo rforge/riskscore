@@ -56,6 +56,7 @@ pec(object,...)
                      confLevel=0.95,
                      verbose=TRUE,
                      savePath=NULL,
+                     slaveseed=NULL,
                      ...)
 
 \method{pec}{coxph}(object,...)
@@ -267,6 +268,9 @@ pec(object,...)
   }
   \item{savePath}{Place in your filesystem (directory) where training models fitted during
     cross-validation are saved. If \code{missing} training models are not saved.
+  }
+  \item{slaveseed}{
+    Vector of seeds, as long as \code{B}, to be given to the slaves in parallel computing.
   }
   \item{...}{Not used.}
 }
