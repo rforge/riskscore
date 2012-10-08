@@ -1,6 +1,6 @@
 predictEventProb.rsf <- function(object,newdata,times,cause,...){
   require(randomSurvivalForest)
-  class(object) <- c("rsf", "grow")
+  ## class(object) <- c("rsf", "grow")
   ensbCHF <- predict.rsf(object, test=newdata)
   getCIF <- competing.risk(ensbCHF, plot=FALSE)$cif.ensb
   if (missing(cause)) cause <- 1
