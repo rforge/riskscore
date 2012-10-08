@@ -1,4 +1,3 @@
-
 # methods for competing risk regression
 # --------------------------------------------------------------------
 
@@ -8,7 +7,16 @@ predictEventProb <- function(object,newdata,times,cause,...){
 
 predictEventProb.matrix <- function(object,newdata,times,...){
   if (NROW(object) != NROW(newdata) || NCOL(object) != length(times)){
-    stop(paste("Prediction matrix has wrong dimensions: ",NROW(object)," rows and ",NCOL(object)," columns.\n But requested are predicted probabilities for ",NROW(newdata), " subjects (rows) in newdata and ",NCOL(newdata)," time points (columns)",sep=""))
+    stop(paste("Prediction matrix has wrong dimensions: ",
+               NROW(object),
+               " rows and ",
+               NCOL(object),
+               " columns.\n But requested are predicted probabilities for ",
+               NROW(newdata),
+               " subjects (rows) in newdata and ",
+               length(times),
+               " time points (columns)",
+               sep=""))
   }
   object
 }

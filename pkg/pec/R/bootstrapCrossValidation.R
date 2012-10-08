@@ -60,7 +60,7 @@ bootstrapCrossValidation <- function(object,
     # {{{ Building the models in training data
     if (!is.null(seed)) {
       set.seed(seed)
-      if (verbose) message("seed:",seed)
+      ## if (verbose) message("seed:",seed)
     }
     trainModels <- lapply(1:NF,function(f){
       fit.b <- internalReevalFit(object=object[[f]],data=train.b,step=b,silent=FALSE,verbose=verbose)

@@ -321,7 +321,7 @@ cindex.list <- function(object,
   names(AppCindex) <- names(object)
   names(AppPairs) <- names(object)
   names(AppConcordant) <- names(object)
-
+  
   # }}}
   # {{{ ----------------------BootstrapCrossValidation----------------------
 

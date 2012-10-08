@@ -4,6 +4,7 @@ pec <- function(object,...){
 
 
 # {{{ header pec.list
+
 pec.list <- function(object,
                      formula,
                      data,
@@ -38,6 +39,7 @@ pec.list <- function(object,
                      slaveseed=NULL,
                      ...)
 {
+
   # }}}
   # {{{ checking integrity some arguments
   theCall=match.call()
@@ -57,8 +59,8 @@ pec.list <- function(object,
   # {{{ formula
 
   if (missing(formula)){
-    formula <- eval(object[[1]]$call$formula)
-    if (match("formula",class(formula),nomatch=0)==0)
+    ftry <- try(formula <- eval(object[[1]]$call$formula),silent=TRUE)
+    if ((class(ftry)=="try-error") || match("formula",class(formula),nomatch=0)==0)
       stop("Argument formula is missing.")
     else if (verbose)
       warning("Formula missing. Using formula from first model")
@@ -93,6 +95,7 @@ pec.list <- function(object,
   
   # }}}
   # {{{ response
+
   histformula <- formula
   if (histformula[[2]][[1]]==as.name("Surv")){
     histformula[[2]][[1]] <- as.name("Hist")
@@ -118,6 +121,7 @@ pec.list <- function(object,
 
   # }}}
   # {{{ prediction models
+
   if (reference==TRUE) {
     ProdLimform <- reformulate("1",response=formula[[2]])
     ## environment(ProdLimform) <- NULL
@@ -126,9 +130,9 @@ pec.list <- function(object,
     ProdLimfit$formula <- NULL
     ProdLimfit$call$formula=ProdLimform
     if (model.type=="competing.risks")
-      object <- c(list(AalenJohansen=ProdLimfit),object)
+      object <- c(list(Reference=ProdLimfit),object)
     else
-      object <- c(list(KaplanMeier=ProdLimfit),object)
+      object <- c(list(Reference=ProdLimfit),object)
   }
   if (is.null(names(object))){
     names(object) <- sapply(object,function(o)class(o)[1])
@@ -185,7 +189,6 @@ pec.list <- function(object,
   }
   # }}}      
   # {{{ find maxtime, start, and jumptimes in the range of the response 
-
   if (missing(maxtime) || is.null(maxtime))
     maxtime <- unique.Y[NU]
   if (missing(start))
@@ -277,20 +280,7 @@ pec.list <- function(object,
     else{
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
-      .C("pec",
-         pec=double(NT),
-         as.double(Y),
-         as.double(status),
-         as.double(times),
-         as.double(pred),
-         as.double(ipcw$IPCW.times),
-         as.double(ipcw$IPCW.subjectTimes),
-         as.integer(N),
-         as.integer(NT),
-         as.integer(ipcw$dim),
-         as.integer(is.null(dim(pred))),
-         NAOK=TRUE,
-         PACKAGE="pec")$pec
+      .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
     }
   })
 

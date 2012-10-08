@@ -380,7 +380,12 @@ pec(object,...)
   \item{splitMethod}{The splitMethod used for estimation of the overfitting bias.}
 }
 
-\references{E. Graf et al.  (1999),
+\references{
+  Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012). Evaluating Random Forests
+  for Survival Analysis Using Prediction Error Curves. Journal of Statistical Software,
+  50(11), 1-23. URL http://www.jstatsoft.org/v50/i11/.
+  
+  E. Graf et al.  (1999),
   Assessment and comparison of prognostic classification schemes for
   survival data. Statistics in Medicine, vol 18, pp= 2529--2545.
 

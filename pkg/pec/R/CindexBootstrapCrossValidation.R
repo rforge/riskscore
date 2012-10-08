@@ -60,9 +60,9 @@ CindexBootstrapCrossValidation <- function(object,
     }
     # }}}
     # {{{ Building the models in training data
- if (!is.null(seed)) {
+    if (!is.null(seed)) {
       set.seed(seed)
-      ## if (verbose) message("seed:",seed)
+      message("seed:",seed)
     }
     trainModels <- lapply(1:NF,function(f){
       fit.b <- internalReevalFit(object=object[[f]],
@@ -106,6 +106,8 @@ CindexBootstrapCrossValidation <- function(object,
       else{
         try2predict <- try(pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=pred.times,train.data=train.b),extraArgs)))
       }
+      browser()
+      print(pred.b[1:5])
       if (inherits(try2predict,"try-error")==TRUE){
         if (verbose==TRUE) warning(paste("During bootstrapping: prediction for model ",class(fit.b)," failed in step ",b),immediate.=TRUE)
         NULL}
@@ -132,7 +134,8 @@ CindexBootstrapCrossValidation <- function(object,
         }
       })
       names(Residuals) <- names(object)
-      PredCindexStepB=lapply(Residuals,function(x){colMeans(x)})
+      ## PredCindexStepB=lapply(Residuals,function(x){colMeans(x)})
+      PredCindexStepB=1
     }
     else{
       PredCindexStepB <- lapply(predVal,function(pred.b){
@@ -193,7 +196,6 @@ CindexBootstrapCrossValidation <- function(object,
   else{
     Looping <- lapply(1:B,function(b){step(b,seed=NULL)})
   }
-  
   # }}}
   # {{{ output
   ## 
@@ -219,7 +221,8 @@ CindexBootstrapCrossValidation <- function(object,
   out <- list(BootstrapCrossValCindex=BootstrapCrossValCindex)
   ## 
   ##   3. the results of B residual tests 
-  ##   
+  ##
+  ##   print(str(Looping))
   if (multiSplitTest==TRUE){
     out$testedResid <- lapply(Looping,function(x)x$testedResid)
   }
