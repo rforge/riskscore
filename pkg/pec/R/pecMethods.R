@@ -2,7 +2,6 @@ pec <- function(object,...){
   UseMethod("pec",object=object)
 }
 
-
 # {{{ header pec.list
 
 pec.list <- function(object,
