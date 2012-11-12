@@ -76,7 +76,6 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
   N <- NROW(newdata)
   NC <- length(object$model)
   eTimes <- object$eventTimes
-  ## browser()
   if (missing(cause))
     cause <- object$theCause
   causes <- object$causes
