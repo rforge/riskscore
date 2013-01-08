@@ -212,7 +212,7 @@ ipcw.cox <- function(formula,data,method,times,subjectTimes,subjectTimesLag,what
   if (missing(subjectTimesLag)) subjectTimesLag=1
   if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
   call <- match.call()
-  require(rms)
+  ## require(rms)
   status.name <- all.vars(formula)[2]
   reverse.data <- data
   reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
@@ -260,7 +260,7 @@ ipcw.aalen <- function(formula,data,method,times,subjectTimes,subjectTimesLag,wh
   if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
   call <- match.call()
   require(timereg)
-  require(rms)
+  ## require(rms)
   status.name <- all.vars(formula)[2]
   reverse.data <- data
   reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)

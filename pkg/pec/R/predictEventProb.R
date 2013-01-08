@@ -22,7 +22,7 @@ predictEventProb.matrix <- function(object,newdata,times,...){
 }
 
 predictEventProb.prodlim <- function(object,newdata,times,cause,...){
-  require(prodlim)
+  ## require(prodlim)
   p <- predict(object=object,cause=cause,type="cuminc",newdata=newdata,times=times,mode="matrix",level.chaos=1)
   ## if the model has no covariates
   ## then all cases get the same prediction
@@ -120,7 +120,7 @@ predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
 }
 
 coxboost <- function(formula,data,...){
-  require(CoxBoost)
+  ## require(CoxBoost)
   call <- match.call()
   formula <- eval(call$formula)
   mf <- model.frame(formula,data)
@@ -128,7 +128,7 @@ coxboost <- function(formula,data,...){
   Time <- as.numeric(resp[,"time"])
   Status <- as.numeric(resp[,"event"])
   cov <- as.matrix(mf[,-1])
-  cb <- CoxBoost(time=Time,status=Status,x=cov,...)    
+  cb <- CoxBoost::CoxBoost(time=Time,status=Status,x=cov,...)    
   out <- list(coxboost=cb,call=call,covID=cb$xnames)
   class(out) <- "coxboost"
   out

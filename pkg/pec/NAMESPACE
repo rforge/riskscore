@@ -18,6 +18,8 @@ export("pec",
        "plotPredictEventProb",
        "coxboost")
 
+import(prodlim,rms,foreach,survival)
+
 S3method(cindex,default)
 S3method(cindex,list)
 

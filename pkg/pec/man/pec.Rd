@@ -422,6 +422,7 @@ pec(object,...)
 # with survival response and two predictors
 
 set.seed(130971)
+library(prodlim)
 dat <- SimSurv(300)
 
 # fit some candidate Cox models and compute the Kaplan-Meier estimate 
