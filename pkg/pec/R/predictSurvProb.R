@@ -324,7 +324,7 @@ predictSurvProb.riskRegression <- function(object,newdata,times,...){
 }
 
 predictSurvProb.rfsrc <- function(object, newdata, times, ...){
-  ptemp <- predict(object,newdata=newdata,...)$survival
+  ptemp <- predict(object,newdata=newdata,importance="none",...)$survival
   pos <- sindex(jump.times=object$time.interest,eval.times=times)
   p <- cbind(1,ptemp)[,pos+1]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
