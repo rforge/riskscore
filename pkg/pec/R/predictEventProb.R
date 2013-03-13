@@ -127,8 +127,26 @@ coxboost <- function(formula,data,...){
   resp <- model.response(mf)
   Time <- as.numeric(resp[,"time"])
   Status <- as.numeric(resp[,"event"])
-  cov <- as.matrix(mf[,-1])
-  cb <- CoxBoost::CoxBoost(time=Time,status=Status,x=cov,...)    
+  x <- as.matrix(mf[,-1])
+  ## X <- model.matrix(update.formula(formula,NULL~.),data=data)[,-1] ## remove intercept
+  ## browser()
+  cb <- CoxBoost::CoxBoost(time=Time,status=Status,x=x,...) 
+  out <- list(coxboost=cb,call=call,covID=cb$xnames)
+  class(out) <- "coxboost"
+  out
+}
+
+coxboost2 <- function(formula,data,...){
+  call <- match.call()
+  formula <- eval(call$formula)
+  mf <- model.frame(formula,data)
+  resp <- model.response(mf)
+  Time <- as.numeric(resp[,"time"])
+  Event <- as.numeric(resp)
+  Status <- as.numeric(resp[,"status"])
+  x <- as.matrix(mf[,-1])
+  Event[Status==0] <- 0
+  cb <- CoxBoost::CoxBoost(time=Time,status=Status,x=x,...) 
   out <- list(coxboost=cb,call=call,covID=cb$xnames)
   class(out) <- "coxboost"
   out

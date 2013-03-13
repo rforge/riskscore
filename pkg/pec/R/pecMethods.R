@@ -361,7 +361,30 @@ pec.list <- function(object,
     if (missing(testTimes)){
       testTimes <- NULL
     }
-    BootCv <- bootstrapCrossValidation(object=object,data=data,Y=Y,status=status,event=event,times=times,cause=cause,ipcw=ipcw,ipcw.refit=ipcw.refit,ipcw.call=ipcw.call,splitMethod=splitMethod,multiSplitTest=multiSplitTest,testIBS=testIBS,testTimes=testTimes,confInt=confInt,confLevel=confLevel,getFromModel=model.parms,giveToModel=model.args,predictHandlerFun=predictHandlerFun,keepMatrix=keep.matrix,keepResiduals=keep.residuals,verbose=verbose,savePath=savePath,slaveseed=slaveseed)
+    BootCv <- bootstrapCrossValidation(object=object,
+                                       data=data,
+                                       Y=Y,
+                                       status=status,
+                                       event=event,
+                                       times=times,
+                                       cause=cause,
+                                       ipcw=ipcw,
+                                       ipcw.refit=ipcw.refit,
+                                       ipcw.call=ipcw.call,
+                                       splitMethod=splitMethod,
+                                       multiSplitTest=multiSplitTest,
+                                       testIBS=testIBS,
+                                       testTimes=testTimes,
+                                       confInt=confInt,
+                                       confLevel=confLevel,
+                                       getFromModel=model.parms,
+                                       giveToModel=model.args,
+                                       predictHandlerFun=predictHandlerFun,
+                                       keepMatrix=keep.matrix,
+                                       keepResiduals=keep.residuals,
+                                       verbose=verbose,
+                                       savePath=savePath,
+                                       slaveseed=slaveseed)
     BootstrapCrossValErr <- BootCv$BootstrapCrossValErr
     Residuals <- BootCv$Residuals
     names(BootstrapCrossValErr) <- names(object)

@@ -52,6 +52,15 @@ See \code{\link{predictSurvProb}}.
 \seealso{
   See \code{\link{predictSurvProb}}.
 }
-% \examples{
-% }
+\examples{
+\dontrun{
+library(pec)
+library(CoxBoost)
+library(survival)
+train <- prodlim:::SimCompRisk(100)
+test <- prodlim:::SimCompRisk(10)
+cb.fit <- coxboost(Hist(time,cause)~X1+X2,data=train,stepno=100)
+predictEventProb(cb.fit,newdata=test,times=seq(1:10),cause=1)
+}
+}
 \keyword{survival}

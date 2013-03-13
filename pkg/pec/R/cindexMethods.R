@@ -326,38 +326,22 @@ cindex.list <- function(object,
   names(AppConcordant) <- names(object)
   
   # }}}
-  # {{{ ----------------------BootstrapCrossValidation----------------------
+  # {{{--------------k-fold and leave-one-out CrossValidation-----------------------
+  
+  if (splitMethod$internal.name %in% c("crossval","loocv")){
+    kCV <- kFoldCrossValidation(object=object,data=data,Y=Y,status=status,event=event,times=times,cause=cause,ipcw=ipcw,splitMethod=splitMethod,giveToModel=model.args,predictHandlerFun=predictHandlerFun,keep=keep.matrix,verbose=verbose)
+    CrossValErr <- kCV$CrossValErr
+    if (keep.matrix && B>1)
+      CrossValErrMat <- kCV$CrossValErrMat
+  }
 
+  # }}}
+# {{{ ----------------------BootstrapCrossValidation----------------------
   if (splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632")){
     if (missing(testTimes)){
       testTimes <- NULL
     }
-    BootCv <- CindexBootstrapCrossValidation(object=object,
-                                             data=data,
-                                             Y=Y,
-                                             status=status,
-                                             event=event,
-                                             eval.times=eval.times,
-                                             pred.times=pred.times,
-                                             cause=cause,
-                                             weights=weights,
-                                             ipcw.refit=ipcw.refit,
-                                             ipcw.call=ipcw.call,
-                                             splitMethod=splitMethod,
-                                             multiSplitTest=multiSplitTest,
-                                             testTimes=testTimes,
-                                             confInt=confInt,
-                                             confLevel=confLevel,
-                                             getFromModel=model.parms,
-                                             giveToModel=model.args,
-                                             predictHandlerFun=predictHandlerFun,
-                                             tiedPredictionsIn=tiedPredictionsIn,
-                                             tiedOutcomeIn=tiedOutcomeIn,
-                                             tiedMatchIn=tiedMatchIn,
-                                             keepMatrix=keep.matrix,
-                                             keepResiduals=keep.residuals,
-                                             verbose=verbose,
-                                             savePath=savePath,slaveseed=slaveseed)
+    BootCv <- CindexBootstrapCrossValidation(object=object,data=data,Y=Y,status=status,event=event,eval.times=eval.times,pred.times=pred.times,cause=cause,weights=weights,ipcw.refit=ipcw.refit,ipcw.call=ipcw.call,splitMethod=splitMethod,multiSplitTest=multiSplitTest,testTimes=testTimes,confInt=confInt,confLevel=confLevel,getFromModel=model.parms,giveToModel=model.args,predictHandlerFun=predictHandlerFun,tiedPredictionsIn=tiedPredictionsIn,tiedOutcomeIn=tiedOutcomeIn,tiedMatchIn=tiedMatchIn,keepMatrix=keep.matrix,keepResiduals=keep.residuals,verbose=verbose,savePath=savePath,slaveseed=slaveseed)
     BootstrapCrossValCindex <- BootCv$BootstrapCrossValCindex
     Residuals <- BootCv$Residuals
     names(BootstrapCrossValCindex) <- names(object)

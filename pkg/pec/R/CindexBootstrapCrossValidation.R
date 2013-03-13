@@ -124,7 +124,7 @@ CindexBootstrapCrossValidation <- function(object,
       }
     })
     # }}}
-    # {{{ Compute prediction error curves for step b
+    # {{{ Compute cindex  for step b
     if (multiSplitTest==TRUE){
       stop("not yet defined: residual test for cindex")
       Residuals <- lapply(predVal,function(pred.b){
@@ -151,28 +151,7 @@ CindexBootstrapCrossValidation <- function(object,
           NA
         else{
           if (predictHandlerFun=="predictEventProb"){
-            Step.b.CindexResult <- .C("ccr",
-                                      cindex=double(NT),
-                                      concA=double(NT),
-                                      pairsA=double(NT),
-                                      concB=double(NT),
-                                      pairsB=double(NT),
-                                      as.integer(tindex.b),
-                                      as.double(Y.b),
-                                      as.integer(status[vindex.b]),
-                                      as.integer(event[vindex.b]),
-                                      as.double(eval.times),
-                                      as.double(ipcw.b.i),
-                                      as.double(ipcw.b.j),
-                                      as.double(pred.b),
-                                      as.integer(sum(vindex.b)),
-                                      as.integer(NT),
-                                      as.integer(tiedPredictionsIn),
-                                      as.integer(tiedOutcomeIn),
-                                      as.integer(tiedMatchIn),
-                                      as.integer(!is.null(dim(ipcw.b.j))),
-                                      NAOK=TRUE,
-                                      package="pec")
+            Step.b.CindexResult <- .C("ccr",cindex=double(NT),concA=double(NT),pairsA=double(NT),concB=double(NT),pairsB=double(NT),as.integer(tindex.b),as.double(Y.b),as.integer(status[vindex.b]),as.integer(event[vindex.b]),as.double(eval.times),as.double(ipcw.b.i),as.double(ipcw.b.j),as.double(pred.b),as.integer(sum(vindex.b)),as.integer(NT),as.integer(tiedPredictionsIn),as.integer(tiedOutcomeIn),as.integer(tiedMatchIn),as.integer(!is.null(dim(ipcw.b.j))),NAOK=TRUE,package="pec")
             Step.b.Cindex <- Step.b.CindexResult$cindex
             Step.b.PairsA <- Step.b.CindexResult$pairsA
             Step.b.ConcordantA <- Step.b.CindexResult$concA
@@ -181,15 +160,29 @@ CindexBootstrapCrossValidation <- function(object,
             list(Cindex.b=Step.b.Cindex,Pairs.b=list(A=Step.b.PairsA,B=Step.b.PairsB),Concordant.b=list(A=Step.b.ConcordantA,B=Step.b.ConcordantB))
           }
           else{
-            cindexOut <- .C("cindex",cindex=double(NT),conc=double(NT),pairs=double(NT),as.integer(tindex.b),as.double(Y.b),as.integer(status[vindex.b]),as.double(eval.times),as.double(ipcw.b.i),as.double(ipcw.b.j),as.double(pred.b),as.integer(sum(vindex.b)),as.integer(NT),as.integer(tiedPredictionsIn),as.integer(tiedOutcomeIn),as.integer(tiedMatchIn),as.integer(!is.null(dim(ipcw.b.j))),NAOK=TRUE,package="pec")            
-            ## if (b==1) print(ipcw.b.j)
-            ## browser()
+            cindexOut <- .C("cindex",
+                            cindex=double(NT),
+                            conc=double(NT),
+                            pairs=double(NT),
+                            as.integer(tindex.b),
+                            as.double(Y.b),
+                            as.integer(status[vindex.b]),
+                            as.double(eval.times),
+                            as.double(ipcw.b.i),
+                            as.double(ipcw.b.j),
+                            as.double(pred.b),
+                            as.integer(sum(vindex.b)),
+                            as.integer(NT),
+                            as.integer(tiedPredictionsIn),
+                            as.integer(tiedOutcomeIn),
+                            as.integer(tiedMatchIn),
+                            as.integer(!is.null(dim(ipcw.b.j))),
+                            NAOK=TRUE,
+                            package="pec")            
             Cindex.b <- cindexOut$cindex
             Pairs.b <- cindexOut$pairs 
             Concordant.b <- cindexOut$conc
-            list(Cindex.b=Cindex.b,
-                 Pairs.b=Pairs.b,
-                 Concordant.b=Concordant.b)
+            list(Cindex.b=Cindex.b,Pairs.b=Pairs.b,Concordant.b=Concordant.b)
           }
         }
       })

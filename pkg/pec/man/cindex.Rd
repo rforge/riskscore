@@ -318,8 +318,8 @@ harrelC12[["C Index"]]==Cpec$AppCindex[["Cox.X1.X2"]]
  # competing risks 
  #
 # require(lava)
-m <- lvm()
-X <- paste("X",seq(5),sep="")
+% m <- lvm()
+% X <- paste("X",seq(5),sep="")
 
 }
 }
