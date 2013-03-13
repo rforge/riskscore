@@ -150,7 +150,7 @@ coxboost <- function(formula,data,...){
   else{
     Event <- as.numeric(resp[,"status"])
   }
-  X <- model.matrix(update(formula,NULL~.),data=data)
+  X <- model.matrix(update(formula,NULL~.),data=data)[,-1] ## remove intercept
   cb <- CoxBoost::CoxBoost(time=Time,status=Event,x=X,...)
   out <- list(coxboost=cb,call=call,covID=cb$xnames)
   class(out) <- "coxboost"
