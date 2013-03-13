@@ -119,34 +119,39 @@ predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
   p
 }
 
-coxboost <- function(formula,data,...){
-  ## require(CoxBoost)
-  call <- match.call()
-  formula <- eval(call$formula)
-  mf <- model.frame(formula,data)
-  resp <- model.response(mf)
-  Time <- as.numeric(resp[,"time"])
-  Status <- as.numeric(resp[,"event"])
-  x <- as.matrix(mf[,-1])
-  ## X <- model.matrix(update.formula(formula,NULL~.),data=data)[,-1] ## remove intercept
-  ## browser()
-  cb <- CoxBoost::CoxBoost(time=Time,status=Status,x=x,...) 
-  out <- list(coxboost=cb,call=call,covID=cb$xnames)
-  class(out) <- "coxboost"
-  out
-}
+## coxboost <- function(formula,data,...){
+## ## require(CoxBoost)
+## call <- match.call()
+## formula <- eval(call$formula)
+## mf <- model.frame(formula,data)
+## resp <- model.response(mf)
+## Time <- as.numeric(resp[,"time"])
+## Status <- as.numeric(resp[,"event"])
+## x <- as.matrix(mf[,-1])
+## ## X <- model.matrix(update.formula(formula,NULL~.),data=data)[,-1] ## remove intercept
+## ## browser()
+## cb <- CoxBoost::CoxBoost(time=Time,status=Status,x=x,...) 
+## out <- list(coxboost=cb,call=call,covID=cb$xnames)
+## class(out) <- "coxboost"
+## out
+## }
 
-coxboost2 <- function(formula,data,...){
+coxboost <- function(formula,data,...){
   call <- match.call()
   formula <- eval(call$formula)
   mf <- model.frame(formula,data)
   resp <- model.response(mf)
   Time <- as.numeric(resp[,"time"])
-  Event <- as.numeric(resp)
-  Status <- as.numeric(resp[,"status"])
-  x <- as.matrix(mf[,-1])
-  Event[Status==0] <- 0
-  cb <- CoxBoost::CoxBoost(time=Time,status=Status,x=x,...) 
+  if (attr(resp,"model")=="comp.risk"){
+    Event <- as.numeric(resp[,"event"])
+    Status <- as.numeric(resp[,"status"])
+    Event[Status==0] <- 0
+  }
+  else{
+    Event <- as.numeric(resp[,"status"])
+  }
+  X <- model.matrix(update(formula,NULL~.),data=data)
+  cb <- CoxBoost::CoxBoost(time=Time,status=Event,x=X,...)
   out <- list(coxboost=cb,call=call,covID=cb$xnames)
   class(out) <- "coxboost"
   out
