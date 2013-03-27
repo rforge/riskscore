@@ -13,6 +13,7 @@ cindex.list <- function(object,
                         eval.times,
                         pred.times,
                         cause,
+                        lyl=FALSE,
                         cens.model="marginal",
                         ipcw.refit=FALSE,
                         ipcw.limit,
@@ -113,6 +114,9 @@ cindex.list <- function(object,
   censType <- attr(response,"cens.type")
   model.type <- attr(response,"model")
   if (model.type=="competing.risks"){
+    if (lyl==TRUE)
+    predictHandlerFun <- "predictLifeYearsLost"
+    else
     predictHandlerFun <- "predictEventProb"
     if (missing(cause))
       cause <- attr(response,"state")[1]
@@ -122,7 +126,7 @@ cindex.list <- function(object,
     if (survp==TRUE && NCOL(response)!=2) stop("Survival response must have two columns: time and status.")
     predictHandlerFun <- "predictSurvProb"
   }
-  if (predictHandlerFun=="predictEventProb")
+  if (model.type=="competing.risks")
     if (verbose==TRUE) message("Cindex for competing risks")
     # }}}
     # {{{ prediction models
@@ -135,7 +139,7 @@ cindex.list <- function(object,
 
   if (survp){
     neworder <- order(response[,"time"],-response[,"status"])
-    if (predictHandlerFun=="predictEventProb"){
+    if (model.type=="competing.risks"){
       event <- getEvent(response,mode="character")
       event <- event[neworder]
     }
@@ -156,7 +160,7 @@ cindex.list <- function(object,
     status <- rep(1,length(Y))
   }
   ## for competing risks find the cause of interest.
-  if (predictHandlerFun=="predictEventProb"){
+  if (model.type=="competing.risks"){
     availableCauses <- unique(event)
     if (!match(cause, availableCauses,nomatch=FALSE))
       stop("Cause ",cause," is not among the available causes: ",paste(availableCauses,collapse=", "))
@@ -183,7 +187,7 @@ cindex.list <- function(object,
   }
   # }}}
   # {{{  define the prediction time(s) and the evaluation time(s)
-  maxtime <- unique.Y[NU] 
+  maxtime <- unique.Y[NU]
   if (missing(eval.times) || is.infinite(eval.times)){
     ## eval.times <- max(Y) ## maybe less efficient 
     eval.times <- max(Y[status==1])
@@ -214,7 +218,7 @@ cindex.list <- function(object,
         message("No covariates  specified: cens.model coerced to \"marginal\".\n")
       cens.model <- "marginal"}
   }
-  if (predictHandlerFun=="predictEventProb"){
+  if (model.type=="competing.risks"){
     iFormula <- as.formula(paste("Surv(itime,istatus)","~",as.character(formula)[[3]]))
     iData <- data
     iData$itime <- response[,"time"]
@@ -270,7 +274,7 @@ cindex.list <- function(object,
   AppCindexList <- lapply(1:NF,function(f){
     fit <- object[[f]]
     extraArgs <- model.args[[f]]
-    if (predictHandlerFun=="predictEventProb"){
+    if (model.type=="competing.risks"){
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=pred.times,train.data=data,cause=cause),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
       if (length(pred.times)==1 && length(pred.times)<length(eval.times))
@@ -292,8 +296,6 @@ cindex.list <- function(object,
       if (length(pred.times)==1 && length(pred.times)<length(eval.times))
         pred <- rep(pred,length(eval.times))
       AppCindexResult <- .C("cindex",cindex=double(NT),conc=double(NT),pairs=double(NT),as.integer(tindex),as.double(Y),as.integer(status),as.double(eval.times),as.double(weight.i),as.double(weight.j),as.double(pred),as.integer(N),as.integer(NT),as.integer(tiedPredictionsIn),as.integer(tiedOutcomeIn),as.integer(tiedMatchIn),as.integer(!is.null(dim(weight.j))),NAOK=TRUE,package="pec")
-      ## print(weight.j)
-      ## browser()
       AppCindex <- AppCindexResult$cindex
       AppPairs <- AppCindexResult$pairs
       AppConcordant <- AppCindexResult$conc

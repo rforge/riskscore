@@ -15,7 +15,9 @@ selectFGR(object, event, data, rule = "AIC", direction="backward")
   \item{object}{A Fine & Gray model fitted with the '\code{FGR}-function', including all the variables for stepwise selection (\code{cencode} must be 0).}
   \item{event}{Integer variable that denotes type of failure for each person, also see \code{crrstep}.}
   \item{data}{Name of a data frame containing all needed variables.}
-  \item{rule}{Rule to pass on to crrstep ("AIC", "BIC" or "BICcr"), also see \code{crrstep} \code{crrstep}}
+  \item{rule}{Rule to pass on to crrstep ("AIC", "BIC" or "BICcr"), also
+    see \code{crrstep} \code{crrstep}}
+  \item{direction}{see \code{crrstep}}
 }
 \examples{
 \dontrun{

@@ -4,6 +4,7 @@
 \alias{predictEventProb.riskRegression}
 \alias{predictEventProb.FGR}
 \alias{predictEventProb.prodlim}
+\alias{predictEventProb.rfsrc}
 \title{
 Predicting event probabilities (cumulative incidences) in competing risk models.
 }

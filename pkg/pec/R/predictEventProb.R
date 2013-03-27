@@ -1,3 +1,4 @@
+
 # methods for competing risk regression
 # --------------------------------------------------------------------
 
@@ -111,6 +112,7 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
 
 predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
   if (missing(cause)) stop("missing cause")
+  if (!is.numeric(cause)) stop("cause is not numeric")
   cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
   pos <- sindex(jump.times=object$time.interest,eval.times=times)
   p <- cbind(0,cif)[,pos+1]
@@ -119,61 +121,6 @@ predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
   p
 }
 
-coxboost <- function(formula,data,cv=TRUE,stepno=200,cause,...){
-  call <- match.call(expand.dots=FALSE)
-  formula.names <- try(all.names(formula),silent=TRUE)
-  if (!(formula.names[2]=="Hist")) stop("The left hand side of formula look like this: Hist(time,event).")
-  actual.terms <- terms(formula,data=data)
-  formula <- eval(call$formula)
-  response <- model.response(model.frame(formula,data))
-  Time <- as.numeric(response[,"time"])
-  if (attr(response,"model")=="competing.risks"){
-    ## adapt the event variable
-    Event <- rep(2,NROW(response))
-    thisCause <- as.numeric(response[,"event"]==cause)
-    Event[thisCause==1] <- 1
-    Status <- as.numeric(response[,"status"])
-    Event[Status==0] <- 0
-  }
-  else{
-    ## survival
-    Event <- as.numeric(response[,"status"])
-  }
-  X <- model.matrix(actual.terms,data=data)[,-c(1)]## remove intercept
-  if (cv==TRUE){
-    cv.step <- cv.CoxBoost(time=Time,status=Event,x=X,maxstepno=stepno,...)
-    step <- cv.step$optimal.step
-  }
-  else{
-    step <- 100
-  }
-  cb <- CoxBoost::CoxBoost(time=Time,status=Event,x=X,stepno=step,...)
-  out <- list(coxboost=cb,
-              stepno=step,
-              call=call,
-              formula=formula,
-              response=response)
-  class(out) <- "coxboost"
-  out
-}
-
-predictEventProb.coxboost <- function(object,newdata,times,cause,...){
-  if (missing(cause)) stop("missing cause")
-  ## if (cause!=1) stop("CoxBoost can only predict cause 1")
-  if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
-  newcova <- model.matrix(terms(object$formula,data=newdata),
-                          data=model.frame(object$formula,data=newdata))[,-c(1)]
-  p <- predict(object$coxboost,newdata=newcova,type="CIF",times=times)
-  if (is.null(dim(p))) {
-    if (length(p)!=length(times))
-      stop("Prediction failed")
-  }
-  else{
-    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-      stop("Prediction failed")
-  }
-  p
-}
 
 ## predictUpdateProb.CSC <- function (object, newdata,times,horizon, cause, ...) {
   ## survtype <- object$survtype

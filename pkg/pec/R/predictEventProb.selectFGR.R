@@ -6,7 +6,6 @@
 #Date: 24-02-2013
 
 selectFGR <- function(object,event,data,rule="AIC",direction="backward"){
-  
   if (!require(riskRegression)) stop("This function requires library riskRegression")
   if (!require(crrstep)) stop("This function requires library crrstep")
   crrstep.form <- reformulate(paste(object$call[[2]][3]),response=all.vars(as.formula(object$call[2]))[1])
