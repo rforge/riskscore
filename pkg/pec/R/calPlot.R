@@ -22,6 +22,7 @@ calPlot <- function(object,
                     pch,
                     cause=1,
                     percent=TRUE,
+                    na.action=na.fail,
                     ...){
   
   # {{{ find number of objects and lines
@@ -64,7 +65,7 @@ calPlot <- function(object,
     else if (verbose)
       warning("Argument formula is missing. I use the formula from the call to the first model instead.")
   }
-  m <- model.frame(formula,data,na.action=na.fail)
+  m <- model.frame(formula,data,na.action=na.action)
   response <- model.response(m)
   if (match("Surv",class(response),nomatch=FALSE))
     model.type <- "survival"

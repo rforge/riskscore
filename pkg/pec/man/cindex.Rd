@@ -48,6 +48,7 @@ cindex(object,...)
                         verbose=TRUE,
                         savePath=NULL,
                         slaveseed=NULL,
+                        na.action=na.fail,
                         ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -233,6 +234,10 @@ Experimental.
   }
     \item{slaveseed}{
     Vector of seeds, as long as \code{B}, to be given to the slaves in parallel computing.
+  }
+  \item{na.action}{
+    Passed immediately to model.frame. Defaults to na.fail. If set
+    otherwise most prediction models will not work. 
   }
   \item{...}{Not used.}
 }

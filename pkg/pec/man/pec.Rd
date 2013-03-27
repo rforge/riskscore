@@ -57,6 +57,7 @@ pec(object,...)
                      verbose=TRUE,
                      savePath=NULL,
                      slaveseed=NULL,
+                     na.action=na.fail,
                      ...)
 
 \method{pec}{coxph}(object,...)
@@ -271,6 +272,10 @@ pec(object,...)
   }
   \item{slaveseed}{
     Vector of seeds, as long as \code{B}, to be given to the slaves in parallel computing.
+  }
+  \item{na.action}{
+    Passed immediately to model.frame. Defaults to na.fail. If set
+    otherwise most prediction models will not work. 
   }
   \item{...}{Not used.}
 }

@@ -36,6 +36,7 @@ pec.list <- function(object,
                      verbose=TRUE,
                      savePath=NULL,
                      slaveseed=NULL,
+                     na.action=na.fail,
                      ...)
 {
 
@@ -101,7 +102,8 @@ pec.list <- function(object,
   if (histformula[[2]][[1]]==as.name("Surv")){
     histformula[[2]][[1]] <- as.name("Hist")
   }
-  m <- model.frame(histformula,data,na.action=na.fail)
+  ## m <- model.frame(histformula,data,na.action=na.fail)
+  m <- model.frame(histformula,data,na.action=na.action)
   response <- model.response(m)
   if (match("Surv",class(response),nomatch=0)!=0){
     attr(response,"model") <- "survival"
