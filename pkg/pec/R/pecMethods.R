@@ -45,7 +45,7 @@ pec.list <- function(object,
 
   theCall=match.call()
   if (match("replan",names(theCall),nomatch=FALSE))
-    stop("Argument name 'replan' has been replaced by 'splitMethod'.")
+    stop("The argument name 'replan' has been replaced by 'splitMethod'.")
   
   if (!missing(testIBS) && (!(is.logical(testIBS) || (length(testIBS)==2 && is.numeric(testIBS)))))
     stop("Argument testIBS can be TRUE/FALSE or a vector of two numeric values.")

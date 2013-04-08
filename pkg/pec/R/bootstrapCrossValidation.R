@@ -64,6 +64,7 @@ bootstrapCrossValidation <- function(object,
     }
     trainModels <- lapply(1:NF,function(f){
       fit.b <- internalReevalFit(object=object[[f]],data=train.b,step=b,silent=FALSE,verbose=verbose)
+      
       ## this was a good idea to reduce the memory usage:
       ## fit.b$call <- object[[f]]$call
       ## fit.b$call <- NULL
@@ -105,13 +106,14 @@ bootstrapCrossValidation <- function(object,
     predVal <- lapply(1:NF,function(f){
       fit.b <- trainModels[[f]]
       extraArgs <- giveToModel[[f]]
-      if (predictHandlerFun == "predictEventProb"){      
+      if (predictHandlerFun == "predictEventProb"){
         try2predict <- try(pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=times,cause=cause,train.data=train.b),extraArgs)))
       }
       else{
         try2predict <- try(pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=times,train.data=train.b),extraArgs)))
       }
       if (inherits(try2predict,"try-error")==TRUE){
+        browser()
         if (verbose==TRUE) warning(paste("During bootstrapping: prediction for model ",class(fit.b)," failed in step ",b),immediate.=TRUE)
         NULL}
       else{
