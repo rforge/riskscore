@@ -292,7 +292,10 @@ cindex.list <- function(object,
            AppConcordant=list(A=AppConcordantA,B=AppConcordantB))
     }
     else{
-      pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=pred.times,train.data=data),extraArgs))
+      pred <- do.call(predictHandlerFun,c(list(object=fit,
+                                               newdata=data,
+                                               times=pred.times,
+                                               train.data=data),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,]
       if (length(pred.times)==1 && length(pred.times)<length(eval.times))
         pred <- rep(pred,length(eval.times))
@@ -430,7 +433,7 @@ cindex.list <- function(object,
     outmodels <- object
   else if (keep.models=="Call"){
     outmodels <- lapply(object,function(o){
-      cc <- try(o$call,silent=TRUE)
+      cc <- try(as.character(o$call),silent=TRUE)
       if(class(cc)=="try-error")
         class(o)
       else
@@ -442,7 +445,6 @@ cindex.list <- function(object,
     outmodels <- names(object)
     names(outmodels) <- names(object)
   }
-  
   out <- c(out,list(call=theCall,
                     time=eval.times,
                     pred.time=pred.times,

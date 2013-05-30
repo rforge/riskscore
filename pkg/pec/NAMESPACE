@@ -18,6 +18,7 @@ export("pec",
        "plotPredictSurvProb",
        "plotPredictEventProb",
        "selectFGR",
+       "simCost",
        "coxboost")
 
 import(prodlim,foreach,survival)

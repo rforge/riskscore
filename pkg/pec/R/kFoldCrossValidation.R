@@ -27,7 +27,7 @@ kFoldCrossValidation <- function(object,
     ## the prediction `p[i]' is obtained with the reduced data
     if (k==N-1) k <- N
     subjectPred <- lapply(1:k,function(g){
-      internalTalk(g,k)
+    if (verbose==TRUE) internalTalk(g,k)
       # {{{ training and validation data
       id <- groups==g
       train.k <- data[!id,,drop=FALSE]

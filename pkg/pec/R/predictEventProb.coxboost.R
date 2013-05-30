@@ -1,5 +1,5 @@
-coxboost <- function(formula,data,cv=TRUE,cause,...){
-  call <- match.call(expand.dots=FALSE)
+coxboost <- function(formula,data,cv=TRUE,cause,penalty,...){
+  call <- match.call(expand.dots=TRUE)
   formula.names <- try(all.names(formula),silent=TRUE)
   if (!(formula.names[2]=="Hist")) stop("The left hand side of formula look like this: Hist(time,event).")
   actual.terms <- terms(formula,data=data)
@@ -20,8 +20,9 @@ coxboost <- function(formula,data,cv=TRUE,cause,...){
   }
   X <- model.matrix(actual.terms,data=data)[,-c(1),drop=FALSE]## remove intercept
   if (NCOL(X)<=1) stop("CoxBoost needs at least two covariates.")
-  cv.defaults=list(maxstepno=200,K=10)
-  CoxBoost.defaults=list(stepno=100)
+  if (missing(penalty)) penalty <- sum(Event==1)*(9)
+  cv.defaults=list(maxstepno=200,K=10,penalty=penalty)
+  CoxBoost.defaults=list(stepno=100,penalty=penalty)
   args <- SmartControl(call= list(...),
                        keys=c("cv","CoxBoost"),
                        ignore=c("formula","data","cv","cause"),

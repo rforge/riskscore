@@ -20,4 +20,3 @@ stopifnot(round(summary(fitpec$Boot632plusErr[[2]]),4)==c(0,0.1321,0.1712,0.1641
 ## f1 <- cph(Surv(time,status)~age+sex,data=cost,surv=TRUE)
 ## x <- pec(list("Cox"=f1),formula=Surv(time,status)~1,data=cost,B=10,splitMethod="cv10",keep.index=TRUE,keep.matrix=TRUE)
 
-

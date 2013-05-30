@@ -144,7 +144,7 @@ pec.list <- function(object,
     names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])
   }
   names(object) <- make.names(names(object),unique=TRUE)
-  NF <- length(object) 
+  NF <- length(object)
   # }}}  
   # {{{ sort the data 
 
@@ -229,7 +229,7 @@ pec.list <- function(object,
       cens.model <- "marginal"}
   }
   if (predictHandlerFun=="predictEventProb"){
-    iFormula <- as.formula(paste("Surv(itime,istatus)","~",as.character(formula)[[3]]))
+    iFormula <- as.formula(paste("Surv(itime,istatus)","~",as.character(formula)[[3]]),env=NULL)
     iData <- data
     iData$itime <- response[,"time"]
     iData$istatus <- response[,"status"]
@@ -503,16 +503,18 @@ pec.list <- function(object,
   if (!keep.index) splitMethod$index <- NULL
   n.risk <- N - sindex(Y,times)
   # }}}
-# {{{ put out
+  # {{{ put out
   if(keep.models==TRUE)
     outmodels <- object
   else if (keep.models=="Call"){
     outmodels <- lapply(object,function(o){
-      cc <- try(o$call,silent=TRUE)
+      cc <- try(as.character(o$call),silent=TRUE)
       if(class(cc)=="try-error")
         class(object)
-      else
+      else{
+        names(cc) <- names(o$call)
         cc
+      }
     })
     names(outmodels) <- names(object)
   }
@@ -524,7 +526,7 @@ pec.list <- function(object,
            list(call=theCall,
                 response=model.response(m),
                 time=times,
-                ipcw.fit=ipcw$fit,
+                ## ipcw.fit=as.character(ipcw$fit$call),
                 n.risk=n.risk,
                 models=outmodels,
                 maxtime=maxtime,

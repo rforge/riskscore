@@ -11,8 +11,6 @@ ipcw <- function(formula,
   class(method) <- method
   UseMethod("ipcw",method)
 }
-
-
 ipcw.none <- function(formula,data,method,times,subjectTimes,subjectTimesLag,what){
   if (missing(subjectTimesLag)) subjectTimesLag=1
   if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
@@ -39,7 +37,6 @@ ipcw.none <- function(formula,data,method,times,subjectTimes,subjectTimesLag,wha
   }
   else
     IPCW.subjectTimes <- NULL
-  fit <- NULL
   out <- list(times=times,
               IPCW.times=IPCW.times,
               IPCW.subjectTimes=IPCW.subjectTimes,
@@ -126,7 +123,12 @@ ipcw.marginal <- function(formula,data,method,times,subjectTimes,subjectTimesLag
   }
   else
     IPCW.subjectTimes <- NULL
-  out <- list(times=times,IPCW.times=IPCW.times,IPCW.subjectTimes=IPCW.subjectTimes,fit=fit,call=call,method=method)
+  out <- list(times=times,
+              IPCW.times=IPCW.times,
+              IPCW.subjectTimes=IPCW.subjectTimes,
+              fit=fit,
+              call=call,
+              method=method)
   class(out) <- "IPCW"
   out
   ##   locsubjectTimes <- match(subjectTimes,fit$time,nomatch=NA)
