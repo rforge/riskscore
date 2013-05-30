@@ -4,8 +4,12 @@ library(survival)
 library(pec)
 check.code("highScore")
 set.seed(177)
+
+
 d <- SimSurv(10)
 d2 <- prodlim:::SimCompRisk(10)
+
+logit <- glm(status~X1,data=d)
 
 f <- coxph(Surv(time,status)~X1,data=d)
 

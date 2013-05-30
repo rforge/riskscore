@@ -5,6 +5,7 @@ Version: 1.1
 Date: 2011-08-15
 Author: Thomas Alexander Gerds
 Maintainer: Thomas Alexander Gerds <tagteam@sund.ku.dk>
-Description: WriteMe
+Description: Evaluation of risk prediction models 
+Depends: R (>= 1.9.1), prodlim (>= 1.1.3), survival, rms, foreach
 License: Foo
 Packaged: Mon Aug 15 15:58:13 2011 ;tagteam

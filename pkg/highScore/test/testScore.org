@@ -1,0 +1,33 @@
+
+* Binary outcome
+** Training and validation set
+   
+#+BEGIN_SRC R :exports both :results output 
+  library(lava)
+  check.code(highScore)
+  library(ModelGood)
+  library(rms)
+  N <- 300
+  M <- 150
+  m <- lvm()
+  distribution(m,~X1+X3) <- binomial.lvm(p=0.4)
+  distribution(m,~X2) <- normal.lvm(mean=30,sd=10)
+  regression(m) <- Y ~ f(X1,2) + f(X2,-0.033) + f(X3,0.4)
+  distribution(m,~Y) <- binomial.lvm()
+  set.seed(18)
+  train.d <- sim(m,N)
+  test.d <- sim(m,M)
+  f1 <- glm(Y~X1+X2,data=train.d,family=binomial)
+  f2 <- lrm(Y~X1+X2,data=train.d)
+  f3 <- lrm(Y~X1+X2+X3,data=train.d)
+  
+  u <- score(list(f1,f2,f3),data=test.d)
+  system.time(u <- score(list(f1,f2,f3),data=train.d,splitMethod="bootcv"))
+  library(ModelGood)
+  system.time(v <- Brier(list(f1,f2,f3),data=train.d,splitMethod="bootcv",verbose=FALSE))
+  library(doMC)
+  registerDoMC()
+  system.time(u <- score(list(f1,f2,f3),data=train.d,splitMethod="bootcv"))
+  
+#+END_SRC
+   

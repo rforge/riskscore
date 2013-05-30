@@ -1,4 +1,4 @@
-getResponse <- function(formula,refLevel,data,verbose){
+getResponse <- function(formula,event,data,verbose){
   ## case 1: continuous 
   ## case 2: binary
   ## case 3: ordinal
@@ -13,9 +13,9 @@ getResponse <- function(formula,refLevel,data,verbose){
     if (is.factor(response) || length(unique(response))==2){
       response <- factor(response)
       if (length(levels(response))==2) {
-        if (missing(refLevel)) refLevel <- levels(response)[2]
-        ## response <- as.numeric(response==refLevel)
-        attr(response,"refLevel") <- refLevel
+        if (is.null(event)||missing(event)) event <- levels(response)[2]
+        response <- as.numeric(response==event)
+        attr(response,"event") <- event
         attr(response,"model") <- "binary"
       }
       else{
@@ -39,8 +39,8 @@ getResponse <- function(formula,refLevel,data,verbose){
       m <- model.frame(formula=formula,data=data,na.action=na.fail)
       response <- model.response(m)
       ## if (attr(response,"model")=="competing.risks"){
-      ## if (missing(refLevel)) refLevel <- attr(response,"states")[1]
-      ## attr(response,"cause") <- refLevel
+      ## if (missing(event)) event <- attr(response,"states")[1]
+      ## attr(response,"cause") <- event
       ## }
     }
     else{

@@ -2,7 +2,7 @@ getFormula <- function(formula,object,verbose,...){
   if (missing(formula)){
     formula <- eval(object[[1]]$call$formula)
     if (match("formula",class(formula),nomatch=0)==0)
-      stop("Argument formula is missing.")
+      stop("Argument formula is missing with no default.")
     else if (verbose>0)
       warning("Formula missing. Using formula from first model")
   }
