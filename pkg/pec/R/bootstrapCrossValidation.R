@@ -64,7 +64,6 @@ bootstrapCrossValidation <- function(object,
     }
     trainModels <- lapply(1:NF,function(f){
       fit.b <- internalReevalFit(object=object[[f]],data=train.b,step=b,silent=FALSE,verbose=verbose)
-      
       ## this was a good idea to reduce the memory usage:
       ## fit.b$call <- object[[f]]$call
       ## fit.b$call <- NULL

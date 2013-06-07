@@ -121,7 +121,7 @@ pec.list <- function(object,
     if (survp==TRUE && NCOL(response)!=2) stop("Survival response must have two columns: time and status.")
     predictHandlerFun <- "predictSurvProb"
   }
-
+  
   # }}}
   # {{{ prediction models
   if (reference==TRUE) {
@@ -314,6 +314,7 @@ pec.list <- function(object,
       if (verbose==TRUE){
         message("Noinformation error simulation loop (B=",B,")")
       }
+      ## FIXME: need to parallelize noinf
       NoInfErrList <- lapply(1:B,function(b){
         if (verbose==TRUE){
           internalTalk(b,B,sign=".")
