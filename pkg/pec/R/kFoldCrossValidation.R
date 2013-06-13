@@ -27,7 +27,7 @@ kFoldCrossValidation <- function(object,
     ## the prediction `p[i]' is obtained with the reduced data
     if (k==N-1) k <- N
     subjectPred <- lapply(1:k,function(g){
-    if (verbose==TRUE) internalTalk(g,k)
+      if (verbose==TRUE) internalTalk(g,k)
       # {{{ training and validation data
       id <- groups==g
       train.k <- data[!id,,drop=FALSE]
@@ -72,20 +72,7 @@ kFoldCrossValidation <- function(object,
       if (predictHandlerFun=="predictEventProb")
         innerCrossValErr <- .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred.b),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred.b))),NAOK=TRUE,PACKAGE="pec")$pec
       else
-        innerCrossValErr <- .C("pec",
-                               pec=double(NT),
-                               as.double(Y),
-                               as.double(status),
-                               as.double(times),
-                               as.double(pred.b),
-                               as.double(ipcw$IPCW.times),
-                               as.double(ipcw$IPCW.subjectTimes),
-                               as.integer(N),
-                               as.integer(NT),
-                               as.integer(ipcw$dim),
-                               as.integer(is.null(dim(pred.b))),
-                               NAOK=TRUE,
-                               PACKAGE="pec")$pec
+        innerCrossValErr <- .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred.b),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred.b))),NAOK=TRUE,PACKAGE="pec")$pec
       innerCrossValErr
     })
     names(pec) <- names(object)

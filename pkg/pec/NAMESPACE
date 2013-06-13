@@ -10,7 +10,7 @@ export("pec",
        "predictSurvProb",
        "predictEventProb",
        "predictLifeYearsLost",
-       ## "calPlot",
+       "calPlot",
        "selectCox",
        "pecCforest",
        "resolvesplitMethod",
@@ -22,7 +22,8 @@ export("pec",
        "coxboost")
 
 import(prodlim,foreach,survival)
-  
+
+
 S3method(cindex,default)
 S3method(cindex,list)
 

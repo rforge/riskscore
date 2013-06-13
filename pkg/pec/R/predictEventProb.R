@@ -83,24 +83,31 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
   if (survtype=="survival"){
     if (object$theCause!=cause)
       stop("Object can be used to predict cause ",object$theCause," but not ",cause,".\nNote: the cause can be specified in CSC(...,cause=).")
-    }
+  }
   # predict cumulative cause specific hazards
-  cumHaz1 <- -log(predictSurvProb(object$models[[paste("Cause",cause)]],times=eTimes,newdata=newdata))
+  trycumhaz1 <- try(cumHaz1 <- -log(pec:::predictSurvProb(object$models[[paste("Cause",cause)]],times=eTimes,newdata=newdata)),silent=FALSE)
+  if (inherits(trycumhaz1,"try-error")==TRUE)
+    stop("Prediction of cause-specific Cox model failed")
   if (length(eTimes)==1)
     Haz1 <- cumHaz1
   else
     Haz1 <- t(apply(cbind(0,cumHaz1),1,diff))
   if (survtype=="hazard"){
     cumHazOther <- lapply(causes[-match(cause,causes)],function(c){
-      -log(predictSurvProb(object$models[[paste("Cause",c)]],times=eTimes,newdata=newdata))
+      trycumhaz <- try(cumHaz.c <- -log(pec:::predictSurvProb(object$models[[paste("Cause",c)]],times=eTimes,newdata=newdata)),silent=FALSE)
+      if (inherits(trycumhaz,"try-error")==TRUE)
+        stop("Prediction of cause-specific Cox model failed")
+      cumHaz.c
     })
     lagsurv <- exp(-cumHaz1 - Reduce("+",cumHazOther))
     cuminc1 <- t(apply(lagsurv*Haz1,1,cumsum))
   }
   else{
     tdiff <- min(diff(eTimes))/2
-    lagsurv <- pec:::predictSurvProb(object$models[["OverallSurvival"]],times=eTimes-tdiff,newdata=newdata)
-    cuminc1 <- t(apply(lagsurv*Haz1,1,cumsum))
+    trylagsurv <- try(lagsurv <- pec:::predictSurvProb(object$models[["OverallSurvival"]],times=eTimes-tdiff,newdata=newdata),silent=FALSE)
+    if (inherits(trylagsurv,"try-error")==TRUE)
+      stop("Prediction of overall curvival Cox model failed")
+      cuminc1 <- t(apply(lagsurv*Haz1,1,cumsum))
   }
   pos <- sindex(jump.times=eTimes, eval.times=times)
   p <- cbind(0,cuminc1)[,pos+1,drop=FALSE]
