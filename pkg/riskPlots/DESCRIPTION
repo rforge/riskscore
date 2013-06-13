@@ -1,0 +1,9 @@
+Package: riskPlots
+Type: Package
+Title: Risk plots
+Version: 0.0.1
+Date: 10 Jun 2013 (21:03)
+Author: Jeremy, Ulla, Thomas 
+Maintainer: Ulla <ulmo@sund.ku.dk>
+Description: Plots of predicted risks of uncensored and event history (one or more competing risks) data
+License: Foo
