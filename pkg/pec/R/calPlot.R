@@ -6,7 +6,7 @@ calPlot <- function(object,
                     B=1,
                     M,
                     giveToModel=NULL,
-                    method="snne",
+                    method="nne",
                     q=10,
                     outcome=c("pseudo","prodlim"),
                     bandwidth=NULL,
@@ -30,6 +30,7 @@ calPlot <- function(object,
                     cause=1,
                     percent=TRUE,
                     na.action=na.fail,
+                    cores=1,
                     ...){
   
   # {{{ find number of objects and lines
@@ -188,13 +189,15 @@ calPlot <- function(object,
   }
   # }}} 
   # {{{ ----------------------BootstrapCrossValidation----------------------
-
+  
   if (splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632")){
     if (splitMethod$internal.name %in% c("Boot632plus","Boot632")){
       stop("Don't know how to do the 632(+) for the calibration curve.")
     }
     ResampleIndex <- splitMethod$index
-    predframe <- do.call("rbind",lapply(1:B,function(b){
+    ## predframe <- do.call("rbind",lapply(1:B,function(b){
+    ## predframe <- matrix
+    pred.list <- mclapply(1:B,function(b){
       if (verbose==TRUE) internalTalk(b,B)
       jackRefit <- FALSE
       vindex.b <- match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0
@@ -217,116 +220,129 @@ calPlot <- function(object,
         else{
           try2predict <- try(pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=predTime,train.data=train.b),extraArgs)))
         }
+        rm(fit.b)
+        gc()
         if (inherits(try2predict,"try-error")==TRUE){
           rep(NA,NROW(val.b))
         }
-        pred.b}))
+        pred.b
+      }))
       colnames(bootpred) <- names(object)
       cbind(frame.b,bootpred)
-    }))
+    },mc.cores=cores)
+    predframe <- do.call("rbind",pred.list)
+    rm(pred.list)
   }
+
   # }}}
   # }}}
   # {{{ smoothing
-  method <- match.arg(method,c("quantile","snne","loess"))
+  method <- match.arg(method,c("quantile","nne","loess"))
   outcome <- match.arg(outcome,c("pseudo","prodlim"))
   plotFrames <- lapply(1:NF,function(f){
-    p <- predframe[,f+1]
-    jackF <- predframe[,1]
-    switch(method,
-           "quantile"={
-             groups <- quantile(p,seq(0,1,1/q))
-             xgroups <- (groups[-(q+1)]+groups[-1])/2
-             if (outcome=="pseudo"){
-               plotFrame=data.frame(x=xgroups,y=tapply(jackF,cut(p,groups,include.lowest=TRUE),mean))
-             }
-             else{
-               pcut <- cut(p,groups,include.lowest=TRUE)
-               form.pcut <- reformulate("pcut",response=formula[[2]])
-               y <- unlist(predict(prodlim(form.pcut,data=cbind(data,p=pcut)),
-                                   cause=cause,
-                                   newdata=data.frame(pcut=levels(pcut)),
-                                   times=predTime,
-                                   type=ifelse(model.type=="competing.risks","cuminc","surv")))
-               plotFrame=data.frame(x=xgroups,y=y)
-             }
-           },
-           "snne"={
-             if (outcome=="pseudo"){
-               nbh <- meanNeighbors(x=p,y=jackF,bandwidth=bandwidth)
-               plotFrame <- data.frame(x=nbh$uniqueX,y=nbh$averageY)
-             }else{
-               form.p <- reformulate("p",response=formula[[2]])
-               y <- unlist(predict(prodlim(form.p,data=cbind(data,p=p)),
-                                   cause=cause,
-                                   newdata=data.frame(p=sort(p)),
-                                   times=predTime,
-                                   type=ifelse(model.type=="competing.risks","cuminc","surv")))
-               plotFrame <- data.frame(x=sort(p),y=y)
-             }
-           },
-           "loess"={
-             loess.args=NULL
-             loess.DefaultArgs <- list(family="symmetric",control=loess.control(iterations=0),span=.3)
-             pp <- sort(p)
-             lframe <- data.frame(pp=pp,jack=jackF)
-             loess.args <- c(formula=jack~pp,data=lframe,loess.args,loess.DefaultArgs)
-             loess.args <- loess.args[!duplicated(names(loess.args))]
-             smoothJack <- do.call("loess",loess.args)
-             plotFrame <- data.frame(x=pp,y=smoothJack$fitted)
-           })
+      p <- predframe[,f+1]
+      jackF <- predframe[,1]
+      switch(method,
+             "quantile"={
+                 groups <- quantile(p,seq(0,1,1/q))
+                 xgroups <- (groups[-(q+1)]+groups[-1])/2
+                 if (outcome=="pseudo"){
+                     plotFrame=data.frame(x=xgroups,y=tapply(jackF,cut(p,groups,include.lowest=TRUE),mean))
+                 }
+                 else{
+                     pcut <- cut(p,groups,include.lowest=TRUE)
+                     form.pcut <- reformulate("pcut",response=formula[[2]])
+                     y <- unlist(predict(prodlim(form.pcut,data=cbind(data,p=pcut)),
+                                         cause=cause,
+                                         newdata=data.frame(pcut=levels(pcut)),
+                                         times=predTime,
+                                         type=ifelse(model.type=="competing.risks","cuminc","surv")))
+                     plotFrame=data.frame(x=xgroups,y=y)
+                 }
+             },
+             "nne"={
+                 if (outcome=="pseudo"){
+                     ## Round probabilities to 2 digits
+                     ## to avoit memory explosion ...
+                     ## a difference in the 3 digit should
+                     ## not play a role for the patient.
+                     p <- round(p,2)
+                     bw <- neighborhood(apppred[,f+1])$bandwidth
+                     ## print(bw)
+                     nbh <- meanNeighbors(x=p,y=jackF,bandwidth=bw)
+                     plotFrame <- data.frame(x=nbh$uniqueX,y=nbh$averageY)
+                 }else{
+                     form.p <- reformulate("p",response=formula[[2]])
+                     y <- unlist(predict(prodlim(form.p,data=cbind(data,p=p)),
+                                         cause=cause,
+                                         newdata=data.frame(p=sort(p)),
+                                         times=predTime,
+                                         type=ifelse(model.type=="competing.risks","cuminc","surv")))
+                     plotFrame <- data.frame(x=sort(p),y=y)
+                 }
+             },
+             "loess"={
+                 loess.args=NULL
+                 loess.DefaultArgs <- list(family="symmetric",control=loess.control(iterations=0),span=.3)
+                 pp <- sort(p)
+                 lframe <- data.frame(pp=pp,jack=jackF)
+                 loess.args <- c(formula=jack~pp,data=lframe,loess.args,loess.DefaultArgs)
+                 loess.args <- loess.args[!duplicated(names(loess.args))]
+                 smoothJack <- do.call("loess",loess.args)
+                 plotFrame <- data.frame(x=pp,y=smoothJack$fitted)
+             })
   })
   # }}}
   # {{{ plot an empty frame
   if (add==FALSE){
-    do.call("plot",smartA$plot)
-    if (axes){
-      if (percent){
-        if (is.null(smartA$axis2$at)){
-          smartA$axis2$at <- seq(0,1,.25)
-          smartA$axis2$labels <- paste(100*smartA$axis2$at,"%")
-        }
-        else{
-          smartA$axis2$labels <- paste(100*smartA$axis2$at,"%")
-        }
-        if (is.null(smartA$axis1$at)){
-          smartA$axis1$at <- seq(0,1,.25)
-          smartA$axis1$labels <- paste(100*smartA$axis1$at,"%")
-        }
-        else{
-          smartA$axis1$labels <- paste(100*smartA$axis1$at,"%")
-        }
+      do.call("plot",smartA$plot)
+      if (axes){
+          if (percent){
+              if (is.null(smartA$axis2$at)){
+                  smartA$axis2$at <- seq(0,1,.25)
+                  smartA$axis2$labels <- paste(100*smartA$axis2$at,"%")
+              }
+              else{
+                  smartA$axis2$labels <- paste(100*smartA$axis2$at,"%")
+              }
+              if (is.null(smartA$axis1$at)){
+                  smartA$axis1$at <- seq(0,1,.25)
+                  smartA$axis1$labels <- paste(100*smartA$axis1$at,"%")
+              }
+              else{
+                  smartA$axis1$labels <- paste(100*smartA$axis1$at,"%")
+              }
+          }
+          do.call("axis",smartA$axis2)
+          do.call("axis",smartA$axis1)
+          do.call("axis",smartA$axis2)
       }
-      do.call("axis",smartA$axis2)
-      do.call("axis",smartA$axis1)
-      do.call("axis",smartA$axis2)
-    }
-    if (background)
-      do.call("prodlim:::background",smartA$background)
-    if (Grid){
-      if (is.null(smartA$Grid$horizontal) && !is.null(smartA$axis2$at))
-        smartA$Grid$horizontal <- smartA$axis2$at
-      if (is.null(smartA$Grid$vertical) && !is.null(smartA$axis1$at))
-        smartA$Grid$vertical <- smartA$axis1$at
-      do.call("prodlim:::Grid",smartA$Grid)
-    }
+      if (background)
+          do.call("prodlim:::background",smartA$background)
+      if (Grid){
+          if (is.null(smartA$Grid$horizontal) && !is.null(smartA$axis2$at))
+              smartA$Grid$horizontal <- smartA$axis2$at
+          if (is.null(smartA$Grid$vertical) && !is.null(smartA$axis1$at))
+              smartA$Grid$vertical <- smartA$axis1$at
+          do.call("prodlim:::Grid",smartA$Grid)
+      }
   }
   if (diag){
-    segments(x0=0,y0=0,x1=1,y1=1,col="gray77",lwd=2,xpd=FALSE)
+      segments(x0=0,y0=0,x1=1,y1=1,col="gray77",lwd=2,xpd=FALSE)
   }
   ##   do.call("abline",c(list(a=0,b=1),list(col="gray77",lwd=2,xpd=FALSE)))
   # }}}
   # {{{ add lines and pseudovalues
   nix <- lapply(1:NF,function(f){
-    plotFrame <- plotFrames[[f]]
-    with(na.omit(plotFrame),lines(x,y,col=col[f],lwd=lwd[f],lty=lty[f],type=ifelse(method=="quantile","b","l")))
-    ccrgb=as.list(col2rgb(col[f],alpha=TRUE))
-    names(ccrgb) <- c("red","green","blue","alpha")
-    ccrgb$alpha <- jack.density
-    jack.col <- do.call("rgb",c(ccrgb,list(max=255)))
-    if (showPseudo) {
-      points(apppred[,f+1],apppred[,1],col=jack.col)
-    }
+      plotFrame <- plotFrames[[f]]
+      with(na.omit(plotFrame),lines(x,y,col=col[f],lwd=lwd[f],lty=lty[f],type=ifelse(method=="quantile","b","l")))
+      ccrgb=as.list(col2rgb(col[f],alpha=TRUE))
+      names(ccrgb) <- c("red","green","blue","alpha")
+      ccrgb$alpha <- jack.density
+      jack.col <- do.call("rgb",c(ccrgb,list(max=255)))
+      if (showPseudo) {
+          points(apppred[,f+1],apppred[,1],col=jack.col)
+      }
   })
 
   # }}}
