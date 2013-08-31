@@ -40,7 +40,7 @@ ipcw.none <- function(formula,data,method,times,subjectTimes,subjectTimesLag,wha
   out <- list(times=times,
               IPCW.times=IPCW.times,
               IPCW.subjectTimes=IPCW.subjectTimes,
-              fit=fit,
+              ## fit=fit,
               call=call,
               method=method)
   class(out) <- "IPCW"

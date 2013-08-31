@@ -130,7 +130,7 @@ cindex.list <- function(object,
   if (model.type=="competing.risks")
     if (verbose==TRUE) message("Cindex for competing risks")
     # }}}
-    # {{{ prediction models
+  # {{{ prediction models
     NF <- length(object) 
   if (is.null(names(object)))names(object) <- sapply(object,function(o)class(o)[1])
   else{names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])}
@@ -194,11 +194,11 @@ cindex.list <- function(object,
     eval.times <- max(Y[status==1])
   }
   else{
-    tooLate <- sum(eval.times>=maxtime)
+    tooLate <- sum(eval.times>maxtime)
     if (tooLate>0){
       if (verbose)
-        warning(tooLate," eval.times beyond the maximal evaluation time: ",ifelse(maxtime>1,round(maxtime,1),round(maxtime,3)))
-      eval.times <- c(eval.times[eval.times<maxtime],maxtime)
+          warning(tooLate," eval.times beyond the maximal evaluation time: ",ifelse(maxtime>1,round(maxtime,1),round(maxtime,3)))
+      ## eval.times <- c(eval.times[eval.times<maxtime],maxtime)
     }
   }
   if (missing(pred.times))
