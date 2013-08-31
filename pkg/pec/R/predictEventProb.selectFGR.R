@@ -29,8 +29,14 @@ selectFGR <- function(formula,data,cause=1,rule="AIC", direction="backward",...)
   else{
     stop("This does not look like a competing risk setting.\nMaybe there is only one event type in the data?")
   }
-  crrstep.form <- as.formula(update(formula,paste(timevar,"~.")),env=NULL)
-  capture.output(crrstep.fit <- do.call("crrstep",list(formula=crrstep.form,data=data,etype=Event,failcode=cause,cencode=cens.code,trace = FALSE,...)))
+  crrstep.form <- as.formula(update(formula,paste(timevar,"~.")))
+  capture.output(crrstep.fit <- do.call("crrstep",list(formula=crrstep.form,
+                                                       data=data,
+                                                       etype=Event,
+                                                       failcode=cause,
+                                                       cencode=cens.code,
+                                                       trace = FALSE,
+                                                       ...)))
   if (length(crrstep.fit$coefficients)==0){
     newform <- as.formula(update(formula,.~1),env=NULL)
     newfit <- prodlim(newform,data=data)
