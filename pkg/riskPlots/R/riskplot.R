@@ -1,6 +1,6 @@
 
 # get plot obs on the plot
-
+## bla
 
 riskplotTest <- function(object,
                          formula,

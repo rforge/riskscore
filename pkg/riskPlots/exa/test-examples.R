@@ -12,7 +12,7 @@ cost0 <- na.omit(cost)
 fixHorizon=5*365.25
 
 ## source("~/research/riskPlots/R/predictStatusProb.R")
-## source("~/research/riskPlots/R/riskplot.R")
+source("~/research/riskPlots/R/riskplot.R")
 ## source("~/research/riskPlots/R/riskplot.R")
 
 # {{{ Uncensored
@@ -61,18 +61,24 @@ fixCause=1
 fitprf <- pseudoForest(cpForm,data=cost0,cause=fixCause,times=c(0,fixHorizon),ntree=1000,keep.forest=TRUE,replace=FALSE)
 fitcsc <- CSC(cpForm, data=cost0, survtype="hazard")
 
-riskplot(fitcsc,
+riskplotTest(fitcsc,
              Hist(time,cause)~strokeScore+age,
              data=cost0,
              horizon=fixHorizon,
              cause=1)
 
-
-riskplot(fitprf,
+riskplotTest(fitprf,
              Hist(time,cause)~strokeScore+age,
              data=cost0,
              horizon=fixHorizon,
              cause=2)
+x11()
+riskplotTest(fitprf,
+             Hist(time,cause)~strokeScore+age,
+             data=cost0,
+             horizon=fixHorizon,
+             cause=2)
+
 
 
 # }}}
