@@ -147,6 +147,8 @@ predictSurvProb.coxph <- function(object,newdata,times,...){
     ## require(survival)
     ## new feature of the survival package requires that the
     ## original data are included
+    ## f <- function(x) browser()
+    ## f()
     survival.survfit.coxph <- getFromNamespace("survfit.coxph",ns="survival")
     survival.summary.survfit <- getFromNamespace("summary.survfit",ns="survival")
     survfit.object <- survival.survfit.coxph(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
@@ -257,7 +259,7 @@ predict.survfit <- function(object,newdata,times,bytimes=TRUE,fill="last",...){
   }
   else{
     covars <- attr(terms(eval.parent(object$call$formula)),"term.labels")
-    ## if (!all(match(covars,names(newdata),nomatch=FALSE)))
+    if (!all(match(covars,names(newdata),nomatch=FALSE)))
       stop("Not all strata defining variables occur in newdata.")
 
     ## FIXME there are different ways to build strata levels

@@ -274,19 +274,45 @@ pec.list <- function(object,
     ## message(f)
     fit <- object[[f]]
     extraArgs <- model.args[[f]]
-    if (predictHandlerFun=="predictEventProb"){
+    if (predictHandlerFun=="predictEventProb"){ # competing risks
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data,cause=cause),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
       .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
     }
-    else{
+    else{  # survival
       pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
       .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
     }
   })
-
   names(AppErr) <- names(object)
+
+se.Apperr <- lapply(1:NF,function(f){
+    ## message(f)
+    fit <- object[[f]]
+    extraArgs <- model.args[[f]]
+    if (predictHandlerFun=="predictEventProb"){ # competing risks
+        pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data,cause=cause),extraArgs))
+        if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
+        Paulo(as.double(Y),
+              as.double(status),
+              as.double(event),
+              as.double(times),
+              as.double(pred),
+              as.double(ipcw$IPCW.times),
+              as.double(ipcw$IPCW.subjectTimes))
+    }
+    else{  # survival
+        pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
+        if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
+        Paulo(as.double(Y),
+              as.double(status),
+              as.double(times),
+              as.double(pred),
+              as.double(ipcw$IPCW.times),
+              as.double(ipcw$IPCW.subjectTimes))
+    }})
+
 
   # }}}
   # {{{------------------------No information error------------------------

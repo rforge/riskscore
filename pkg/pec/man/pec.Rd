@@ -449,6 +449,20 @@ PredError <- pec(object=Models,
 print(PredError,times=seq(5,30,5))
 summary(PredError)
 plot(PredError,xlim=c(0,30))
+
+# Comparison of Weibull model and Cox model
+\donttest{
+library(survival)
+library(rms)
+library(pec)
+data(pbc)
+f1 <- psm(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
+f2 <- coxph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
+brier <- pec(list("Weibull"=f1,"Cox"=f2),data=pbc,formula=Surv(time,status!=0)~1)
+print(brier)
+plot(brier)
+}
+
 \donttest{
 # compute the .632+ estimate of the generalization error 
 set.seed(17100)
