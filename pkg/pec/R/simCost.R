@@ -1,6 +1,13 @@
+##' Simulate data alike the data from the Copenhagen stroke study (COST) 
+##'
+##' This uses functionality of the lava package.  
+##' @title Simulate COST alike data
+##' @param N Sample size
+##' @return Data frame
+##' @author Thomas Alexander Gerds
+##' @export
 simCost <- function(N){
-  ## library(pec)
-  ## data(cost)
+  require(lava)
   ## psmT <- psm(Surv(time,status)~ age + sex + hypTen + prevStroke + othDisease + alcohol + diabetes + smoke + atrialFib + hemor + strokeScore + cholest,data=cost)
   ## psmCens <- psm(Surv(time,1-status)~1, data=cost)
   psmCens.scale <- 0.04330608

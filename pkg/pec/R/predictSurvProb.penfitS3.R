@@ -46,9 +46,8 @@ penalizedS3 <- function(formula,data,...){
 
 
 penalizedOpt <- function(formula,data=data,...){
-  require(prodlim)
-  argList <- SmartControl(call=list(...),
-                          keys=c("profL1","optL1","penalized"))
+  ## require(prodlim)
+  argList <- SmartControl(call=list(...), keys=c("profL1","optL1","penalized"))
   # {{{ distangle the formula
   ff <- as.character(formula)
   response <- formula(paste(ff[[2]],"~1",sep=""))

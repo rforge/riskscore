@@ -211,11 +211,11 @@ ipcw.nonpar <- function(formula,data,method,times,subjectTimes,subjectTimesLag,w
 
 #reverse Cox via Harrel's package
 ipcw.cox <- function(formula,data,method,times,subjectTimes,subjectTimesLag,what){
+  ## require(rms)
   if (missing(subjectTimesLag)) subjectTimesLag=1
   if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
   call <- match.call()
   environment(call$formula) <- NULL
-  ## require(rms)
   status.name <- all.vars(formula)[2]
   reverse.data <- data
   reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)

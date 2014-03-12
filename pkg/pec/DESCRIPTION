@@ -1,11 +1,89 @@
 Package: pec
 Title: Prediction Error Curves for Survival Models
-Version: 2.3.4
+Version: 2.3.5
 Author: Thomas A. Gerds
-Description: Validation of predicted survival probabilities using inverse weighting and resampling. 
-Depends: R (>= 1.9.1), prodlim (>= 1.1.3), survival, rms, lava
-Imports: foreach
-Suggests: timereg, randomForestSRC, party, rpart, cmprsk, doMC, CoxBoost, crrstep, riskRegression
+Description: Validation of predicted survival probabilities using inverse
+    weighting and resampling.
+Depends:
+    R (>= 1.9.1),
+    prodlim (>= 1.1.3),
+    survival,
+    rms
+Imports:
+    foreach,
+Suggests:
+    timereg,
+    randomForestSRC,
+    party,
+    rpart,
+    cmprsk,
+    doMC,
+    CoxBoost,
+    crrstep,
+    riskRegression,
+    lava
 Maintainer: Thomas A. Gerds <tag@biostat.ku.dk>
 License: GPL (>= 2)
 Packaged: 16 Sep 2011 (09:23); tag
+Collate:
+    'allComparisons.R'
+    'baselineHazard.coxph.R'
+    'bootstrapCrossValidation.R'
+    'calPlot.R'
+    'checkModels.R'
+    'CindexBootstrapCrossValidation.R'
+    'CindexKFoldCrossValidation.R'
+    'cindexMethods.R'
+    'ConfInt.Cindex.R'
+    'ConfScoreSurv.R'
+    'crps.R'
+    'Dint.R'
+    'ibs.R'
+    'internalReevalFit.R'
+    'internalTalk.R'
+    'ipcw.R'
+    'kFoldCrossValidation.R'
+    'marginal.prodlim.R'
+    'pecMethods.R'
+    'plot.CiCindex.R'
+    'plot.Cindex.R'
+    'plot.confScoreSurv.R'
+    'plot.pec.R'
+    'plotPredictEventProb.R'
+    'plotPredictSurvProb.R'
+    'predictEventProb.coxboost.R'
+    'predictEventProb.pseudoForest.R'
+    'predictEventProb.R'
+    'predictEventProb.selectFGR.R'
+    'predictLandmark.R'
+    'predictLifeYearsLost.R'
+    'predictSurvProb.cforest.R'
+    'predictSurvProb.ctree.R'
+    'predictSurvProb.FastBw.R'
+    'predictSurvProb.penfitS3.R'
+    'predictSurvProb.pseudoForest.R'
+    'predictSurvProb.R'
+    'print.Cindex.R'
+    'print.ConfScoreSurv.R'
+    'print.crps.R'
+    'print.IPCW.R'
+    'print.method.R'
+    'print.multiSplitTest.R'
+    'print.pec.R'
+    'print.R2.R'
+    'print.splitMethod.R'
+    'print.vandeWielTest.R'
+    'pseudo.bootstrapCrossValidation.R'
+    'pseudo.kFoldCrossValidation.R'
+    'pseudoPecMethods.R'
+    'R2.R'
+    'resolveSplitMethod.R'
+    'selectCox.R'
+    'simCost.R'
+    'Special.R'
+    'summary.Cindex.R'
+    'summary.confScoreSurv.R'
+    'summary.pec.R'
+    'survest.aalen.R'
+    'survest.cox.aalen.R'
+    'testResiduals.R'

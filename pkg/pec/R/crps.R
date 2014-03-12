@@ -41,7 +41,7 @@ crps <- function(object,
     if (!is.null(dim(y))){
       tnames <- paste("time=",round(times,1),sep="")
       tnames[times<1] <- paste("time=",signif(times[times<1],2),sep="")
-      colnames(y) <- paste("IBS[",start,";",tnames,"]",sep="")
+      colnames(y) <- paste("IBS[",start,";",tnames,")",sep="")
       y}
     else{
       y

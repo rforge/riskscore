@@ -21,7 +21,7 @@ export("pec",
        "simCost",
        "coxboost")
 
-import(prodlim,foreach,survival)
+import(prodlim,rms,foreach,survival)
 
 
 S3method(cindex,default)

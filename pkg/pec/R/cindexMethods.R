@@ -335,11 +335,38 @@ cindex.list <- function(object,
   # {{{--------------k-fold and leave-one-out CrossValidation-----------------------
   
   if (splitMethod$internal.name %in% c("crossval","loocv")){
-    kCV <- kFoldCrossValidation(object=object,data=data,Y=Y,status=status,event=event,times=times,cause=cause,ipcw=ipcw,splitMethod=splitMethod,giveToModel=model.args,predictHandlerFun=predictHandlerFun,keep=keep.matrix,verbose=verbose)
-    CrossValErr <- kCV$CrossValErr
-    if (keep.matrix && B>1)
-      CrossValErrMat <- kCV$CrossValErrMat
-  }
+      kCV <- CindexKFoldCrossValidation(object=object,
+                                        data=data,
+                                        Y=Y,
+                                        status=status,
+                                        event=event,
+                                        tindex=tindex,
+                                        eval.times=eval.times,
+                                        pred.times=pred.times,
+                                        cause=cause,
+                                        weights=weights,
+                                        ipcw.refit=ipcw.refit,
+                                        ipcw.call=ipcw.call,
+                                        tiedPredictionsIn=tiedPredictionsIn,
+                                        tiedOutcomeIn=tiedOutcomeIn,
+                                        tiedMatchIn=tiedMatchIn,
+                                        splitMethod=splitMethod,
+                                        multiSplitTest=multiSplitTest,
+                                        keepResiduals=keep.residuals,
+                                        testTimes=testTimes,
+                                        confInt=confInt,
+                                        confLevel=confLevel,
+                                        getFromModel=model.parms,
+                                        giveToModel=model.args,
+                                        predictHandlerFun=predictHandlerFun,
+                                        keepMatrix=keep.matrix,
+                                        verbose=verbose,
+                                        savePath=savePath,
+                                        slaveseed=slaveseed)
+          CrossValErr <- kCV$CrossValErr
+          if (keep.matrix && B>1)
+              CrossValErrMat <- kCV$CrossValErrMat
+      }
 
   # }}}
 # {{{ ----------------------BootstrapCrossValidation----------------------

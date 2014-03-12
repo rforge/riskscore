@@ -143,21 +143,21 @@ predictSurvProbFast.coxph <- function(object,newdata,times,...){
 }
 
 predictSurvProb.coxph <- function(object,newdata,times,...){
-  ## baselineHazard.coxph(object,times)
-  ## require(survival)
-  ## new feature of the survival package requires that the
-  ## original data are included
-  survival.survfit.coxph <- getFromNamespace("survfit.coxph",ns="survival")
-  survival.summary.survfit <- getFromNamespace("summary.survfit",ns="survival")
-  survfit.object <- survival.survfit.coxph(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
-  inflated.pred <- survival.summary.survfit(survfit.object,times=times)$surv
-  p <- t(inflated.pred)
-  if ((miss.time <- (length(times) - NCOL(p)))>0)
-    p <- cbind(p,matrix(rep(NA,miss.time*NROW(p)),nrow=NROW(p)))
-  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop(paste("Prediction matrix has wrong dimensions:\n",NROW(p)," rows and ",NCOL(p)," columns.\n But requested are predicted probabilities for\n ",NROW(newdata), " subjects (rows) in newdata and ",NCOL(newdata)," time points (columns)\nThis may happen when some covariate values are missing in newdata!?",sep=""))
+    ## baselineHazard.coxph(object,times)
+    ## require(survival)
+    ## new feature of the survival package requires that the
+    ## original data are included
+    survival.survfit.coxph <- getFromNamespace("survfit.coxph",ns="survival")
+    survival.summary.survfit <- getFromNamespace("summary.survfit",ns="survival")
+    survfit.object <- survival.survfit.coxph(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
+    inflated.pred <- survival.summary.survfit(survfit.object,times=times)$surv
+    p <- t(inflated.pred)
+    if ((miss.time <- (length(times) - NCOL(p)))>0)
+        p <- cbind(p,matrix(rep(NA,miss.time*NROW(p)),nrow=NROW(p)))
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+        stop(paste("Prediction matrix has wrong dimensions:\n",NROW(p)," rows and ",NCOL(p)," columns.\n But requested are predicted probabilities for\n ",NROW(newdata), " subjects (rows) in newdata and ",NCOL(newdata)," time points (columns)\nThis may happen when some covariate values are missing in newdata!?",sep=""))
     ## stop("Prediction failed")
-  p
+    p
 }
 
 predictSurvProb.coxph.penal <- function(object,newdata,times,...){
@@ -192,6 +192,10 @@ predictSurvProb.cph <- function(object,newdata,times,...){
   p
 }
 
+predictSurvProb.selectCox <- function(object,newdata,times,...){
+    predictSurvProb(object[[1]],newdata=newdata,times=times,...)
+}
+
 predictSurvProb.prodlim <- function(object,newdata,times,...){
   ## require(prodlim)
   p <- predict(object=object,
@@ -220,6 +224,7 @@ predictSurvProb.prodlim <- function(object,newdata,times,...){
 }
 
 predict.survfit <- function(object,newdata,times,bytimes=TRUE,fill="last",...){
+    
     if (length(class(object))!=1 || class(object)!="survfit" || object$typ !="right")
       stop("Predictions only available \nfor class 'survfit', possibly stratified Kaplan-Meier fits.\n For class 'cph' Cox models see survest.cph.")
     
@@ -283,10 +288,10 @@ predict.survfit <- function(object,newdata,times,bytimes=TRUE,fill="last",...){
 }
 
 predictSurvProb.survfit <- function(object,newdata,times,...){
-  p <- predict.survfit(object,newdata=newdata,times=times,bytimes=TRUE,fill="last")
-  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
-  p
+    p <- predict.survfit(object,newdata=newdata,times=times,bytimes=TRUE,fill="last")
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+        stop("Prediction failed")
+    p
 }
 
 
