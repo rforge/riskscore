@@ -39,7 +39,6 @@ pec.list <- function(object,
                      na.action=na.fail,
                      ...)
 {
-
   # }}}
   # {{{ checking integrity some arguments
 
@@ -79,7 +78,6 @@ pec.list <- function(object,
     else
       survp <- TRUE
   }
-
   # }}}
   # {{{ data
   if (missing(data)){
@@ -125,12 +123,12 @@ pec.list <- function(object,
   # }}}
   # {{{ prediction models
   if (reference==TRUE) {
-    ProdLimform <- as.formula(update(formula,".~NULL"),env=NULL)
+    ProdLimform <- as.formula(update(formula,".~NULL"))
     ProdLimfit <- do.call("prodlim",list(formula=ProdLimform,data=data))
     ProdLimfit$call$data <- NULL
     ProdLimfit$formula <- NULL
     ProdLimfit$call$formula=ProdLimform
-    ProdLimfit$formula <- as.formula(ProdLimfit$formula,env=NULL)
+    ProdLimfit$formula <- as.formula(ProdLimfit$formula)
     ## print(environment(ProdLimfit$formula))
     if (model.type=="competing.risks")
       object <- c(list(Reference=ProdLimfit),object)
@@ -229,7 +227,7 @@ pec.list <- function(object,
       cens.model <- "marginal"}
   }
   if (predictHandlerFun=="predictEventProb"){
-    iFormula <- as.formula(paste("Surv(itime,istatus)","~",as.character(formula)[[3]]),env=NULL)
+    iFormula <- as.formula(paste("Surv(itime,istatus)","~",as.character(formula)[[3]]))
     iData <- data
     iData$itime <- response[,"time"]
     iData$istatus <- response[,"status"]

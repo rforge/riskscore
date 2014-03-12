@@ -45,7 +45,7 @@ library(prodlim)
 library(pec)
 library(cmprsk)
 
-d <- prodlim:::SimCompRisk(100)
+d <- SimCompRisk(100)
 newvars <- as.data.frame(matrix(runif(8*100),nrow=100))
 colnames(newvars) <- c('X3','X4','X5','X6','X7','X8','X9','X10')
 d <- cbind(d,newvars)

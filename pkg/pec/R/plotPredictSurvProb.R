@@ -118,7 +118,7 @@ plotPredictSurvProb <- function(x,
     legend.DefaultArgs <- c(args[[match("legend.args",names(args),nomatch=FALSE)]],legend.DefaultArgs)
     legend.DefaultArgs <- legend.DefaultArgs[!duplicated(names(legend.DefaultArgs))]
   }
-  smartA <- prodlim:::SmartControl(call=list(...),
+  smartA <- SmartControl(call=list(...),
                                    keys=c("plot","legend","axis1","axis2"),
                                    ignore=c("x", "newdata", "times", "xlim","ylim","xlab","ylab","col","lty","lwd","add","legend","percent","axes","legend.args"),
                                    defaults=list("plot"=plot.DefaultArgs,

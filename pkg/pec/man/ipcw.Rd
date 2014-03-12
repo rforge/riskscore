@@ -74,7 +74,7 @@ ipcw(formula,
 \seealso{\code{\link{pec}}}
 \examples{
 library(prodlim)
-dat=prodlim:::SimSurv(300)
+dat=SimSurv(300)
 
 dat <- dat[order(dat$time),]
 

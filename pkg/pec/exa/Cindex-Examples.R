@@ -29,7 +29,7 @@ concordance.simple.CR(risk,d$time,d$status,failcode=1,cencode=0)
 x <-  cindex(list(risk,risk1,risk2),formula=Hist(time,status)~1,data=d)
 
 N <- 4
-dd <- prodlim:::SimCompRisk(N)
+dd <- SimCompRisk(N)
 r1 <- matrix(sample(1:N))
 r2 <- matrix(sample(N:1))
 

@@ -58,8 +58,8 @@ See \code{\link{predictSurvProb}}.
 library(pec)
 library(CoxBoost)
 library(survival)
-train <- prodlim:::SimCompRisk(100)
-test <- prodlim:::SimCompRisk(10)
+train <- SimCompRisk(100)
+test <- SimCompRisk(10)
 cb.fit <- coxboost(Hist(time,cause)~X1+X2,data=train,stepno=100)
 predictEventProb(cb.fit,newdata=test,times=seq(1:10),cause=1)
 }

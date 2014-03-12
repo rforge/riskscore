@@ -206,7 +206,7 @@ pseudoPec.list <- function(object,
     YY[,1] <- 0
   }else{
     ## km <- prodlim(Hist(time,status)~1,data=data.frame(time=response[,"time"],status=response[,"status"]))
-    YY <- prodlim:::jackknife.survival(ProdLimfit,times=times)
+    YY <- jackknife.survival(ProdLimfit,times=times)
   }
   # }}}
   # {{{ checking the models for compatibility with resampling

@@ -55,7 +55,7 @@ R2(object, models, what, times ,reference=1)
 \examples{
 set.seed(18713)
 library(prodlim)
-dat=prodlim:::SimSurv(100)
+dat=SimSurv(100)
 nullmodel=prodlim(Hist(time,status)~1,data=dat)
 pmodel1=coxph(Surv(time,status)~X1+X2,data=dat)
 pmodel2=coxph(Surv(time,status)~X2,data=dat)

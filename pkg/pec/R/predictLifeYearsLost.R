@@ -119,7 +119,7 @@ predictLifeYearsLost.CauseSpecificCox <- function (object, newdata, times, cause
   }
   else{
     tdiff <- min(diff(eTimes))/2
-    lagsurv <- pec:::predictSurvProb(object$models[["OverallSurvival"]],times=eTimes-tdiff,newdata=newdata)
+    lagsurv <- predictSurvProb(object$models[["OverallSurvival"]],times=eTimes-tdiff,newdata=newdata)
     cif <- t(apply(lagsurv*Haz1,1,cumsum))
   }
   pos <- sindex(jump.times=eTimes,eval.times=times)

@@ -94,7 +94,8 @@ bootstrapCrossValidation <- function(object,
     if (!is.null(getFromModel)){
       ModelParameters <- lapply(1:NF,function(f){
         getParms <- getFromModel[[f]]
-        if (is.null(getParms)) trainModels[getParms] else NULL
+        print(trainModels[[f]][getParms])
+        if (is.null(getParms)) trainModels[[f]][getParms] else NULL
       })
     }
     # }}}

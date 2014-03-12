@@ -7,7 +7,7 @@ set.seed(13)
 a=pec(f,splitMethod="bootcv",B=3,M=63,keep.index=TRUE,verbose=F)
 b=a$splitMethod$index
 set.seed(13)
-c=pec:::resolvesplitMethod(splitMethod="bootcv",N=100,M=63,B=3)$index
+c=resolvesplitMethod(splitMethod="bootcv",N=100,M=63,B=3)$index
 stopifnot(all.equal(b,c))
 # }}}
 
@@ -82,7 +82,7 @@ set.seed(17)
 b632a <- pec.list(object=list(RSF),noinf.permute=T,formula=Surv(time,status)~1,data=GBSG2,cens.model="marginal",splitMethod="boot632plus",B=10,M=500)
 plot(b632a$NoInfErr[[2]],b632$NoInfErr[[2]])
 
-f3 <- rfsrc(Survrsf(time,status)~X1+X2,data=d)
+f3 <- rfsrc(Surv(time,status)~X1+X2,data=d)
 set.seed(17)
 b632 <- pec.list(object=list(f3),formula=Surv(time,status)~1,data=d,cens.model="marginal",splitMethod="boot632plus",B=10)
 set.seed(17)

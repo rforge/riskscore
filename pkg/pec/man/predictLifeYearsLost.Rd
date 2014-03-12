@@ -60,8 +60,8 @@ See \code{\link{predictSurvProb}}.
 library(pec)
 library(riskRegression)
 library(survival)
-train <- prodlim:::SimCompRisk(100)
-test <- prodlim:::SimCompRisk(10)
+train <- SimCompRisk(100)
+test <- SimCompRisk(10)
 fit <- CSC(Hist(time,cause)~X1+X2,data=train,cause=1)
 predictLifeYearsLost(fit,newdata=test,times=seq(1:10),cv=FALSE,cause=1)
 }

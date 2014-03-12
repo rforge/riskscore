@@ -31,7 +31,7 @@ plot.confScoreSurv <- function(x,
              })})
            if (smooth==TRUE){
              nix <- lapply(1:length(M),function(m){
-               smooth3 <- prodlim:::meanNeighbors(x=x$models[[m]]$meanPred,y=x$models[[m]]$score,bandwidth=NULL)
+               smooth3 <- meanNeighbors(x=x$models[[m]]$meanPred,y=x$models[[m]]$score,bandwidth=NULL)
                lines(averageY~uniqueX,data=smooth3,lty=lty[m],col=col[m],lwd=3)
              })
            }

@@ -102,7 +102,7 @@ plotPredictSurvProb(coxmodel,newdata=ndat,times=ttt)
 
 # the same can be done e.g. for a randomSurvivalForest model
 library(randomForestSRC)
-rsfmodel <- rfsrc(Survrsf(time,status)~X1+X2,data=d)
+rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 plotPredictSurvProb(rsfmodel,newdata=ndat,times=ttt)
 }
 }

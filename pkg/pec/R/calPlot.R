@@ -1,5 +1,5 @@
 calPlot <- function(object,
-                    predTime,
+                    time,
                     formula,
                     data,
                     splitMethod="none",
@@ -10,6 +10,7 @@ calPlot <- function(object,
                     q=10,
                     outcome=c("pseudo","prodlim"),
                     bandwidth=NULL,
+                    round=TRUE,
                     verbose=FALSE,
                     add=FALSE,
                     showPseudo=ifelse(add||(outcome!="pseudo"),FALSE,TRUE),
@@ -17,8 +18,6 @@ calPlot <- function(object,
                     diag=ifelse(add,FALSE,TRUE),
                     legend=ifelse(add,FALSE,TRUE),
                     axes=ifelse(add,FALSE,TRUE),
-                    background=FALSE,
-                    Grid=background,
                     xlim,
                     ylim,
                     xlab = "Predicted probabilities",
@@ -88,16 +87,16 @@ calPlot <- function(object,
   # }}}
   # {{{ prediction timepoint 
   
-  if (missing(predTime))
-    predTime <- median(Y)
+  if (missing(time))
+    time <- median(Y)
   else
-    if (length(predTime)>1)
-      stop("Please specify only one time point predTime.")
+    if (length(time)>1)
+      stop("Please specify only one time point.")
 
   # }}}
   # {{{ compute pseudo-values
   #  require(pseudo)
-  #  jack=pseudosurv(time=Y,event=status,tmax=predTime)[[3]]
+  #  jack=pseudosurv(time=Y,event=status,tmax=time)[[3]]
   if (model.type=="competing.risks"){
     predictHandlerFun <- "predictEventProb"
   }
@@ -106,7 +105,7 @@ calPlot <- function(object,
   }
   margForm <- reformulate("1",response=formula[[2]])
   margFit <- prodlim(margForm,data=data)
-  jack <- jackknife(margFit,cause=cause,times=predTime)
+  jack <- jackknife(margFit,cause=cause,times=time)
 
   # }}}
   # {{{ call smartControls
@@ -114,8 +113,6 @@ calPlot <- function(object,
   axis1.DefaultArgs <- list(side=1,las=1)
   axis2.DefaultArgs <- list(side=2,las=2)
   legend.DefaultArgs <- list(legend=names(object),lwd=lwd,col=col,lty=lty,cex=1.5,bty="n",y.intersp=1.3,x="topleft")
-  Grid.DefaultArgs <- list(vertical=NULL,horizontal=NULL,col=c("gray88","gray99"))
-  background.DefaultArgs <- list(col="gray77")
   lines.DefaultArgs <- list(type="l")
   if (missing(ylim)){
     if (showPseudo)
@@ -127,7 +124,7 @@ calPlot <- function(object,
     xlim <- c(0,1)
   }
   plot.DefaultArgs <- list(x=0,y=0,type = "n",ylim = ylim,xlim = xlim,ylab=ylab,xlab=xlab)
-  smartA <- prodlim:::SmartControl(call= list(...),keys=c("plot","lines","legend","Grid","background","axis1","axis2"),ignore=NULL,ignore.case=TRUE,defaults=list("plot"=plot.DefaultArgs,"lines"=lines.DefaultArgs,"legend"=legend.DefaultArgs,"Grid"=Grid.DefaultArgs,"background"=background.DefaultArgs,"axis1"=axis1.DefaultArgs,"axis2"=axis2.DefaultArgs),forced=list("plot"=list(axes=FALSE),"axis1"=list(side=1)),verbose=TRUE)
+  smartA <- SmartControl(call= list(...),keys=c("plot","lines","legend","axis1","axis2"),ignore=NULL,ignore.case=TRUE,defaults=list("plot"=plot.DefaultArgs,"lines"=lines.DefaultArgs,"legend"=legend.DefaultArgs,"axis1"=axis1.DefaultArgs,"axis2"=axis2.DefaultArgs),forced=list("plot"=list(axes=FALSE),"axis1"=list(side=1)),verbose=TRUE)
 
   # }}}
   # {{{ splitmethod
@@ -140,105 +137,107 @@ calPlot <- function(object,
   # {{{ cv, predictions and expectations
   # {{{ ---------------------------Apparent predictions---------------------------
   apppred <- do.call("cbind",lapply(1:NF,function(f){
-    if (class(object[[f]][[1]])=="matrix"){
-      apppred <- object[[f]][[1]][neworder,]
-    } else{
-      if (model.type=="competing.risks"){
-        apppred <- do.call(predictHandlerFun,list(object[[f]],newdata=data,times=predTime,cause=cause))
+      if (class(object[[f]][[1]])=="matrix"){
+          apppred <- object[[f]][[1]][neworder,]
+      } else{
+          if (model.type=="competing.risks"){
+              apppred <- do.call(predictHandlerFun,list(object[[f]],newdata=data,times=time,cause=cause))
+          }
+          else{
+              apppred <- do.call(predictHandlerFun,list(object[[f]],newdata=data,times=time))
+          }
       }
-      else{
-        apppred <- do.call(predictHandlerFun,list(object[[f]],newdata=data,times=predTime))
-      }
-    }
   }))
   colnames(apppred) <- names(object)
   apppred <- data.frame(jack=jack,apppred)
   if (splitMethod$internal.name %in% c("noPlan")){
-    predframe <- apppred
+      predframe <- apppred
   }
   # }}}
   # {{{--------------k-fold and leave-one-out CrossValidation-----------------------
   if (splitMethod$internal.name %in% c("crossval","loocv")){
-    groups <- splitMethod$index[,1,drop=TRUE]
-    cv.list <- lapply(1:k,function(g){
-      if (verbose==TRUE) internalTalk(g,k)
-      id <- groups==g
-      train.k <- data[!id,,drop=FALSE]
-      val.k <- data[id,,drop=FALSE]
-      model.pred <- lapply(1:NF,function(f){
-        extraArgs <- giveToModel[[f]]
-        fit.k <- internalReevalFit(object=object[[f]],data=train.k,step=paste("CV group=",k),silent=FALSE,verbose=verbose)
-        if (predictHandlerFun == "predictEventProb"){      
-          do.call(predictHandlerFun,c(list(object=fit.k,newdata=val.k,times=predTime,cause=cause,train.data=train.k),extraArgs))
-        }
-        else{
-          do.call(predictHandlerFun,c(list(object=fit.k,newdata=val.k,times=predTime,train.data=train.k),extraArgs))
-        }
+      groups <- splitMethod$index[,1,drop=TRUE]
+      cv.list <- lapply(1:k,function(g){
+          if (verbose==TRUE) internalTalk(g,k)
+          id <- groups==g
+          train.k <- data[!id,,drop=FALSE]
+          val.k <- data[id,,drop=FALSE]
+          model.pred <- lapply(1:NF,function(f){
+              extraArgs <- giveToModel[[f]]
+              fit.k <- internalReevalFit(object=object[[f]],data=train.k,step=paste("CV group=",k),silent=FALSE,verbose=verbose)
+              if (predictHandlerFun == "predictEventProb"){
+                  do.call(predictHandlerFun,c(list(object=fit.k,newdata=val.k,times=time,cause=cause,train.data=train.k),extraArgs))
+              }
+              else{
+                  do.call(predictHandlerFun,c(list(object=fit.k,newdata=val.k,times=time,train.data=train.k),extraArgs))
+              }
+          })
+          model.pred
       })
-      model.pred
-    })
-    predframe <- do.call("cbind",lapply(1:NF,function(f){
-      pred <- do.call("rbind",lapply(cv.list,function(x)x[[f]]))
-      if (splitMethod$internal.name!="loocv"){
-        pred <- pred[order(order(groups)),]
-      }
-      pred
-    }))
-    colnames(predframe) <- names(object)
-    predframe <- cbind(data.frame(jack=jack),predframe)
+      predframe <- do.call("cbind",lapply(1:NF,function(f){
+          pred <- do.call("rbind",lapply(cv.list,function(x)x[[f]]))
+          if (splitMethod$internal.name!="loocv"){
+              pred <- pred[order(order(groups)),]
+          }
+          pred
+      }))
+      colnames(predframe) <- names(object)
+      predframe <- cbind(data.frame(jack=jack),predframe)
+      ## predframe <- na.omit(predframe)
   }
   # }}} 
   # {{{ ----------------------BootstrapCrossValidation----------------------
   
   if (splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632")){
-    if (splitMethod$internal.name %in% c("Boot632plus","Boot632")){
-      stop("Don't know how to do the 632(+) for the calibration curve.")
-    }
-    ResampleIndex <- splitMethod$index
-    ## predframe <- do.call("rbind",lapply(1:B,function(b){
-    ## predframe <- matrix
-    pred.list <- mclapply(1:B,function(b){
-      if (verbose==TRUE) internalTalk(b,B)
-      jackRefit <- FALSE
-      vindex.b <- match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0
-      val.b <- data[vindex.b,,drop=FALSE]
-      if (jackRefit){
-        margFit.b <- prodlim(margForm,data=val.b)
-        jack.b <- jackknife(margFit.b,cause=cause,times=predTime)
+      if (splitMethod$internal.name %in% c("Boot632plus","Boot632")){
+          stop("Don't know how to do the 632(+) for the calibration curve.")
       }
-      else{
-        jack.b <- jack[match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0]
-      }
-      train.b <- data[ResampleIndex[,b],,drop=FALSE]
-      frame.b <- data.frame(jack=jack.b)
-      bootpred <- do.call("cbind",lapply(1:NF,function(f){
-        fit.b <- internalReevalFit(object=object[[f]],data=train.b,step=b,silent=FALSE,verbose=verbose)
-        extraArgs <- giveToModel[[f]]
-        if (predictHandlerFun == "predictEventProb"){
-          try2predict <- try(pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=predTime,cause=cause,train.data=train.b),extraArgs)))
-        }
-        else{
-          try2predict <- try(pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=predTime,train.data=train.b),extraArgs)))
-        }
-        rm(fit.b)
-        gc()
-        if (inherits(try2predict,"try-error")==TRUE){
-          rep(NA,NROW(val.b))
-        }
-        pred.b
-      }))
-      colnames(bootpred) <- names(object)
-      cbind(frame.b,bootpred)
-    },mc.cores=cores)
-    predframe <- do.call("rbind",pred.list)
-    rm(pred.list)
+      ResampleIndex <- splitMethod$index
+      ## predframe <- do.call("rbind",lapply(1:B,function(b){
+      ## predframe <- matrix
+      pred.list <- mclapply(1:B,function(b){
+          if (verbose==TRUE) internalTalk(b,B)
+          jackRefit <- FALSE
+          vindex.b <- match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0
+          val.b <- data[vindex.b,,drop=FALSE]
+          if (jackRefit){
+              margFit.b <- prodlim(margForm,data=val.b)
+              jack.b <- jackknife(margFit.b,cause=cause,times=time)
+          }
+          else{
+              jack.b <- jack[match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0]
+          }
+          train.b <- data[ResampleIndex[,b],,drop=FALSE]
+          frame.b <- data.frame(jack=jack.b)
+          bootpred <- do.call("cbind",lapply(1:NF,function(f){
+              fit.b <- internalReevalFit(object=object[[f]],data=train.b,step=b,silent=FALSE,verbose=verbose)
+              extraArgs <- giveToModel[[f]]
+              if (predictHandlerFun == "predictEventProb"){
+                  try2predict <- try(pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=time,cause=cause,train.data=train.b),extraArgs)))
+              }
+              else{
+                  try2predict <- try(pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=time,train.data=train.b),extraArgs)))
+              }
+              ## rm(fit.b)
+              ## gc()
+              if (inherits(try2predict,"try-error")==TRUE){
+                  rep(NA,NROW(val.b))
+              }
+              pred.b
+          }))
+          colnames(bootpred) <- names(object)
+          cbind(frame.b,bootpred)
+      },mc.cores=cores)
+      predframe <- do.call("rbind",pred.list)
+      rm(pred.list)
   }
-
+  
   # }}}
   # }}}
   # {{{ smoothing
   method <- match.arg(method,c("quantile","nne","loess"))
   outcome <- match.arg(outcome,c("pseudo","prodlim"))
+
   plotFrames <- lapply(1:NF,function(f){
       p <- predframe[,f+1]
       jackF <- predframe[,1]
@@ -255,7 +254,7 @@ calPlot <- function(object,
                      y <- unlist(predict(prodlim(form.pcut,data=cbind(data,p=pcut)),
                                          cause=cause,
                                          newdata=data.frame(pcut=levels(pcut)),
-                                         times=predTime,
+                                         times=time,
                                          type=ifelse(model.type=="competing.risks","cuminc","surv")))
                      plotFrame=data.frame(x=xgroups,y=y)
                  }
@@ -266,34 +265,50 @@ calPlot <- function(object,
                      ## to avoit memory explosion ...
                      ## a difference in the 3 digit should
                      ## not play a role for the patient.
-                     p <- round(p,2)
-                     bw <- neighborhood(apppred[,f+1])$bandwidth
+                     if (round==TRUE) p <- round(p,2)
+                     p <- na.omit(p)
+                     if (no <- length(attr(p,"na.action")))
+                         warning("calPlot: removed ",no," missing values in risk prediction.",call.=FALSE,immediate.=TRUE)
+                     if (is.null(bandwidth)){
+                         if (length(p)>length(apppred[,f+1])){
+                             bw <- neighborhood(apppred[,f+1])$bandwidth
+                         }else{
+                             bw <- neighborhood(p)$bandwidth
+                         }
+                     } else{
+                         bw <- bandwidth
+                     }
                      ## print(bw)
                      nbh <- meanNeighbors(x=p,y=jackF,bandwidth=bw)
                      plotFrame <- data.frame(x=nbh$uniqueX,y=nbh$averageY)
+                     attr(plotFrame,"bandwidth") <- bw
+                     plotFrame
                  }else{
                      form.p <- reformulate("p",response=formula[[2]])
                      y <- unlist(predict(prodlim(form.p,data=cbind(data,p=p)),
                                          cause=cause,
                                          newdata=data.frame(p=sort(p)),
-                                         times=predTime,
+                                         times=time,
                                          type=ifelse(model.type=="competing.risks","cuminc","surv")))
                      plotFrame <- data.frame(x=sort(p),y=y)
                  }
              },
              "loess"={
-                 loess.args=NULL
-                 loess.DefaultArgs <- list(family="symmetric",control=loess.control(iterations=0),span=.3)
+                 loess.DefaultArgs <- list(family="symmetric",
+                                           ## control=loess.control(iterations=0),
+                                           span=.3)
                  pp <- sort(p)
                  lframe <- data.frame(pp=pp,jack=jackF)
-                 loess.args <- c(formula=jack~pp,data=lframe,loess.args,loess.DefaultArgs)
+                 loess.args <- c(formula=jack~pp,data=lframe,loess.DefaultArgs)
                  loess.args <- loess.args[!duplicated(names(loess.args))]
+                 loess(jack~pp,data=lframe,family="symmetric")
                  smoothJack <- do.call("loess",loess.args)
                  plotFrame <- data.frame(x=pp,y=smoothJack$fitted)
              })
   })
   # }}}
   # {{{ plot an empty frame
+  
   if (add==FALSE){
       do.call("plot",smartA$plot)
       if (axes){
@@ -317,15 +332,6 @@ calPlot <- function(object,
           do.call("axis",smartA$axis1)
           do.call("axis",smartA$axis2)
       }
-      if (background)
-          do.call("prodlim:::background",smartA$background)
-      if (Grid){
-          if (is.null(smartA$Grid$horizontal) && !is.null(smartA$axis2$at))
-              smartA$Grid$horizontal <- smartA$axis2$at
-          if (is.null(smartA$Grid$vertical) && !is.null(smartA$axis1$at))
-              smartA$Grid$vertical <- smartA$axis1$at
-          do.call("prodlim:::Grid",smartA$Grid)
-      }
   }
   if (diag){
       segments(x0=0,y0=0,x1=1,y1=1,col="gray77",lwd=2,xpd=FALSE)
@@ -335,7 +341,12 @@ calPlot <- function(object,
   # {{{ add lines and pseudovalues
   nix <- lapply(1:NF,function(f){
       plotFrame <- plotFrames[[f]]
-      with(na.omit(plotFrame),lines(x,y,col=col[f],lwd=lwd[f],lty=lty[f],type=ifelse(method=="quantile","b","l")))
+      ## calibration in the large
+      if (!is.null(bandwidth) && bandwidth>=1){
+          with(na.omit(plotFrame),points(mean(x),mean(y),col=col[f],pch=16,cex=2))
+      }else{
+          with(na.omit(plotFrame),lines(x,y,col=col[f],lwd=lwd[f],lty=lty[f],type=ifelse(method=="quantile","b","l")))
+      }
       ccrgb=as.list(col2rgb(col[f],alpha=TRUE))
       names(ccrgb) <- c("red","green","blue","alpha")
       ccrgb$alpha <- jack.density
@@ -357,7 +368,7 @@ calPlot <- function(object,
 
   # }}}
   # {{{ invisibly output the jackknife pseudo-values
-  out <- list(predTime=predTime,pseudoFrame=predframe)
+  out <- list(time=time,pseudoFrame=predframe,bandwidth=sapply(plotFrames,function(x)attr(x,"bandwidth")))
   invisible(out)
   # }}}
 }

@@ -118,7 +118,7 @@ ipcw.marginal <- function(formula,data,method,times,subjectTimes,subjectTimesLag
     IPCW.times <- NULL
   #  weigths at subject specific event times
   if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
-    IPCW.subjectTimes <- prodlim:::predictSurvIndividual(fit,lag=subjectTimesLag)
+    IPCW.subjectTimes <- predictSurvIndividual(fit,lag=subjectTimesLag)
     names(IPCW.subjectTimes) <- paste("T",1:length(IPCW.subjectTimes),".lag",subjectTimesLag,sep="")
   }
   else

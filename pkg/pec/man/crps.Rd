@@ -52,7 +52,7 @@ ibs(object, models, what, times, start)
 
 \examples{set.seed(18713)
 library(prodlim)
-dat=prodlim:::SimSurv(100)
+dat=SimSurv(100)
 nullmodel=prodlim(Hist(time,status)~1,data=dat)
 pmodel=coxph(Surv(time,status)~X1+X2,data=dat)
 perror=pec(list(KaplanMeier=nullmodel,Cox=pmodel),Hist(time,status)~1,data=dat)

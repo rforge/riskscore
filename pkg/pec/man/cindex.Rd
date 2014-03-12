@@ -286,7 +286,7 @@ library(prodlim)
  cox12 <- coxph(Surv(time,status)~X1+X2,data=dat)
  cox1 <- coxph(Surv(time,status)~X1,data=dat)
  cox2 <- coxph(Surv(time,status)~X2,data=dat)
- rsf1 <- rfsrc(Survrsf(time,status)~X1+X2,data=dat,ntree=15,forest=TRUE)
+ rsf1 <- rfsrc(Surv(time,status)~X1+X2,data=dat,ntree=15,forest=TRUE)
  #
  # compute the apparent estimate of the C-index at different time points
  #

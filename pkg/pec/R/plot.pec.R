@@ -118,7 +118,7 @@ plot.DefaultArgs <- list(x=0,
     special.DefaultArgs <- c(args[[match("special.args",names(args),nomatch=FALSE)]],special.DefaultArgs)
     special.DefaultArgs <- special.DefaultArgs[!duplicated(names(special.DefaultArgs))]
   }
-  smartA <- prodlim:::SmartControl(call=list(...),
+  smartA <- SmartControl(call=list(...),
                                    keys=c("plot","special","legend","axis1","axis2"),
                                    defaults=list("plot"=plot.DefaultArgs,
                                      "special"=special.DefaultArgs,
