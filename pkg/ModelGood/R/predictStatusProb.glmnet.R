@@ -1,0 +1,34 @@
+# Fit elastic net with the 'glmnet' package
+#  - automatic version that finds and select the lambda.min and fit
+#    an elastic net with this penalty term
+## nfolds: number of cross-validation folds in cv.glmnet (default in function is 10)
+## nlambda: number of lambda values in 'glmnet' function  - default is 100
+ElasticNet <- function(formula,
+                           data,
+                           nfolds=10,
+                           alpha,
+                           nlambda=100,
+                           family="multinomial"){
+  require(glmnet)
+  call <- match.call()
+  # get response and predictor variables
+  mf <- model.frame(formula,data,na.action=na.omit)
+  Terms <- terms.formula(formula)
+  response <- model.response(mf)
+  covariates <- model.frame(formula(delete.response(Terms)),data,na.action=na.omit)[[1]]
+  # find lambda via cross-validation
+  findLambda <- cv.glmnet(x=covariates,y=response,family=family,nfolds=nfolds)
+  lambda <- findLambda$lambda.min
+  # fit elastic net
+  getAlpha <- alpha
+  fit.enet <- glmnet(x=covariates,y=response,family="multinomial",alpha=getAlpha,nlambda=nlambda)
+  out <- list("call"=call, "enet"=fit.enet, "Lambda"=lambda)
+  class(out) <- "ElasticNet"
+  invisible(out)
+}
+
+predictStatusProb.ElasticNet <- function(object, newdata,...){
+  stopifnot(!missing(newdata))
+  P <- predict(object$enet, newx=newdata, type="response", s=object$Lambda)
+  P[,,1]
+}
