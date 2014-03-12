@@ -56,7 +56,7 @@ See \code{\link{predictSurvProb}}.
    \code{\link{predictSurvProb}}, \code{\link{predictEventProb}}.
 }
 \examples{
-\dontrun{
+\donttest{
 library(pec)
 library(riskRegression)
 library(survival)

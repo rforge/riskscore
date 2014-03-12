@@ -78,13 +78,13 @@ cindex(object,...)
     \code{cens.model} is coerced to \code{"marginal"} and the
     Kaplan-Meier estimator for the censoring times is used to calculate the
     weights.
-    If formula is \code{missing} the formula of the
-    first model in list is used.
+    If \code{formula} is \code{missing}, try to extract a formula from the
+    first element in object.
   }
   \item{data}{A data frame in which to validate the prediction models
     and to fit the censoring model.
-    If \code{data} is missing, the data of the
-    first model in list is used.
+    If \code{data} is missing, try to extract a data set from the
+    first element in object.
   }
  \item{eval.times}{A vector of timepoints for evaluating the
 discriminative ability. At each timepoint the c-index
@@ -152,7 +152,8 @@ corresponding
     uncensored event
     times are counted as concordant pairs.
   }
-  \item{splitMethod}{SplitMethod for estimating the prediction error curves.
+  \item{splitMethod}{
+    Defines the internal validation design:
     
     \code{none/noPlan}: Assess the models in the give \code{data},
     usually either in the same data where they are
@@ -274,7 +275,7 @@ Research report 12/2. Department of Biostatistics, University of Copenhagen
 
 
 \examples{
-\dontrun{
+\donttest{
  # simulate data based on Weibull regression  
 library(prodlim)
  set.seed(13)
@@ -300,7 +301,8 @@ ApparrentCindex  <- cindex(list("Cox X1"=cox1,
   print(ApparrentCindex)
   plot(ApparrentCindex)
  #
- # compute the bootstrap-crossvalidation estimate of the C-index at different time points
+ # compute the bootstrap-crossvalidation estimate of
+ # the C-index at different time points
  #
 set.seed(142)
 bcvCindex  <- cindex(list("Cox X1"=cox1,
@@ -315,15 +317,19 @@ bcvCindex  <- cindex(list("Cox X1"=cox1,
   print(bcvCindex)
   plot(bcvCindex)
 }
-\dontrun{
- # for uncensored data the results are the same as obtained with the function rcorr.cens from Hmisc
+\donttest{
+ # for uncensored data the results are the same
+ # as those obtained with the function rcorr.cens from Hmisc
 library(Hmisc)
 set.seed(16)
 dat <- SimSurv(30,cens=FALSE)
 fit12 <- coxph(Surv(time,status)~X1+X2,data=dat)
 fit1 <- coxph(Surv(time,status)~X1,data=dat)
 fit2 <- coxph(Surv(time,status)~X2,data=dat)
-Cpec <- cindex(list("Cox X1+X2"=fit12,"Cox X1"=fit1,"Cox X2"=fit2),formula=Surv(time,status)~1,data=dat,eval.times=Inf)
+Cpec <- cindex(list("Cox X1+X2"=fit12,"Cox X1"=fit1,"Cox X2"=fit2),
+	       formula=Surv(time,status)~1,
+	       data=dat,
+	       eval.times=Inf)
 p1 <- predictSurvProb(fit1,newdata=dat,times=100)
 p2 <- predictSurvProb(fit2,newdata=dat,times=100)
 p12 <- predictSurvProb(fit12,newdata=dat,times=100)

@@ -80,7 +80,7 @@ pec(object,...)
     must include their \code{call}.
   }
   \item{formula}{
-    A survival formula. The left hand side is used to finde the status response
+    A survival formula. The left hand side is used to find the status response
     variable in \code{data}. For right censored data, the right hand
     side of the formula is
      used to specify conditional censoring models. For
@@ -96,15 +96,15 @@ pec(object,...)
     \code{cens.model} is coerced to \code{"marginal"} and the
     Kaplan-Meier estimator for the censoring times is used to calculate the
     weights.
-    If \code{formula} is \code{missing}, the formula of the
-    first model in list is used.
+    If \code{formula} is \code{missing}, try to extract a formula from the
+    first element in object.
   }
   \item{data}{A data frame in which to validate the prediction models
     and to fit the censoring model.
-    If \code{data} is missing, the data of the
-    first model in list is used.
+    If \code{data} is missing, try to extract a data set from the
+    first element in object.
   }
-  \item{times}{A vector of timepoints. At each timepoint the prediction
+  \item{times}{A vector of time points. At each time point the prediction
     error curves
     are estimated. If \code{exact==TRUE} the \code{times} are merged
     with all the unique values of the response variable. 
@@ -174,7 +174,7 @@ pec(object,...)
     \code{cvK}: K-fold cross-validation, i.e. \code{cv10}
       for 10-fold cross-validation.
       After splitting the data in K subsets, the prediction models (ie
-      those specified in \code{object}) are evalutated on the data omitting the Kth
+      those specified in \code{object}) are evaluated on the data omitting the Kth
       subset (training step). The prediction error is estimated with the Kth subset
       (validation step).
       
@@ -246,7 +246,7 @@ pec(object,...)
   }
   \item{multiSplitTest}{
     If \code{TRUE} the test proposed by van de Wiel et al. (2009) is
-    applied. Requires subsampling bootrap cross-validation, i.e.
+    applied. Requires subsampling bootstrap cross-validation, i.e.
     that \code{splitMethod} equals \code{bootcv} and that
     \code{M} is specified.
   }
@@ -267,7 +267,7 @@ pec(object,...)
   \item{verbose}{if \code{TRUE} report details of
     the progress, e.g. count the steps in cross-validation.
   }
-  \item{savePath}{Place in your filesystem (directory) where training models fitted during
+  \item{savePath}{Place in your file system (i.e., a directory on your computer) where training models fitted during
     cross-validation are saved. If \code{missing} training models are not saved.
   }
   \item{slaveseed}{
@@ -371,7 +371,7 @@ pec(object,...)
   \item{call}{The call that produced the object} 
   \item{time}{The time points at which the prediction error curves change.}
   \item{ipcw.fit}{The fitted censoring model that was used for
-    re-weigthing the Brier score residuals. See Gerds \& Schumacher
+    re-weighting the Brier score residuals. See Gerds \& Schumacher
     (2006, Biometrical Journal)}
   \item{n.risk}{The number of subjects at risk for all time points.}
   \item{models}{The prediction models fitted in their own data.}
@@ -449,7 +449,7 @@ PredError <- pec(object=Models,
 print(PredError,times=seq(5,30,5))
 summary(PredError)
 plot(PredError,xlim=c(0,30))
-\dontrun{
+\donttest{
 # compute the .632+ estimate of the generalization error 
 set.seed(17100)
 PredError.632plus <- pec(object=Models,
@@ -465,8 +465,8 @@ print(PredError.632plus,times=seq(5,30,5))
 summary(PredError.632plus)
 plot(PredError.632plus,xlim=c(0,30))
 }
-\dontrun{
-# do the same again but now parallized
+\donttest{
+# do the same again but now in parallel
 set.seed(17100)
 library(doMC)
 registerDoMC()
@@ -494,7 +494,7 @@ summary(pf)
 
 # ---------------- competing risks -----------------
 
-\dontrun{
+\donttest{
 library(survival)
 library(riskRegression)
 library(cmprsk)

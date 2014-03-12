@@ -87,7 +87,7 @@ plotPredictSurvProb(x,
 \seealso{{\code{\link{predictSurvProb}}}{\code{\link{prodlim}}}}
 
 \examples{
-\dontrun{
+\donttest{
 # generate some survival data
 library(prodlim)
 d <- SimSurv(100)

@@ -39,7 +39,7 @@ selectFGR(formula, data, cause=1, rule = "AIC",
   Thomas Alexander Gerds \email{tag@biostat.ku.dk}
 }
 \examples{
-\dontrun{
+\donttest{
 library(riskRegression)
 library(prodlim)
 library(pec)
@@ -50,15 +50,25 @@ newvars <- as.data.frame(matrix(runif(8*100),nrow=100))
 colnames(newvars) <- c('X3','X4','X5','X6','X7','X8','X9','X10')
 d <- cbind(d,newvars)
 fg <- FGR(Hist(time, cause) ~ X1 + X2 + X3 + X4,cause=1,data=d)
-sfg <- selectFGR(Hist(time, cause) ~ X1 + X2 + X3 + X4,cause=1,data=d,rule="AIC",direction="backward") 
+sfg <- selectFGR(Hist(time, cause) ~ X1 + X2 + X3 + X4,
+		 cause=1,
+		 data=d,
+		 rule="AIC",
+		 direction="backward") 
 predictEventProb(sfg,times=100,newdata=d)
 
 ## apparent performance
-pec(list(full.model=fg,selected.model=sfg),formula=Hist(time, cause)~1,data=d)
+pec(list(full.model=fg,selected.model=sfg),
+    formula=Hist(time, cause)~1,
+    data=d)
 
 ## bootstrap cross-validation performance
 set.seed(7)
-pec(list(full.model=fg,selected.model=sfg),formula=Hist(time, cause)~1,data=d,B=10,splitMethod="bootcv")
+pec(list(full.model=fg,selected.model=sfg),
+    formula=Hist(time, cause)~1,
+    data=d,
+    B=10,
+    splitMethod="bootcv")
 }
 }
 

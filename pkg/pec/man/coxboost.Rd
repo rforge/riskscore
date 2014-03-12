@@ -9,7 +9,7 @@
   \code{CoxBoost}.
 }
 \usage{
-coxboost(formula, data, cv=TRUE, cause, ...)
+coxboost(formula, data, cv=TRUE, cause, penalty, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -29,6 +29,9 @@ data. The code for right censored can be controlled with argument
     If \code{FALSE} use \code{stepno}.
   }
   \item{cause}{The cause of interest in competing risk models.}
+  \item{penalty}{
+  See  \code{CoxBoost}.
+}
   \item{\dots}{
     Arguments passed to either \code{CoxBoost} via \code{CoxBoost.arg}
     or to \code{cv.CoxBoost} via \code{cv.CoxBoost.arg}.

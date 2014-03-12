@@ -45,9 +45,6 @@ recorded.
     \item{\code{status}}{status at observation time (0: censored, 1: liver transplantation, 2 : dead)}
   }
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
 \source{
 
 \url{http://192.38.117.59/~linearpredictors/?page=datasets&dataset=Pbc3}

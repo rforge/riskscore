@@ -54,7 +54,7 @@ See \code{\link{predictSurvProb}}.
   See \code{\link{predictSurvProb}}.
 }
 \examples{
-\dontrun{
+\donttest{
 library(pec)
 library(CoxBoost)
 library(survival)

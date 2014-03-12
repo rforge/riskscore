@@ -80,22 +80,45 @@ dat <- dat[order(dat$time),]
 
 # using the marginal Kaplan-Meier for the censoring times
 
-WKM=ipcw(Hist(time,status)~X2,data=dat,method="marginal",times=sort(unique(dat$time)),subjectTimes=dat$time)
+WKM=ipcw(Hist(time,status)~X2,
+  data=dat,
+  method="marginal",
+  times=sort(unique(dat$time)),
+  subjectTimes=dat$time)
 plot(WKM$fit)
 WKM$fit
 
 # using the Cox model for the censoring times given X2
 
-WCox=ipcw(Surv(time,status)~X2,data=dat,method="cox",times=sort(unique(dat$time)),subjectTimes=dat$time)
+WCox=ipcw(Surv(time,status)~X2,
+  data=dat,
+  method="cox",
+  times=sort(unique(dat$time)),
+  subjectTimes=dat$time)
 WCox$fit
 
 plot(WKM$fit)
-lines(sort(unique(dat$time)),1-WCox$IPCW.times[1,],type="l",col=2,lty=3,lwd=3)
-lines(sort(unique(dat$time)),1-WCox$IPCW.times[5,],type="l",col=3,lty=3,lwd=3)
+lines(sort(unique(dat$time)),
+      1-WCox$IPCW.times[1,],
+      type="l",
+      col=2,
+      lty=3,
+      lwd=3)
+lines(sort(unique(dat$time)),
+      1-WCox$IPCW.times[5,],
+      type="l",
+      col=3,
+      lty=3,
+      lwd=3)
 
-# using the stratified Kaplan-Meier for the censoring times given X2
+# using the stratified Kaplan-Meier
+# for the censoring times given X2
 
-WKM2=ipcw(Surv(time,status)~X2,data=dat,method="nonpar",times=sort(unique(dat$time)),subjectTimes=dat$time)
+WKM2=ipcw(Surv(time,status)~X2,
+  data=dat,
+  method="nonpar",
+  times=sort(unique(dat$time)),
+  subjectTimes=dat$time)
 plot(WKM2$fit,add=FALSE)
 
  }

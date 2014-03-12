@@ -108,22 +108,22 @@
 \seealso{\code{\link{pec}}{\code{\link{summary.pec}}}{\code{\link{Special}}}{\code{\link{prodlim}}}}
 \examples{
 
-# simulate an artificial data frame
-# with survival response and two predictors
-\dontrun{
+# simulate data
+# with a survival response and two predictors
+\donttest{
+library(prodlim)
+library(survival)
 set.seed(280180)
-N <- 300
-X1 <- rnorm(N,mean=10,sd=5)
-X2 <- rbinom(N,1,.4)
-linPred <- .00001+0.2*X1+2.3*X2
-T <- sapply(linPred,function(lp){rexp(n=1,exp(-lp))})
-C <- rexp(n=300,exp(-mean(linPred)))
-dat <- data.frame(time=pmin(T,C),status=as.numeric(T<=C),X1=X1,X2=X2)
+dat <- SimSurv(100)
 
-# fit some candidate Cox models and compute the Kaplan-Meier estimate 
+# fit some candidate Cox models and
+# compute the Kaplan-Meier estimate 
 
 Models <- list("Kaplan.Meier"=survfit(Surv(time,status)~1,data=dat),
                "Cox.X1"=coxph(Surv(time,status)~X1,data=dat),
+               "Cox.X2"=coxph(Surv(time,status)~X2,data=dat),
+               "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat))
+Models <- list("Cox.X1"=coxph(Surv(time,status)~X1,data=dat),
                "Cox.X2"=coxph(Surv(time,status)~X2,data=dat),
                "Cox.X1.X2"=coxph(Surv(time,status)~X1+X2,data=dat))
 
@@ -146,7 +146,13 @@ plot(PredError.632plus,xlim=c(0,30))
 # plot the bootstrapped curves, .632+ estimates of the generalization error
 # and Apparent error for the Cox model 'Cox.X1' with the 'Cox.X2' model
 # as benchmark
-plot(PredError.632plus,xlim=c(0,30), models="Cox.X1", special=TRUE, special.bench="Cox.X2", special.benchcol=2, special.addprederr="AppErr")
+plot(PredError.632plus,
+     xlim=c(0,30),
+     models="Cox.X1",
+     special=TRUE,
+     special.bench="Cox.X2",
+     special.benchcol=2,
+     special.addprederr="AppErr")
 }
 
 }
