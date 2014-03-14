@@ -1,10 +1,10 @@
 MgCheck <- function(object,model.args,model.parms,SplitMethod,verbose=TRUE){
-  checkF <- lapply(1:length(object),function(f){
-    fit <- object[[f]]
-    if(SplitMethod != "noinf" && is.null(fit$call))
-      stop(paste("model",names(object)[f],"does not have a call argument."))
-    else fit$call$data <- NULL
-  })
+    checkF <- lapply(1:length(object),function(f){
+        fit <- object[[f]]
+        if(SplitMethod != "noinf" && is.null(fit$call))
+            stop(paste("Element",f," '",names(object)[f],"' does not have a call argument\nThis is needed to rebuild the model during cross-validation."))
+        else fit$call$data <- NULL
+    })
   
   # check model.args
   # --------------------------------------------------------------------

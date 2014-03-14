@@ -9,6 +9,7 @@ Imports:
     parallel
 Suggests:
     party,
+    rpart,
     glmnet,
     rms,
     randomForest,
@@ -44,3 +45,4 @@ Collate:
     'summary.Brier.R'
     'summary.Roc.R'
     'summary.confScore.R'
+    'click.Roc.R'

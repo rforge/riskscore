@@ -1,6 +1,6 @@
 print.MgSplitMethods <- function(x){
     if (x$name!="full data"){
-        cat("\nCross-Validation splitMethod:",x$name,"\n")
+        cat("Cross-Validation splitMethod:",x$name,"\n")
         if (x$internal.name=="crossval")
             cat("Repeat: ",x$B,"\n")
         else{
@@ -9,5 +9,5 @@ print.MgSplitMethods <- function(x){
             cat("No. bootstrap samples: ",x$B,"\n")
         }
     }
-    cat("Sample size: ",x$N,"\n")
+    cat("Sample size: ",x$N)
 }

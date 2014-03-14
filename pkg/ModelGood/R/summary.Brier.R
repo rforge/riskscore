@@ -1,3 +1,4 @@
+#' @S3method summary Brier
 "summary.Brier" <- function(object,digits=2,print.it=TRUE,...){
   if (!is.null(object$method) && print.it) print(object$method)
   res <- c("BS","AppBS","BootcvBS","NoInfBS")
@@ -16,7 +17,7 @@
   })
   outMat <- 100*do.call("cbind",out)
   outMat <- outMat[order(outMat[,NCOL(outMat)]),,drop=FALSE]
-  if (print.it) cat("\nEstimated Brier score in %\n")
+  if (print.it) cat("\n\nEstimated Brier score in %\n")
   if (print.it) print(apply(as.data.frame(outMat),2,round,digits=digits),quote=FALSE)
   if (object$method$name=="full data") 
       cat("\nEither newdata or apparent (learn data) performance.\n")

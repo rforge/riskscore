@@ -11,6 +11,11 @@
 #' Bootstrap-crossvalidation techniques are implemented to estimate the
 #' generalization performance of the model(s), i.e. the performance which can
 #' be expected in new subjects.
+#'
+#' By default, when crossvalidation is involved, the ROC curve is
+#' approximated at a grid of either sensitivities or specificities and
+#' not computed at all unique changepoints of the crossvalidated ROC curves.
+#' This can be controlled with the argument: RocAverageGrid 
 #' 
 #' Missing data in the response or in the input matrix cause a failure.
 #' 
@@ -34,10 +39,15 @@
 #' defines an event status.
 #' 
 #' Currently implemented are \code{predictStatusProb} methods for the following
-#' R-functions: \describe{ \item{}{\code{glm} (from \code{library(stats)}}
-#' \item{}{\code{lrm} (from \code{library(Design)}} \item{}{\code{rpart} (from
-#' \code{library(rpart)})} \item{}{\code{randomForest} from
-#' \code{library(randomForest)}} }
+#' R-functions: \describe{
+#' \item{}{\code{glm} (from \code{library(stats)}}
+#' \item{}{\code{lrm} (from \code{library(Design)}}
+#' \item{}{\code{rpart} (from \code{library(rpart)})}
+#' \item{}{\code{BinaryTree} (from \code{library(party)})}
+#' \item{}{\code{ElasticNet} (a wrapper for glmnet from \code{library(glmnet)})}
+#' \item{}{\code{randomForest} from \code{library(randomForest)}}
+#' \item{}{\code{rfsrc} from \code{library(randomForestSRC)}}
+#' }
 #' 
 #' @aliases Brier Brier.list Brier.glm Brier.lrm Brier.randomForest Brier.rpart
 #' Roc Roc.list Roc.glm Roc.lrm Roc.randomForest Roc.rpart
@@ -178,33 +188,31 @@
 ##' set.seed(40)
 ##' N <- 40
 ##' X1 <- rnorm(N)
-##' X2 <- rbinom(N,1,.4)
+##' X2 <- abs(rnorm(N,4))
+##' X3 <- rbinom(N,1,.4)
 ##' expit <- function(x) exp(x)/(1+exp(x))
-##' lp <- expit(1 + X1 + X2 - X1*X2)
+##' lp <- expit(-2 + X1 + X2 + X3 - X3*X2)
 ##' Y <- factor(rbinom(N,1,lp))
 ##' dat <- data.frame(Y=Y,X1=X1,X2=X2)
+##'
+##' # single markers, one by one
+##' r1 <- Roc(Y~X1,data=dat)
+##' plot(r1,col=1)
+##' r2 <- Roc(Y~X2,data=dat)
+##' lines(r2,col=2)
+##'
+##' # or, directly multiple in one
+##' r12 <- Roc(list(Y~X1,Y~X2),data=dat)
+##' plot(r12)
 ##' 
-##' ## fit a logistic model
+##' ## compare logistic regression
 ##' lm1 <- glm(Y~X1,data=dat,family="binomial")
 ##' lm2 <- glm(Y~X1+X2,data=dat,family="binomial")
-##' r1=Roc(list(lm1,lm2),cbRatio=1)
+##' r1=Roc(list(LR.X1=lm1,LR.X1.X2=lm2))
 ##' summary(r1)
-##' Brier(list(lm1,lm2),cbRatio=1)
+##' Brier(list(lm1,lm2))
 ##' 
-##' 
-##' # crossing curves
-##' set.seed(40)
-##' N=40
-##' Y=rbinom(N,1,.5)
-##' X1=rnorm(N)
-##' X1[Y==1]=rnorm(sum(Y==1),mean=rbinom(sum(Y==1),1,.5))
-##' X2=rnorm(N)
-##' X2[Y==0]=rnorm(sum(Y==0),mean=rbinom(sum(Y==0),1,.5))
-##' dat <- data.frame(Y=Y,X1=X1,X2=X2)
-##' lm1 <- glm(Y~X1,data=dat,family="binomial")
-##' lm2 <- glm(Y~X2,data=dat,family="binomial")
-##' plot(Roc(list(lm1,lm2),data=dat,verbose=0,cbRatio=1))
-##' 
+##' # machine learning
 ##' library(randomForest)
 ##' dat$Y=factor(dat$Y)
 ##' rf <- randomForest(Y~X2,data=dat)
@@ -213,13 +221,14 @@
 ##'     splitMethod="bootcv",
 ##'     B=3,
 ##'     cbRatio=1)
+##' plot(rocCV)
 ##'
-##' bs <- Brier(list(LogisticRegression1=lm1,LogisticRegression=lm2),
+##' # compute .632+ estimate of Brier score
+##' bs <- Brier(list(LR.X1=lm1,LR.X2=lm2),
 ##'     data=dat,
 ##'     splitMethod="boot632+",
-##'     B=3,
-##'     cbRatio=1)
-##' plot(rocCV,diag=TRUE)
+##'     B=3)
+##' bs
 ##' #'
 #' @export
 # {{{ UseMethod
@@ -257,14 +266,45 @@ Roc.list <- function(object,
         stop("Argument name 'replan' has been replaced by 'splitMethod'.")
     # {{{ models
     NF <- length(object) 
-    if (is.null(names(object)))names(object) <- sapply(object,function(o){
-        class(o)[1]
-    })
-    else{names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])}
+    if (is.null(names(object))){
+        names(object) <- sapply(object,function(o){
+            cl <- class(o)[1]
+            if (cl=="formula"){
+                ff <- update.formula(o,"NULL~.")
+                vv <- all.vars(ff)
+                switch(length(vv),
+                       "1"=vv,
+                       "2"=paste(vv,collapse="+"),
+                       paste("Formula",length(vv),"vars",sep="."))
+            } else
+                cl
+        })
+    }
+    else{
+        names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o){
+            cl <- class(o)[1]
+            if (cl=="formula"){
+                ff <- update.formula(o,"NULL~.")
+                vv <- all.vars(ff)
+                switch(length(vv),
+                       "1"=vv,
+                       "2"=paste(vv,collapse="+"),
+                       paste("Formula",length(vv),"vars",sep="."))
+            } else
+                cl
+        })}
     object.names = names(object)
     names(object) <- make.names(names(object),unique=TRUE)
     # }}}
     # {{{ formula
+    brier.obj <- sapply(object,function(x){
+        if ((class(x)[1]=="formula" && (length(all.vars(x))<=2))
+            ||
+            (class(x)[1]=="numeric" && (any(x<0)|any(x>1))))
+            FALSE
+        else
+            TRUE
+    })
     if (missing(formula)){
         if (match("formula",class(object[[1]]),nomatch=FALSE))
             formula <- object[[1]]
@@ -302,6 +342,7 @@ Roc.list <- function(object,
             breaks <- NULL
         else
             breaks <- seq(0,1,.01)
+    
     # }}}
     # {{{ SplitMethod
     SplitMethod <- MgSplitMethods(splitMethod=splitMethod,B=B,N=N,M=M,k=k)
@@ -332,9 +373,16 @@ Roc.list <- function(object,
         # }}}
         # {{{ apparent ROC (use the same data for fitting and validation)
         pred <- do.call("predictStatusProb",c(list(object=fit,newdata=data),model.args[[f]]))
-        AppRoc <- Roc.default(object=pred,y=Y,breaks=breaks,cbRatio=cbRatio)
+        if (is.null(breaks))
+            breaks.f <- sort(unique(pred))
+        else
+            breaks.f <- breaks
+        AppRoc <- Roc.default(object=pred,y=Y,breaks=breaks.f,cbRatio=cbRatio)
         AppAuc <- Auc.default(object=AppRoc$Sensitivity,Spec=AppRoc$Specificity)
-        AppBS <- Brier.default(object=pred,y=Y,cbRatio=cbRatio)
+        if (brier.obj[[f]])
+            AppBS <- Brier.default(object=pred,y=Y,cbRatio=cbRatio)
+        else
+            AppBS <- NA
         # }}}
         # {{{ No information error  
         if (SplitMethod$internal.name %in% c("boot632plus","noinf")){
@@ -356,7 +404,7 @@ Roc.list <- function(object,
                     pred.index <- do.call("predictStatusProb",
                                           c(list(object=fit.index,newdata=data.index),
                                             model.args[[f]]))
-                    innerNoInfRoc <- Roc.default(object=pred.index,y=data.index[,responseName],breaks=breaks,cbRatio=cbRatio)
+                    innerNoInfRoc <- Roc.default(object=pred.index,y=data.index[,responseName],breaks=breaks.f,cbRatio=cbRatio)
                     innerNoInfBS <- Brier.default(object=pred.index,y=data.index[,responseName],cbRatio=cbRatio)
                     list("innerNoInfRoc"=innerNoInfRoc,"innerNoInfBS"=innerNoInfBS)
                 })
@@ -367,7 +415,7 @@ Roc.list <- function(object,
                 NoInfAuc <- mean(sapply(NoInfRocList,function(nil){Auc.default(object=nil$Sensitivity,nil$Specificity)}))
             }
             else{         
-                NoInfRoc <- list(Sensitivity=c(breaks,0),Specificity=c(1-breaks,1))
+                NoInfRoc <- list(Sensitivity=c(breaks.f,0),Specificity=c(1-breaks.f,1))
                 NoInfAuc <- 0.5
                 NoInfBS <- .C("brier_noinf",bs=double(1),as.double(Y),as.double(pred),as.integer(N),NAOK=TRUE,PACKAGE="ModelGood")$bs
             }
@@ -407,7 +455,7 @@ Roc.list <- function(object,
                     }
                     else{
                         failed <- NA
-                        innerBootcvRoc <- Roc.default(y=Y[vindex.index],pred.index,breaks=breaks,cbRatio=cbRatio)
+                        innerBootcvRoc <- Roc.default(y=Y[vindex.index],pred.index,breaks=breaks.f,cbRatio=cbRatio)
                         innerBCVBS <- Brier.default(object=pred.index,y=Y[vindex.index],cbRatio=cbRatio)
                     }
                 }
@@ -509,9 +557,8 @@ Roc.list <- function(object,
                                 "overfit"=B632PlusBS$overfit),
                             "bootcv"=list("BS"=BCVBS,"AppBS"=AppBS),
                             "noinf"=list("AppBS"=AppBS,"NoInfBS"=NoInfBS))
-
+        out$breaks <- breaks.f
         ##     if (keepCrossValRes==TRUE && SplitMethod$internal.name!="noSplitMethod"){
-        
         if (keepCrossValRes==TRUE && class(try(is.null(BootcvRocList),silent=TRUE))!="try-error"){
             if (SplitMethod$internal.name!="noinf")
                 out <- c(out,list("BootcvRocList"=BootcvRocList))
@@ -552,7 +599,8 @@ Roc.list <- function(object,
                   models=outmodels,
                   model.names=object.names,
                   method=SplitMethod,
-                  breaks=breaks,cbRatio=cbRatio))
+                  ## breaks=breaks,
+                  cbRatio=cbRatio))
     if (verbose) cat("\n")
     # }}}
     class(out) <- "Roc"
@@ -645,7 +693,24 @@ Roc.default <- function(object,
 #' @method Roc formula
 #' @S3method Roc formula
 Roc.formula <- function(object,formula,data,...){
-    Roc.list(object=list("logistic.regression"=object),formula=object,data,...)
+    ff <- update.formula(object,"NULL~.")
+    vv <- all.vars(ff)
+    obj <- list(object)
+    names(obj) <- switch(length(vv),
+                         "1"=vv,
+                         "2"=paste(vv,collapse="+"),
+                         paste("Formula",length(vv),"vars",sep="."))
+    Roc.list(object=obj,formula=object,data,...)
+}
+
+#' @S3method Roc numeric
+Roc.numeric <- function(object,formula,data,...){
+    Roc.list(object=list(object),formula,data,...)
+}
+
+#' @S3method Roc integer
+Roc.integer <- function(object,formula,data,...){
+    Roc.list(object=list(object),formula,data,...)
 }
 
 #' @method Roc glm

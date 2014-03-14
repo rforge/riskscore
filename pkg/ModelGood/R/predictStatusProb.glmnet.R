@@ -2,12 +2,11 @@
 ##'
 ##' This function first calls \code{cv.glmnet} and then evaluates glmnet at the hyper parameter which optimizes the cross-validation criterion. 
 ##' @title Wrapper function for glmnet 
-##' @param formula Formula where the right hand side specifies the response and the left hand side the predictor matrix
+##' @param formula Formula where the right hand side specifies the
+##' response and the left hand side the predictor matrix
 ##' @param data A data frame in which \code{formula} is evaluated
 ##' @param nfolds nfolds: number of cross-validation folds in
 ##' cv.glmnet (default in function is 10)
-##' @param nlambda nlambda: number of lambda values in 'glmnet'
-##' function - default is 100
 ##' @param ... passed on to glmnet
 ##' @return
 ##' Object with class ElasticNet
@@ -33,7 +32,6 @@
 ElasticNet <- function(formula,
                        data,
                        nfolds=10,
-                       nlambda=100,
                        ...){
     require(glmnet)
     call <- match.call()
@@ -45,7 +43,7 @@ ElasticNet <- function(formula,
     stopifnot(length(unique(response))==2)
     if (is.factor(response))
         response <- as.numeric(response==levels(response)[2])
-    covariates <- model.matrix(Terms,data=mf)[,-1]
+    covariates <- model.matrix(Terms,data=mf)[,-1,drop=FALSE]
     # find lambda via cross-validation
     pathLambda <- cv.glmnet(x=covariates,
                             y=response,

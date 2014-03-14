@@ -8,6 +8,7 @@
 ##' @param models Selection of models to plot. Should be a subset of
 ##' \code{names(x$models)}. Makes sense when \code{x} contains
 ##' multiple ROC curves.
+##' @param type The line type
 ##' @param shadow Experimental. Show results of cross-validation.
 ##' @param simu Experimental. Show noinformation results.
 ##' @param control Control which estimates of the ROC curves to draw.
@@ -21,13 +22,14 @@
 ##' @param add If \code{TRUE} add ROC curves to existing plot.
 ##' @param axes If \code{TRUE} draw axes.
 ##' @param legend If \code{TRUE} draw a legend.
-##' @param auc If \code{TRUE} add the area under the curve to the legend.
+##' @param auc If \code{TRUE} add the area under the curve to the
+##' legend.
 ##' @param percent If \code{TRUE} show percent axes.
 ##' @param ... Use for smart control of some plot elements.
 ##' @return ROC curves
 ##' @seealso Roc
 ##' @examples
-#' 
+#' # generate som data
 #' set.seed(40)
 #' N=40
 #' Y=rbinom(N,1,.5)
@@ -36,41 +38,53 @@
 #' X2=rnorm(N)
 #' X2[Y==0]=rnorm(sum(Y==0),mean=rbinom(sum(Y==0),1,.5))
 #' dat <- data.frame(Y=Y,X1=X1,X2=X2)
+#'
+#' # fit two logistic regression models
 #' lm1 <- glm(Y~X1,data=dat,family="binomial")
-#' lm2 <- glm(Y~X2,data=dat,family="binomial")
+#' lm2 <- glm(Y~X2+X1,data=dat,family="binomial")
 #' plot(Roc(list(lm1,lm2),data=dat))
 #'
-#' # add the area under the curves and a diagonal
+#' # add the area under the curves 
 #'
-#' plot(Roc(list(lm1,lm2),data=dat),auc=TRUE,diag=TRUE)
+#' plot(Roc(list(lm1,lm2),data=dat),auc=TRUE)
 #' 
 #' # alternatively, one can directly work with formula objects:
-#' plot(Roc(list(X1=Y~X1,X2=Y~X2),data=dat),auc=TRUE,diag=TRUE)
-#' 
+#' plot(Roc(list(X1=Y~X1,X2=Y~X2+X1),data=dat),auc=TRUE)
+#'
+#' # beyond the logistic regression model.
+#' # the following example is optimized for speed
+#' # illustrating the syntax, 
+#' # and not for optimized for performance of the
+#' # randomForest or elastic net
 #' library(randomForest)
+#' library(glmnet)
 #' dat$Y=factor(dat$Y)
-#' rf <- randomForest(Y~X2,data=dat)
+#' rf <- randomForest(Y~X1+X2,data=dat,ntree=10)
+#' en <- ElasticNet(Y~X1+X2,data=dat,nfolds=10,alpha=0.1)
 #' set.seed(6)
-#' rocCV=Roc(list(RandomForest=rf,LogisticRegression=lm2),
+#' rocCV=Roc(list(RandomForest=rf,ElasticNet=en,LogisticRegression=lm2),
 #'   data=dat,
 #'   verbose=FALSE,
 #'   splitMethod="bootcv",
 #'   B=4,
 #'   cbRatio=1)
-#' plot(rocCV,diag=TRUE,yaxis.las=2,legend.title="4 bootstrap-crossvalidation steps")
+#' plot(rocCV,yaxis.las=2,legend.title="4 bootstrap-crossvalidation steps")
 ##' 
 ##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
 ##' @method plot Roc
 ##' @S3method plot Roc
 plot.Roc <- function(x,
-                     ylab="True detection rate",
-                     xlab="False positive rate",
+                     ## ylab="True detection rate",
+                     ## xlab="False positive rate",
+                     ylab="Sensitivity",
+                     xlab="1-Specificity",
                      models,
+                     type="l",
                      shadow=FALSE,
                      simu=FALSE,
                      control,
                      grid=FALSE,
-                     diag=FALSE,
+                     diag=TRUE,
                      box=FALSE,
                      lwd=2,
                      lty,
@@ -78,7 +92,7 @@ plot.Roc <- function(x,
                      add=FALSE,
                      axes=TRUE,
                      legend,
-                     auc=TRUE,
+                     auc,
                      percent=TRUE,
                      ...
                      ){
@@ -133,6 +147,8 @@ plot.Roc <- function(x,
         })
     }
     if (missing(lwd)) lwd <- 2
+    if (missing(auc))
+        auc <- ifelse(length(names(models))>1,TRUE,FALSE)
     if (auc){
         thelegend <- paste(models," (",round(100*unlist(x$Auc[models]),as.numeric(auc)),")",sep="")
         legend.title <- "AUC (%)"
@@ -196,7 +212,7 @@ plot.Roc <- function(x,
         else shadow.control <- shadow
         nix <- lapply(found,function(m){
             nix <- lapply(x$BootcvRocList[[m]],function(x){
-                shadow.control <- c(shadow.control,list(type="l",col="gray77"))
+                shadow.control <- c(shadow.control,list(type=type,col="gray77"))
                 shadow.control <- shadow.control[!duplicated(names(shadow.control))]
                 do.call("lines.default",c(list(1-x$Specificity, x$Sensitivity),shadow.control))
             })
@@ -208,7 +224,7 @@ plot.Roc <- function(x,
         else simu.control <- simu
         nix <- lapply(found,function(m){
             nix <- lapply(x$NoInfRocList[[m]],function(x){
-                simu.control <- c(simu.control,list(type="l",col="gray77"))
+                simu.control <- c(simu.control,list(type=type,col="gray77"))
                 simu.control <- simu.control[!duplicated(names(simu.control))]
                 do.call("lines.default",c(list(1-x$Specificity, x$Sensitivity),simu.control))
             })
@@ -221,7 +237,7 @@ plot.Roc <- function(x,
         if (do[[w]]>0){
             for (m in found){
                 w.control <- control[[w]]
-                w.control <- c(w.control,list(type="l",lwd=lwd,lty=lty[[m]][w],col=col[[m]][w]))
+                w.control <- c(w.control,list(type=type,cex=0.1,lwd=lwd,lty=lty[[m]][w],col=col[[m]][w]))
                 w.control <- w.control[!duplicated(names(w.control))]
                 X <- 1-x[[W]][[m]]$Specificity
                 Y <- x[[W]][[m]]$Sensitivity
@@ -248,3 +264,5 @@ plot.Roc <- function(x,
 lines.Roc <- function(x,...){
     plot(x,add=TRUE,...)
 }
+
+

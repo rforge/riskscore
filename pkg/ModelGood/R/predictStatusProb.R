@@ -48,8 +48,13 @@ predictStatusProb.numeric <- function(object,newdata,...){
 
 ##' @S3method predictStatusProb formula
 predictStatusProb.formula <- function(object,newdata,...){
-  fit <- glm(object,data=newdata,family="binomial")
-  predictStatusProb(fit,newdata=newdata,...)
+    ff <- update.formula(object,"NULL~.")
+    if (length(all.vars(ff))==1){
+        model.frame(ff,newdata)[[1]]
+    } else{
+        fit <- glm(object,data=newdata,family="binomial")
+        predictStatusProb(fit,newdata=newdata,...)
+    }
 }
 
 ##' @S3method predictStatusProb double
