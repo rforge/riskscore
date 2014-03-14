@@ -12,38 +12,40 @@ summary.Roc <- function(object,digits=2,print.it=TRUE,...){
     rownames(modelsAuc) <- names(object$models)
     xxx <- names(object$Auc[[1]])
     names(xxx) <- xxx
-    xxx[xxx=="Auc"] <- paste("AUC",object$method$name,sep=":")
+    xxx[xxx=="Auc"] <- object$method$name
     colnames(modelsAuc) <- xxx
-    ##     colnames(modelsAuc) <- names(object$Auc[[1]])
-    if (print.it) cat("\nArea under the curve:\n\n")
-    ## print(apply(as.data.frame(modelsAuc[order(-modelsAuc[,1,drop=TRUE]),,drop=FALSE]),2,formatC,digits=digits),quote=FALSE)
-    if (print.it)
-      print(apply(as.data.frame(modelsAuc[order(-modelsAuc[,1,drop=TRUE]),,drop=FALSE]),2,round,digits=digits),quote=FALSE)
-    
     
     # ----------------------------Brier score----------------------------
 
     modelsBS <- do.call("rbind",lapply(object$Brier,function(m){round(100*unlist(m),digits=digits)}))
     rownames(modelsBS) <- names(object$models)
-    ## colnames(modelsBS) <- c(paste("BS",object$method$name,sep=":"),names(object$Brier[[1]])[-1])
-    ## colnames(modelsBS) <- names(object$Brier[[1]])
     xxx <- names(object$Brier[[1]])
     names(xxx) <- xxx
-    xxx[xxx=="BS"] <- paste("BS",object$method$name,sep=":")
+    xxx[xxx=="BS"] <- object$method$name
     colnames(modelsBS) <- xxx
-    if (print.it) cat("\n\nBrier score:\n\n")
-    ## print(apply(as.data.frame(modelsBS[order(modelsBS[,1,drop=TRUE]),,drop=FALSE]),2,formatC,digits=digits),quote=FALSE)
-    if (print.it)
-      print(apply(as.data.frame(modelsBS[order(modelsBS[,1,drop=TRUE]),,drop=FALSE]),2,round,digits=digits),
-            quote=FALSE)
+    if (print.it) {
+        if (object$method$name=="full data"){
+            cat("\nArea under the ROC curve (AUC, higher better) & Brier score (Brier, lower better):\n")
+            tab <- cbind(apply(as.data.frame(modelsAuc[order(-modelsAuc[,1,drop=TRUE]),,drop=FALSE]),2,round,digits=digits),
+                         apply(as.data.frame(modelsBS[order(modelsBS[,1,drop=TRUE]),,drop=FALSE]),2,round,digits=digits))
+            colnames(tab) <- c("AUC","Brier")
+            print(tab)
+            cat("\nEither newdata or apparent (learn data) performance.\n")
+        } else{
+            cat("\nArea under the ROC curve (AUC, higher better):\n")
+            tab.auc <- apply(as.data.frame(modelsAuc[order(-modelsAuc[,1,drop=TRUE]),,drop=FALSE]),2,round,digits=digits)
+            colnames(tab.auc) <- gsub("AppAuc","apparent",colnames(tab.auc))
+            print(tab.auc,quote=FALSE)
+            cat("\nBrier score (Brier, lower better):\n")
+            tab.brier <- apply(as.data.frame(modelsBS[order(modelsBS[,1,drop=TRUE]),,drop=FALSE]),2,round,digits=digits)
+            colnames(tab.brier) <- gsub("AppBS","apparent",colnames(tab.brier))
+            print(tab.brier, quote=FALSE)
+        }
+    }
     out <- list(Auc=modelsAuc,Brier=modelsBS)
     class(out) <- "summary.Roc"
     invisible(out)
-  }
-  else{
-    stop("Dont know what happened.")
-    ## cat(round(100*Auc.default(object$Roc$Sensitivity,object$Roc$Specificity),digits=digits))
-  }
+}
 }
 
 print.summary.Roc <- function(x,digits=2,...){

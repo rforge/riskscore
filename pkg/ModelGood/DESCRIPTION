@@ -2,9 +2,45 @@ Package: ModelGood
 Title: Validation of risk prediction models
 Version: 1.0.8
 Author: Thomas A. Gerds
-Description: Bootstrap cross-validation for ROC, AUC and Brier score to assess and compare predictions of binary status responses.
-Imports: rms, prodlim, foreach
-Suggests: party
-Maintainer:  Thomas A. Gerds <tag@biostat.ku.dk>
+Description: Bootstrap cross-validation for ROC, AUC and Brier score to assess
+    and compare predictions of binary status responses.
+Imports:
+    prodlim,
+    parallel
+Suggests:
+    party,
+    glmnet,
+    rms,
+    randomForest,
+    randomForestSRC
+Maintainer: Thomas A. Gerds <tag@biostat.ku.dk>
 License: GPL (>= 2)
 Packaged: Thu Aug  9 10:27:36 2007; tag
+Collate:
+    'AucMethods.R'
+    'BrierMethods.R'
+    'ConfScore.R'
+    'MgCheck.R'
+    'MgFormCi.R'
+    'MgFormule632.R'
+    'MgRefit.R'
+    'MgTalk.R'
+    'MgsplitMethods.R'
+    'RocMethods.R'
+    'Sensitivity.R'
+    'TPR.R'
+    'calPlot2.R'
+    'plot.Roc.R'
+    'plot.confScore.R'
+    'predictClassProb.R'
+    'predictStatusProb.FastBw.R'
+    'predictStatusProb.R'
+    'predictStatusProb.ctree.R'
+    'predictStatusProb.glmnet.R'
+    'print.Brier.R'
+    'print.MgsplitMethods.R'
+    'print.Roc.R'
+    'print.confScore.R'
+    'summary.Brier.R'
+    'summary.Roc.R'
+    'summary.confScore.R'

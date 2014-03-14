@@ -6,7 +6,7 @@
 ##' 
 ##' @title Calibration plots for right censored data
 ##' @param object A named list of prediction models, where allowed
-##' entries are (1) R-objects for which a \link{predictSurvProb}
+##' entries are (1) R-objects for which a \link{predictSurvProb} or \link{predictEventProb}
 ##' method exists (see details), (2) a \code{call} that evaluates to
 ##' such an R-object (see examples), (3) a matrix with predicted
 ##' probabilities having as many rows as \code{data} and as many
@@ -223,7 +223,7 @@ calPlot <- function(object,
         xlim <- c(0,1)
     }
     plot.DefaultArgs <- list(x=0,y=0,type = "n",ylim = ylim,xlim = xlim,ylab="",xlab=xlab)
-    smartA <- SmartControl(call= list(...),keys=c("plot","lines","legend","axis1","axis2"),ignore=NULL,ignore.case=TRUE,defaults=list("plot"=plot.DefaultArgs,"lines"=lines.DefaultArgs,"legend"=legend.DefaultArgs,"axis1"=axis1.DefaultArgs,"axis2"=axis2.DefaultArgs),forced=list("plot"=list(axes=FALSE),"axis1"=list(side=1)),verbose=TRUE)
+    smartA <- prodlim::SmartControl(call= list(...),keys=c("plot","lines","legend","axis1","axis2"),ignore=NULL,ignore.case=TRUE,defaults=list("plot"=plot.DefaultArgs,"lines"=lines.DefaultArgs,"legend"=legend.DefaultArgs,"axis1"=axis1.DefaultArgs,"axis2"=axis2.DefaultArgs),forced=list("plot"=list(axes=FALSE),"axis1"=list(side=1)),verbose=TRUE)
 
     # }}}
     # {{{ splitmethod
@@ -362,15 +362,15 @@ calPlot <- function(object,
                          warning("calPlot: removed ",no," missing values in risk prediction.",call.=FALSE,immediate.=TRUE)
                      if (is.null(bandwidth)){
                          if (length(p)>length(apppred[,f+1])){
-                             bw <- neighborhood(apppred[,f+1])$bandwidth
+                             bw <- prodlim::neighborhood(apppred[,f+1])$bandwidth
                          }else{
-                             bw <- neighborhood(p)$bandwidth
+                             bw <- prodlim::neighborhood(p)$bandwidth
                          }
                      } else{
                          bw <- bandwidth
                      }
                      ## print(bw)
-                     nbh <- meanNeighbors(x=p,y=jackF,bandwidth=bw)
+                     nbh <- prodlim::meanNeighbors(x=p,y=jackF,bandwidth=bw)
                      plotFrame <- data.frame(x=nbh$uniqueX,y=nbh$averageY)
                      attr(plotFrame,"bandwidth") <- bw
                      plotFrame

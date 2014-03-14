@@ -9,8 +9,8 @@ MgSplitMethods <- function(splitMethod,B,N,M,k){
     re.632 <- length(grep("632",splitMethod,value=FALSE,ignore.case=TRUE))>0
     re.plus <- length(grep("plus|\\+",splitMethod,value=FALSE,ignore.case=TRUE))>0
     ## splitMethod <- match.arg(splitMethod,c("none","plain","bootcv","boot632","boot.632","boot632plus","boot.632plus","noinf"))
-    if (re.noinf==TRUE){splitMethod <- "noinf"; ReName <- "no information error"}
-    else if (re.bootcv==TRUE){splitMethod <- "bootcv"; ReName <- "bootcv error"}
+    if (re.noinf==TRUE){splitMethod <- "noinf"; ReName <- "no information"}
+    else if (re.bootcv==TRUE){splitMethod <- "bootcv"; ReName <- "bootcv"}
     else
       if (re.boot==TRUE){
         if (re.632==TRUE){
@@ -19,7 +19,7 @@ MgSplitMethods <- function(splitMethod,B,N,M,k){
         }
         else{stop("SplitMethod boot not supported.");splitMethod <- "plain"; ReName <- "bootstrap"}
       }
-    if (is.null(ReName)) {splitMethod <- "noSplitMethod"; ReName <- "no splitMethod"}
+    if (is.null(ReName)) {splitMethod <- "noSplitMethod"; ReName <- "full data"}
   }
   else{
     splitMethod <- "crossval"
