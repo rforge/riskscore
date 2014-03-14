@@ -21,6 +21,7 @@
 ##' @param add If \code{TRUE} add ROC curves to existing plot.
 ##' @param axes If \code{TRUE} draw axes.
 ##' @param legend If \code{TRUE} draw a legend.
+##' @param auc If \code{TRUE} add the area under the curve to the legend.
 ##' @param percent If \code{TRUE} show percent axes.
 ##' @param ... Use for smart control of some plot elements.
 ##' @return ROC curves
@@ -37,7 +38,15 @@
 #' dat <- data.frame(Y=Y,X1=X1,X2=X2)
 #' lm1 <- glm(Y~X1,data=dat,family="binomial")
 #' lm2 <- glm(Y~X2,data=dat,family="binomial")
-#' plot(Roc(list(lm1,lm2),data=dat,verbose=0,crRatio=1))
+#' plot(Roc(list(lm1,lm2),data=dat))
+#'
+#' # add the area under the curves and a diagonal
+#'
+#' plot(Roc(list(lm1,lm2),data=dat),auc=TRUE,diag=TRUE)
+#' 
+#' # alternatively, one can directly work with formula objects:
+#' plot(Roc(list(X1=Y~X1,X2=Y~X2),data=dat),auc=TRUE,diag=TRUE)
+#' 
 #' library(randomForest)
 #' dat$Y=factor(dat$Y)
 #' rf <- randomForest(Y~X2,data=dat)
@@ -47,7 +56,7 @@
 #'   verbose=FALSE,
 #'   splitMethod="bootcv",
 #'   B=4,
-#'   crRatio=1)
+#'   cbRatio=1)
 #' plot(rocCV,diag=TRUE,yaxis.las=2,legend.title="4 bootstrap-crossvalidation steps")
 ##' 
 ##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
@@ -69,6 +78,7 @@ plot.Roc <- function(x,
                      add=FALSE,
                      axes=TRUE,
                      legend,
+                     auc=TRUE,
                      percent=TRUE,
                      ...
                      ){
@@ -123,7 +133,16 @@ plot.Roc <- function(x,
         })
     }
     if (missing(lwd)) lwd <- 2
-    legend.DefaultArgs <- list(legend=names(x$models),
+    if (auc){
+        thelegend <- paste(models," (",round(100*unlist(x$Auc[models]),as.numeric(auc)),")",sep="")
+        legend.title <- "AUC (%)"
+    }
+    else{
+        thelegend <- models
+        legend.title <- ""
+    }
+    legend.DefaultArgs <- list(legend=thelegend,
+                               title=legend.title,
                                lwd=sapply(lwd,function(x)x[1]),
                                col=sapply(col,function(x)x[1]),
                                lty=sapply(lty,function(x)x[1]),
@@ -213,11 +232,11 @@ plot.Roc <- function(x,
     # legend
     # --------------------------------------------------------------------
     if (missing(legend))
-        if (length(names(x$models))>1)
+        if (length(names(models))>1)
             legend <- TRUE
         else
-            legend <- FALSE
-    if(legend==TRUE && !add && !is.null(names(x$models))){
+            legend <- auc
+    if(legend==TRUE && !add && !is.null(models)){
         save.xpd <- par()$xpd
         par(xpd=TRUE)
         do.call("legend",smartA$legend)

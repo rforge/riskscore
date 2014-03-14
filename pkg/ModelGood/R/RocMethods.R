@@ -266,7 +266,7 @@ Roc.list <- function(object,
     # }}}
     # {{{ formula
     if (missing(formula)){
-        if (class(object[[1]])=="formula")
+        if (match("formula",class(object[[1]]),nomatch=FALSE))
             formula <- object[[1]]
         else
             formula <- eval(object[[1]]$call$formula)
