@@ -43,14 +43,18 @@ predictStatusProb <- function(object,...){
 ##' @S3method predictStatusProb numeric
 predictStatusProb.numeric <- function(object,newdata,...){
   stopifnot(NROW(object)==NROW(newdata))
-  object
+  p <- object
+  class(p) <- "predictStatusProb"
+  p
 }
 
 ##' @S3method predictStatusProb formula
 predictStatusProb.formula <- function(object,newdata,...){
     ff <- update.formula(object,"NULL~.")
     if (length(all.vars(ff))==1){
-        model.frame(ff,newdata)[[1]]
+        p <- model.frame(ff,newdata)[[1]]
+        class(p) <- "predictStatusProb"
+        p
     } else{
         fit <- glm(object,data=newdata,family="binomial")
         predictStatusProb(fit,newdata=newdata,...)
@@ -59,8 +63,10 @@ predictStatusProb.formula <- function(object,newdata,...){
 
 ##' @S3method predictStatusProb double
 predictStatusProb.double <- function(object,newdata,...){
-  stopifnot(NROW(object)==NROW(newdata))
-  object
+    stopifnot(NROW(object)==NROW(newdata))
+    p <- object
+    class(p) <- "predictStatusProb"
+    p
 }
 
 ## predictStatusProb.NULL <- function(object,newdata,...){
@@ -68,41 +74,47 @@ predictStatusProb.double <- function(object,newdata,...){
 ## }
 ##' @S3method predictStatusProb glm
 predictStatusProb.glm <- function(object,newdata,...){
-  if (object$family$family=="binomial")
-    p <- predict(object,newdata=newdata,type="response")
-  else{ stop("Currently only the binomial family is implemented for predicting a status from a glm object.")
+    if (object$family$family=="binomial")
+        p <- as.numeric(predict(object,newdata=newdata,type="response"))
+    else{ stop("Currently only the binomial family is implemented for predicting a status from a glm object.")
       }
-  p
+    class(p) <- "predictStatusProb"
+    p
 }
 ##' @S3method predictStatusProb BinaryTree
 predictStatusProb.BinaryTree <- function(object,newdata,...){
-  treeresponse <- party::treeresponse
-  P <- sapply(treeresponse(object,newdata=newdata),function(x)x[1])
-  P
+    treeresponse <- party::treeresponse
+    p <- sapply(treeresponse(object,newdata=newdata),function(x)x[1])
+    class(p) <- "predictStatusProb"
+    p
 }
 
 ##' @S3method predictStatusProb lrm
 predictStatusProb.lrm <- function(object,newdata,...){
-  P <- predict(object,newdata=newdata,type="fitted")
-  P
+  p <- as.numeric(predict(object,newdata=newdata,type="fitted"))
+  class(p) <- "predictStatusProb"
+  p
 }
 
 ##' @S3method predictStatusProb rpart
 predictStatusProb.rpart <- function(object,newdata,...){
-  P <- as.numeric(predict(object,newdata=newdata,type="prob")[,2,drop=TRUE])
-  P
+  p <- as.numeric(predict(object,newdata=newdata,type="prob")[,2,drop=TRUE])
+  class(p) <- "predictStatusProb"
+  p
 }
 
 ##' @S3method predictStatusProb randomForest
 predictStatusProb.randomForest <- function(object,newdata,...){
   stopifnot(!missing(newdata))
-  P <- as.numeric(predict(object,newdata=newdata,type="prob")[,2,drop=TRUE])
-  P
+  p <- as.numeric(predict(object,newdata=newdata,type="prob")[,2,drop=TRUE])
+  class(p) <- "predictStatusProb"
+  p
 }
 
 ##' @S3method predictStatusProb rfsrc
 predictStatusProb.rfsrc <- function(object, newdata, times, ...){
-  p <- predict(object,newdata=newdata,importance="none",...)$predicted[,2]
+  p <- as.numeric(predict(object,newdata=newdata,importance="none",...)$predicted[,2])
+  class(p) <- "predictStatusProb"
   p
 }
 
