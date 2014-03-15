@@ -2,44 +2,47 @@
 #' Comparing prediction models with Receiver operating characteristics and
 #' Brier scores
 #' 
-#' Evaluating the performance of risk prediction models with binary status
-#' response variable (case/control or similar). Roc curves are based on a
-#' single marker, which is the probability predicted case probability by a
-#' model. The area under the curve and the Brier score is used to summarize the
-#' performance.
+#' Evaluation of the performance of risk prediction models with binary status
+#' response variable (case/control or similar). Roc curves are either based on a
+#' single continuous marker, or on the probability prediction of an event. 
+#' Probability predictions are extracted from a given (statistical) model, such as logistic
+#' regression, or algorithm, such as random forest. The area under the curve
+#' and the Brier score is used to summarize and compare the performance.
+#'
+#' All functions work on a list of models to ease comparison. 
 #' 
 #' Bootstrap-crossvalidation techniques are implemented to estimate the
-#' generalization performance of the model(s), i.e. the performance which can
+#' generalization performance of the model(s), i.e., the performance which can
 #' be expected in new subjects.
 #'
 #' By default, when crossvalidation is involved, the ROC curve is
-#' approximated at a grid of either sensitivities or specificities and
-#' not computed at all unique changepoints of the crossvalidated ROC curves.
-#' This can be controlled with the argument: RocAverageGrid 
+#' approximated on a grid of either sensitivities or specificities and
+#' not computed at all unique changepoints of the crossvalidated ROC curves,
+#' see Fawcett, T. (2006). The (density of the) grid can be controlled with the
+#' argument: RocAverageGrid 
 #' 
-#' Missing data in the response or in the input matrix cause a failure.
+#' Missing data in the response or in the marker/predicted risk cause a failure.
 #' 
-#' For each prediction model there must be a \code{predictStatusProb} method:
-#' for example, to assess a prediction model which evaluates to a
+#' For each R object which potentially can predict a probability for an event,
+#' there should be a corresponding \code{predictStatusProb} method:
+#' 
+#' For example, to assess a prediction model which evaluates to a
 #' \code{myclass} object one defines a function called
 #' \code{predictStatusProb.myclass} with arguments
-#' \code{object,newdata,cutpoints,train.data,...}, like this
-#' 
-#' myFit=myModel(Y~X,data=dat)
-#' 
-#' class(myFit)="myclass"
-#' 
-#' \code{predictStatusProb.myclass <-
-#' function(object,newdata,cutpoints,train.data,...){ predict(object,
-#' data=newdata,method="probabilities") out }}
-#' 
-#' Such a function takes the object which was fitted with train.data and
-#' derives a matrix with predicted event status probabilities for each subject
-#' in newdata (rows) and each cutpoint (column) of the response variable that
-#' defines an event status.
+#' \code{object,newdata,...}. For example, the
+#' function predictStatusProb.lrm looks like this:
+#'
+#' predictStatusProb.lrm <- function(object,newdata,...){
+#'  p <- as.numeric(predict(object,newdata=newdata,type='fitted'))
+#'  class(p) <- 'predictStatusProb'
+#'  p
+#'}
 #' 
 #' Currently implemented are \code{predictStatusProb} methods for the following
 #' R-functions: \describe{
+#' \item{}{\code{numeric} (marker values are passed on)}
+#' \item{}{\code{formula} (single predictor: extracted from newdata and passed on,
+#' multiple predictors: projected to score by logistic regression)}
 #' \item{}{\code{glm} (from \code{library(stats)}}
 #' \item{}{\code{lrm} (from \code{library(Design)}}
 #' \item{}{\code{rpart} (from \code{library(rpart)})}
@@ -52,67 +55,86 @@
 #' @aliases Brier Brier.list Brier.glm Brier.lrm Brier.randomForest Brier.rpart
 #' Roc Roc.list Roc.glm Roc.lrm Roc.randomForest Roc.rpart
 #' @usage
-#' \method{Roc}{list} (object, formula, data, splitMethod="noSplitMethod",
-#' noinf.method=c("simulate"), simulate="reeval", B, M, breaks, cbRatio=1,
-#' RocAverageMethod="vertical",
-#' RocAverageGrid=switch(RocAverageMethod, "vertical"=seq(0,1,.01),
-#' "horizontal"=seq(1,0,-.01)), model.args=NULL, model.parms=NULL,
+#' \method{Roc}{list} (object, formula, data, splitMethod='noSplitMethod',
+#' noinf.method=c('simulate'), simulate='reeval', B, M, breaks, cbRatio=1,
+#' RocAverageMethod='vertical',
+#' RocAverageGrid=switch(RocAverageMethod, 'vertical'=seq(0,1,.01),
+#' 'horizontal'=seq(1,0,-.01)), model.args=NULL, model.parms=NULL,
 #' keepModels=FALSE, keepSampleIndex=FALSE, keepCrossValRes=FALSE,
 #' keepNoInfSimu, slaveseed, cores=1, na.accept=0, verbose=FALSE, ...)
 #' 
-#' @param object A named list of prediction models. Each entry is either an
-#' R-object for which a \link{predictStatusProb} method exists (see details) or
-#' a \code{call} that can be evaluated to such an R-object.  For
-#' cross-validation (e.g. when \code{splitMethod} is "boot632plus") all the
-#' models in this list must include their \code{call} in their value.
-#' @param formula A formula. If missing, use the formula of the (first) model
-#' in object.  The left hand side is used to find the status response variable
-#' in \code{data}.
-#' @param data A data frame to validate the prediction models If missing, use
-#' the data of the (first) model in object.
+#' @param object A named list of R objects that represent predictive markers, prediction models,
+#' or prediction algorithms. The function \link{predictStatusProb} is called on the R objects
+#' to extract the predicted risk (see details). 
+
+#' For  cross-validation (e.g. when \code{splitMethod} is 'bootcv') all the
+#' R objects in this list must include a \code{call} which can be evaluated in
+#' a learning subset of the data.
+#' @param formula A formula whose left hand side is used to identify the binary
+#' outcome variable in \code{data}. If missing, use the formula of the (first) model
+#' in object. 
+#' @param data A data set in which to validate the prediction models.
+#' If missing, the function tries to extract the data from the call of
+#' the (first) model in object. 
+#' 
+#' The data set needs to have the same structure, variable names,
+#' factor levels, etc., as the data in which the models
+#' were trained. If the subjects in data were not used to train the
+#' models given in \code{object}, this leads to an external validation
+#' situation.
+#' 
+#' However, note that if one of the elements in \code{object} is a formula
+#' then it is evaluated in this data set. 
+#' 
 #' @param splitMethod Method for estimating the generalization error.
 #' 
-#' \code{none}:Assess the models in the same data where they are fitted. Yields
-#' the apparent or re-substitution performance. Often overestimates the
-#' generalization performance.
+#' \code{none}:Assess the models in the data given by \code{data}.
+#' If this data set coincides with the train data where the models
+#' were fitted this yields an apparent (or re-substitution) estimate
+#' of performance. Otherwise, this leads to an external validation
+#' situation.
 #' 
-#' \code{BootCV}: Bootstrap cross validation. The prediction models are trained
-#' on \code{B} bootstrap samples, that are either drawn with or without
-#' replacement from \code{data} of the size \code{M}.  The model performance is
-#' estimated with the observations that are NOT in the bootstrap sample.
+#' \code{bootCV}: Internal bootstrap cross validation. The prediction models are trained
+#' on \code{B} bootstrap samples of the \code{data}. Bootstrap samples
+#' are either drawn with replacement from \code{data} (same size), or without
+#' replacement of the size \code{M} where \code{M} is a number smaller
+#' than \code{NROW(data)}. The model performance parameters (Roc, Brier, AUC)
+#' are estimated with the observations that are NOT in the current
+#' bootstrap sample.
 #' 
-#' \code{Boot632}: Linear combination of the apparent performance and the
-#' Bootcv performance using the constant weight .632 (see references).
+#' \code{boot632}: Linear combination of the apparent performance and the
+#' BootCV performance using the constant weight .632 (see Efron & Tibshirani, 1997).
 #' 
-#' \code{Boot632plus}: Linear combination of apparent performance and Bootcv
+#' \code{boot632plus}: Linear combination of apparent performance and Bootcv
 #' using weights dependent on how the models perform in permuted data (see
-#' references).
+#' Efron & Tibshirani, 1997).
 #' 
-#' \code{NoInf}: Assess the models in permuted data.
-#' @param noinf.method Method for computing the no-information Roc curve.
-#' @param simulate If equal to \code{"reeval"} then the models are re-evaluated
+#' \code{noinf}: Assess the models trained in permutations of \code{data}.
+#' @param noinf.method Experimental: For .632+ method the way to obtain no-information performance. This can either be 'simulate' or 'none'.
+#' @param simulate Experimental: For .632+ method. If \code{'reeval'} then the models are re-build
 #' in the current permuted data for computing the no-information Roc curve.
-#' @param B Number of bootstrap samples. The default depends on argument
-#' \code{splitMethod}.  When \code{splitMethod in
-#' c("Bootcv","Boot632","Boot632plus"} the default is 100. For
-#' \code{splitMethod="cvK"} \code{B} is the number of cross-validation cycles,
-#' and -- default is 1.  For \code{splitMethod="none"} \code{B} is the number
-#' of bootstrap simulations e.g. to obtain bootstrap confidence limits --
-#' default is 0.
+#' @param B Number of repetitions for internal crossvalidation. The meaning depends on the argument
+#' \code{splitMethod}: When \code{splitMethod in
+#' c('Bootcv','Boot632','Boot632plus')} it is the number of bootstrap samples, default is 100.
+#' Otherwise it is ignored.
 #' @param M The size of the bootstrap samples for cross-validation without
 #' replacement.
 #' @param breaks Break points for computing the Roc curve. Defaults to
-#' \code{seq(0,1,.01)} for the Roc.list method and to
-#' \code{sort(unique(breaks))} for the default method.
-#' @param cbRatio Experimental and not yet tested. Cost/benefit ratio. Default
-#' value is to 1, meaning that misclassified cases are as bad as misclassified
+#' \code{seq(0,1,.01)} when crossvalidation is applied, i.e., when  \code{splitMethod in
+#' c('Bootcv','Boot632','Boot632plus')}. Otherwise use all unique values of the
+#' predictive marker.
+#' 
+#' @param cbRatio Experimental. Cost/benefit ratio. Default
+#' value is 1, meaning that misclassified cases are as bad as misclassified
 #' controls.
 #' @param RocAverageMethod Method for averaging ROC curves across data splits.
-#' If \code{"horizontal"} average crossvalidated specificities for fixed sensitivity values,
-#' specified in \code{RocAverageGrid}, otherwise, if  \code{"vertical"},
+#' If \code{'horizontal'} average crossvalidated specificities for fixed sensitivity values,
+#' specified in \code{RocAverageGrid}, otherwise, if  \code{'vertical'},
 #' average crossvalidated specificities for fixed sensitivity values.
 #' See Fawcett, T. (2006) for details.
-#' @param RocAverageGrid Grid points for the averaging of Roc curves. A sequence of values at which to compute averages across the ROC curves obtained for different data splits during crossvalidation.
+#' @param RocAverageGrid Grid points for the averaging of Roc curves.
+#' A sequence of values at which to compute averages across the ROC curves
+#' obtained for different data splits during crossvalidation.
 #' @param model.args List of extra arguments that can be passed to the
 #' \code{predictStatusProb} methods. The list must have an entry for each entry
 #' in \code{object}.
@@ -120,7 +142,7 @@
 #' \code{object}.  Each entry names parts of the value of the fitted models
 #' that should be extracted and added to the output (see value).
 #' @param keepModels If \code{FALSE} keep only the names of the elements of
-#' object.  If \code{"Call"} then keep the call of the elements of object.
+#' object.  If \code{'Call'} then keep the call of the elements of object.
 #' Else, add the object as it is to the output.
 #' @param keepSampleIndex Logical. If \code{FALSE} remove the cross-validation
 #' index (which tells who was in the learn and who in the validation set) from
@@ -136,37 +158,32 @@
 #' @param cores Number of cores for parallel computing.
 #' Passed as the value of the argument \code{mc.cores}
 #' when calling \code{\link{mclapply}}.
-#' @param na.accept Works only for "Bootcv" estimate of performance.  The
-#' maximal number of failures during training the models to the bootstrap
-#' samples. Usually a small number relative to \code{B}.
+#' @param na.accept For 'Bootcv' estimate of performance. The
+#' maximal number of bootstrap samples in which the training the models may fail
+#' This should usually be a small number relative to \code{B}.
 #' @param verbose if \code{TRUE} the procedure is reporting details of the
 #' progress, e.g. it prints the current step in cross-validation procedures.
-#' @param ... Difficult to explain
-#' @return Object of class \code{Roc} or class \code{Brier} for which
-#' \code{print}, \code{summary}, and \code{plot} methods are available.
+#' @param ... Used to pass arguments to submodules.
+#' @return Object of class \code{Roc} or class \code{Brier}. 
 #' 
-#' The object includes the following components: \item{Roc}{ The Roc curve(s)
-#' estimated according to the \code{splitMethod}. A matrix where each column
-#' represents the estimated prediction error of a fit at the time points in
-#' time.  } \item{AppRoc}{ The Roc curve(s) estimated when the model(s) are
-#' evaluated in the same data where they were fitted. Only if
-#' \code{splitMethod} is one of "NoInf", "Bootcv", "Boot632" or "Boot632plus",
-#' since otherwise \code{repla} is "apparent" and then this is stored in
-#' \code{Roc} as explained above.  } \item{BootcvRoc}{ The prediction error
-#' when the model(s) are trained in the bootstrap sample and evaluated in the
-#' data that are not in the bootstrap sample.  Only if \code{splitMethod} is
-#' one of "Boot632" or "Boot632plus". When \code{splitMethod="Bootcv"} then the
-#' \code{BootcvRoc} is stored in the component \code{PredRoc}.  }
-#' \item{NoInfRoc}{ The prediction error when the model(s) are evaluated in the
-#' permuted data.  Only if \code{splitMethod} is one of "Bootcv", "Boot632", or
-#' "Boot632plus".  For \code{splitMethod="NoInf"} the \code{NoInfRoc} is stored
-#' in the component \code{PredRoc}.  } \item{weight}{ The weight used to linear
-#' combine the \code{AppRoc} and the \code{BootcvRoc} Only if
-#' \code{splitMethod} is one of "Boot632", or "Boot632plus".  } \item{overfit}{
-#' Estimated \code{overfit} of the model(s).  See references.  Only if
-#' \code{splitMethod} is one of "Boot632", or "Boot632plus".  } \item{call}{The
-#' call that produced the object} \item{models}{See keepModels}
-#' \item{method}{The method used for estimation of the overfitting bias.}
+#' Depending on the  \code{splitMethod} the object includes the following components:
+#' 
+#' \item{Roc, Brier, Auc}{A list of Roc curve(s), Brier scores (BS), and areas under the curves (Auc),
+#' one for each element of argument \code{object},
+#' estimated according to \code{splitMethod}.}
+#' 
+#' \item{weight}{The weight used to linear combine the \code{AppRoc} and
+#' the \code{BootcvRoc} Only available if \code{splitMethod} is one of 'Boot632', or 'Boot632plus'.
+#' }
+#'
+#' \item{overfit}{ Estimated \code{overfit} of the model(s). Only if
+#' \code{splitMethod} is one of 'Boot632', or 'Boot632plus'.  }
+#'
+#' \item{call}{The call that produced the object}
+#'
+#' \item{models}{See keepModels}
+#' 
+#' \item{method}{Summary of the splitMethod used.}
 #' @author Thomas Gerds \email{tag@@biostat.ku.dk}
 #' @references Fawcett, T. (2006). An introduction to ROC analysis. Pattern
 #' Recognition Letters, 27, 861-874.

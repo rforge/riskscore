@@ -3,7 +3,9 @@
 \alias{predictStatusProb.default}
 \alias{predictStatusProb.glm}
 \alias{predictStatusProb.lrm}
+\alias{predictStatusProb.numeric}
 \alias{predictStatusProb.randomForest}
+\alias{predictStatusProb.rfsrc}
 \alias{predictStatusProb.rpart}
 \title{Probability Predictions}
 \usage{
@@ -13,8 +15,8 @@
   \item{object}{A model from which predicted probabilities
   can be extracted for the indiviuals in newdata.}
 
-  \item{newdata}{A data frame with new data for which the
-  \code{object} should provide predict probabilities. In
+  \item{newdata}{A data frame containing data for which the
+  \code{object} can provide predict probabilities. In
   medical applications \code{newdata} will typically
   consist of the data of patients whose data were not used
   for building the model.}
@@ -27,29 +29,38 @@
   row in \code{NROW(newdata)}.
 }
 \description{
-  This function can be used to extract probabilistic status
+  Function to extract probabilistic event status
   predictions from various diagnostic and prognostic models
-  with binary status response. The function invokes
-  particular methods which depend on the 'class' of the
-  first argument.
+  with binary status response. The function has a speficic
+  method depending on the 'class' of the object.
 }
 \details{
   The function delivers predicted probabilities tailored
   for the model performance measures of the package. These
   probabilities are extracted from a fitted model of class
   \code{CLASS} with the function
-  \code{predictStatusProb.CLASS}.
+  \code{predictStatusProb.CLASS}. See \code{help(Roc)} for
+  details.
 }
 \note{
-  It is easy to write a new predictStatusProb method. For
-  examples, see the existing methods (e.g. via
-  \code{getAnywhere(predictStatusProb.glm)}.
+  It is rather easy to write a new predictStatusProb
+  method, see \code{help(Roc)}. However, if you do not
+  succeed, please send me an email.
 
   The performance, in particular when doing
   cross-validation where the model is evaluated many times,
   can be improved by supressing in the call to the model
   all the computations that are not needed for probability
   prediction, for example standard error calculations.
+}
+\examples{
+library(rms)
+set.seed(7)
+x <- abs(rnorm(20))
+d <- data.frame(y=rbinom(20,1,x/max(x)),x=x,z=rnorm(20))
+nd <- data.frame(y=rbinom(8,1,x/max(x)),x=abs(rnorm(8)),z=rnorm(8))
+fit <- lrm(y~x+z,d)
+predictStatusProb(fit,newdata=nd)
 }
 \author{
   Thomas A. Gerds \email{tag@biostat.ku.dk}

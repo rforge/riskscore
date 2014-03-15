@@ -47,3 +47,4 @@ Collate:
     'predictStatusProb.AutoSelectLRM.R'
     'predictStatusProb.ElasticNet.R'
     'summary.predictStatusProb.R'
+    'reclass.R'

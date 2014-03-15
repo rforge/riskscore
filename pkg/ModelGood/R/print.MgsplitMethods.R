@@ -9,5 +9,5 @@ print.MgSplitMethods <- function(x){
             cat("No. bootstrap samples: ",x$B,"\n")
         }
     }
-    cat("Sample size: ",x$N)
+    cat("Sample size: ",x$N,"\n")
 }

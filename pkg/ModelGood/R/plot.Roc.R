@@ -49,7 +49,7 @@
 #' plot(Roc(list(lm1,lm2),data=dat),auc=TRUE)
 #' 
 #' # alternatively, one can directly work with formula objects:
-#' plot(Roc(list(X1=Y~X1,X2=Y~X2+X1),data=dat),auc=TRUE)
+#' plot(Roc(list(LR.X1=Y~X1,LR.X1.X2=Y~X2+X1),data=dat),auc=TRUE)
 #'
 #' # beyond the logistic regression model.
 #' # the following example is optimized for speed
