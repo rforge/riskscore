@@ -1,83 +1,92 @@
-##' Calibration plots for risk prediction models in right censored survival and competing risks data
-##'
-##' For method "nne" the optimal bandwidth with respect to is obtained with
-##' the function \code{\link{dpik}} from the package \code{KernSmooth} 
-##' for a box kernel function. 
-##' 
-##' @title Calibration plots for right censored data
-##' @param object A named list of prediction models, where allowed
-##' entries are (1) R-objects for which a \link{predictSurvProb} or \link{predictEventProb}
-##' method exists (see details), (2) a \code{call} that evaluates to
-##' such an R-object (see examples), (3) a matrix with predicted
-##' probabilities having as many rows as \code{data} and as many
-##' columns as \code{times}. For cross-validation all objects in this
-##' list must include their \code{call}.
-##' @param time The evaluation time point at predicted event
-##' probabilities are plotted against pseudo-observed event status.
-##' @param formula A survival or event history formula. The left hand
-##' side is used to compute the expected event status. If
-##' \code{formula} is \code{missing}, try to extract a formula from the first element
-##' in object.
-##' @param data A data frame in which to validate the prediction models
-##' and to fit the censoring model.
-##' If \code{data} is missing, try to extract a data set from the
-##' first element in object. 
-##' @param splitMethod Defines the internal validation design:
-##'    
-##'    \code{none/noPlan}: Assess the models in the give \code{data},
-##'    usually either in the same data where they are
-##'    fitted, or in independent test data. 
-##'    
-##'    \code{BootCv}: Bootstrap cross validation. The prediction models are
-##'      trained on \code{B} bootstrap samples, that are either drawn with
-##'      replacement of the same size as the original data or
-##'      without replacement from \code{data} of the size \code{M}.
-##'      The models are assessed in the observations that are NOT in the
-##'      bootstrap sample.
-##'      
-##' @param B The number of cross-validation steps.
-##' @param M The size of the subsamples for cross-validation.
-##' @param outcome The method for estimating expected event status:
-##'
-##' \code{"pseudo"}: Use average pseudo-values.
-##' \code{"prodlim"}: Use the product-limit estimate, i.e., apply
-##' the Kaplan-Meier method for right censored survival and the
-##' Aalen-Johansen method for right censored competing risks data.
-##' 
-##' @param showPseudo If \code{TRUE} and \code{outcome=="pseudo"} the pseudo-values are shown as dots on the plot.
-##' @param method The method for estimating the calibration curve(s):
-##'
-##' \code{"nne"}: The expected event status is obtained in the nearest neighborhood around the predicted event probabilities.
-##'
-##' \code{"quantile"}: The expected event status is obtained in groups defined by quantiles of the predicted event probabilities.
-##' 
-##' @param round If \code{TRUE} predicted probabilities are rounded to two digits before smoothing. This may have a considerable effect on computing efficiency in large data sets. 
-##' @param bandwidth The bandwidth for \code{method="nne"}
-##' @param q The number of quantiles for \code{method="quantile"}.
-##' @param jack.density Gray scale for pseudo-observations.
-##' @param add If \code{TRUE} the line(s) are added to an existing plot.
-##' @param diag If \code{FALSE} no diagonal line is drawn.
-##' @param legend If \code{FALSE} no legend is drawn.
-##' @param axes If \code{FALSE} no axes are drawn.
-##' @param xlim Limits of x-axis.
-##' @param ylim Limits of y-axis.
-##' @param xlab Label for y-axis.
-##' @param ylab Label for x-axis.
-##' @param col Vector with colors, one for each element of object. Passed to \code{\link{lines}}.
-##' @param lwd Vector with line widths, one for each element of object. Passed to \code{\link{lines}}.
-##' @param lty lwd Vector with line style, one for each element of object. Passed to \code{\link{lines}}.
-##' @param pch Passed to \code{\link{points}}.
-##' @param cause For competing risks models, the cause of failure or event of interest
-##' @param percent If TRUE axes labels are multiplied by 100 and thus interpretable on a percent scale.
-##' @param giveToModel List of with exactly one entry for each entry in \code{object}. Each entry names parts of the value of the fitted models that should be extracted and added to the value. 
-##' @param na.action Passed to \code{\link{model.frame}}
-##' @param cores Number of cores for parallel computing. Passed as value of argument \code{mc.cores} to \code{\link{mclapply}}.
-##' @param verbose if \code{TRUE} report details of
-##' the progress, e.g. count the steps in cross-validation.
-##' @param ... Used to control the subroutines: plot, axis, lines, legend. See \code{\link{SmartControl}}.
-##' @return list with elements: time, pseudoFrame and bandwidth (NULL for method quantile).
-##' @author Thomas Alexander Gerds
-##' @export
+#' Calibration plots for right censored data
+#' 
+#' Calibration plots for risk prediction models in right censored survival and
+#' competing risks data
+#' 
+#' For method "nne" the optimal bandwidth with respect to is obtained with the
+#' function \code{\link{dpik}} from the package \code{KernSmooth} for a box
+#' kernel function.
+#' 
+#' @param object A named list of prediction models, where allowed entries are
+#' (1) R-objects for which a \link{predictSurvProb} method exists (see
+#' details), (2) a \code{call} that evaluates to such an R-object (see
+#' examples), (3) a matrix with predicted probabilities having as many rows as
+#' \code{data} and as many columns as \code{times}. For cross-validation all
+#' objects in this list must include their \code{call}.
+#' @param time The evaluation time point at predicted event probabilities are
+#' plotted against pseudo-observed event status.
+#' @param formula A survival or event history formula. The left hand side is
+#' used to compute the expected event status. If \code{formula} is
+#' \code{missing}, try to extract a formula from the first element in object.
+#' @param data A data frame in which to validate the prediction models and to
+#' fit the censoring model. If \code{data} is missing, try to extract a data
+#' set from the first element in object.
+#' @param splitMethod Defines the internal validation design:
+#' 
+#' \code{none/noPlan}: Assess the models in the give \code{data}, usually
+#' either in the same data where they are fitted, or in independent test data.
+#' 
+#' \code{BootCv}: Bootstrap cross validation. The prediction models are trained
+#' on \code{B} bootstrap samples, that are either drawn with replacement of the
+#' same size as the original data or without replacement from \code{data} of
+#' the size \code{M}.  The models are assessed in the observations that are NOT
+#' in the bootstrap sample.
+#' @param B The number of cross-validation steps.
+#' @param M The size of the subsamples for cross-validation.
+#' @param outcome The method for estimating expected event status:
+#' 
+#' \code{"pseudo"}: Use average pseudo-values.  \code{"prodlim"}: Use the
+#' product-limit estimate, i.e., apply the Kaplan-Meier method for right
+#' censored survival and the Aalen-Johansen method for right censored competing
+#' risks data.
+#' @param showPseudo If \code{TRUE} and \code{outcome=="pseudo"} the
+#' pseudo-values are shown as dots on the plot.
+#' @param method The method for estimating the calibration curve(s):
+#' 
+#' \code{"nne"}: The expected event status is obtained in the nearest
+#' neighborhood around the predicted event probabilities.
+#' 
+#' \code{"quantile"}: The expected event status is obtained in groups defined
+#' by quantiles of the predicted event probabilities.
+#' @param round If \code{TRUE} predicted probabilities are rounded to two
+#' digits before smoothing. This may have a considerable effect on computing
+#' efficiency in large data sets.
+#' @param bandwidth The bandwidth for \code{method="nne"}
+#' @param q The number of quantiles for \code{method="quantile"}.
+#' @param jack.density Gray scale for pseudo-observations.
+#' @param add If \code{TRUE} the line(s) are added to an existing plot.
+#' @param diag If \code{FALSE} no diagonal line is drawn.
+#' @param legend If \code{FALSE} no legend is drawn.
+#' @param axes If \code{FALSE} no axes are drawn.
+#' @param xlim Limits of x-axis.
+#' @param ylim Limits of y-axis.
+#' @param xlab Label for y-axis.
+#' @param ylab Label for x-axis.
+#' @param col Vector with colors, one for each element of object. Passed to
+#' \code{\link{lines}}.
+#' @param lwd Vector with line widths, one for each element of object. Passed
+#' to \code{\link{lines}}.
+#' @param lty lwd Vector with line style, one for each element of object.
+#' Passed to \code{\link{lines}}.
+#' @param pch Passed to \code{\link{points}}.
+#' @param cause For competing risks models, the cause of failure or event of
+#' interest
+#' @param percent If TRUE axes labels are multiplied by 100 and thus
+#' interpretable on a percent scale.
+#' @param giveToModel List of with exactly one entry for each entry in
+#' \code{object}. Each entry names parts of the value of the fitted models that
+#' should be extracted and added to the value.
+#' @param na.action Passed to \code{\link{model.frame}}
+#' @param cores Number of cores for parallel computing.  Passed as value of
+#' argument \code{mc.cores} to \code{\link{mclapply}}.
+#' @param verbose if \code{TRUE} report details of the progress, e.g. count the
+#' steps in cross-validation.
+#' @param ... Used to control the subroutines: plot, axis, lines, legend. See
+#' \code{\link{SmartControl}}.
+#' @return list with elements: time, pseudoFrame and bandwidth (NULL for method
+#' quantile).
+#' @author Thomas Alexander Gerds
+#' @export calPlot
 calPlot <- function(object,
                     time,
                     formula,

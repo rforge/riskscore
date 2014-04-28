@@ -17,6 +17,7 @@ selectCox <- function(formula,data,rule="aic"){
   out
 }
 
+##' @S3method predictSurvProb selectCox
 predictSurvProb.selectCox <- function(object,newdata,times,...){
    predictSurvProb(object[[1]],newdata=newdata,times=times,...)
  }

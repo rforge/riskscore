@@ -1,10 +1,57 @@
 # methods for competing risk regression
 # --------------------------------------------------------------------
 
+
+
+#' Predicting life years lost (cumulative cumulative incidences) in competing
+#' risk models.
+#' 
+#' Function to extract predicted life years lost from various modeling
+#' approaches. The most prominent one is the combination of cause-specific Cox
+#' regression models which can be fitted with the function \code{cumincCox}
+#' from the package \code{compRisk}.
+#' 
+#' The function predictLifeYearsLost is a generic function that means it
+#' invokes specifically designed functions depending on the 'class' of the
+#' first argument.
+#' 
+#' See \code{\link{predictSurvProb}}.
+#' 
+#' @aliases predictLifeYearsLost predictLifeYearsLost.CauseSpecificCox
+#' predictLifeYearsLost.riskRegression predictLifeYearsLost.FGR
+#' predictLifeYearsLost.prodlim predictLifeYearsLost.rfsrc
+#' @param object A fitted model from which to extract predicted event
+#' probabilities
+#' @param newdata A data frame containing predictor variable combinations for
+#' which to compute predicted event probabilities.
+#' @param times A vector of times in the range of the response variable, for
+#' which the cumulative incidences event probabilities are computed.
+#' @param cause Identifies the cause of interest among the competing events.
+#' @param \dots Additional arguments that are passed on to the current method.
+#' @return A matrix with as many rows as \code{NROW(newdata)} and as many
+#' columns as \code{length(times)}. Each entry should be a positive value and
+#' in rows the values should be increasing.
+#' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
+#' @seealso \code{\link{predictSurvProb}}, \code{\link{predictEventProb}}.
+#' @keywords survival
+#' @examples
+#' 
+#' \donttest{
+#' library(pec)
+#' library(riskRegression)
+#' library(survival)
+#' train <- SimCompRisk(100)
+#' test <- SimCompRisk(10)
+#' fit <- CSC(Hist(time,cause)~X1+X2,data=train,cause=1)
+#' predictLifeYearsLost(fit,newdata=test,times=seq(1:10),cv=FALSE,cause=1)
+#' }
+#' 
+#' @export predictLifeYearsLost
 predictLifeYearsLost <- function(object,newdata,times,cause,...){
   UseMethod("predictLifeYearsLost",object)
 }
 
+##' @S3method predictLifeYearsLost matrix
 predictLifeYearsLost.matrix <- function(object,newdata,times,...){
   if (NROW(object) != NROW(newdata) || NCOL(object) != length(times)){
     stop(paste("Life-years-lost matrix has wrong dimensions: ",
@@ -21,6 +68,7 @@ predictLifeYearsLost.matrix <- function(object,newdata,times,...){
   object
 }
 
+##' @S3method predictLifeYearsLost prodlim
 predictLifeYearsLost.prodlim <- function(object,newdata,times,cause,...){
   ## require(prodlim)
   time.interest <- object$time
@@ -42,6 +90,7 @@ predictLifeYearsLost.prodlim <- function(object,newdata,times,cause,...){
   lyl
 }
 
+##' @S3method predictLifeYearsLost FGR
 predictLifeYearsLost.FGR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- sort(unique(object$crrFit$uftime))
@@ -58,6 +107,7 @@ predictLifeYearsLost.FGR <- function(object,newdata,times,cause,...){
   lyl
 }
 
+##' @S3method predictLifeYearsLost riskRegression
 predictLifeYearsLost.riskRegression <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- object$time
@@ -74,6 +124,7 @@ predictLifeYearsLost.riskRegression <- function(object,newdata,times,cause,...){
   lyl
 }
 
+##' @S3method predictLifeYearsLost ARR
 predictLifeYearsLost.ARR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- object$time
@@ -91,6 +142,7 @@ predictLifeYearsLost.ARR <- function(object,newdata,times,cause,...){
 }
 
 
+##' @S3method predictLifeYearsLost CauseSpecificCox
 predictLifeYearsLost.CauseSpecificCox <- function (object, newdata, times, cause, ...) {
   survtype <- object$survtype
   N <- NROW(newdata)
@@ -135,17 +187,11 @@ predictLifeYearsLost.CauseSpecificCox <- function (object, newdata, times, cause
 }
 
 
-
-
-predictLifeYearsLost.coxboost <- function(object,newdata,times,cause,...){
+##' @S3method predictLifeYearsLost rfsrc
+predictLifeYearsLost.rfsrc <- function(object, newdata, times, cause, ...){
   if (missing(cause)) stop("missing cause")
-  ## if (cause!=1) stop("CoxBoost can only predict cause 1")
-  if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
-  newcova <- model.matrix(terms(object$formula,data=newdata),
-                          data=model.frame(object$formula,data=newdata))[,-c(1)]
-  time.interest <- sort(unique(object$coxboost$time))
-  cif <- predict(object$coxboost,newdata=newcova,type="CIF",times=time.interest)
-  pos <- sindex(jump.times=time.interest,eval.times=times)
+  cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
+  pos <- sindex(jump.times=object$time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]
@@ -156,3 +202,4 @@ predictLifeYearsLost.coxboost <- function(object,newdata,times,cause,...){
     stop("Prediction of life-years-lost failed")
   lyl
 }
+

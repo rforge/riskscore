@@ -1,3 +1,26 @@
+#' Printing a `pec' (prediction error curve) object.
+#' 
+#' Print the important arguments of call and the prediction error values at
+#' selected time points.
+#' 
+#' 
+#' @aliases print.pec summary.pec
+#' @param x Object of class \code{pec}
+#' @param object Object of class \code{pec}
+#' @param times Time points at which to show the values of the prediction error
+#' curve(s)
+#' @param what What estimate of the prediction error curve to show. Should be a
+#' string matching an element of the object. The default is determined by
+#' splitMethod.
+#' @param models Which models in the list \code{object$models} should be shown.
+#' Defaults to all models.
+#' @param digits Number of decimals used in tables.
+#' @param print Set to FALSE to suppress printing.
+#' @param \dots Not used
+#' @return The first argument in the invisible cloak.
+#' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
+#' @seealso \code{\link{pec}}
+#' @keywords survival
 "print.pec" <- function(x,
                         times,
                         digits=3,

@@ -1,3 +1,4 @@
+##' @S3method predictEventProb pseudoForest
 predictEventProb.pseudoForest <- function(object,
                                           newdata,
                                           times,

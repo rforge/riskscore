@@ -1,3 +1,29 @@
+#' Formula interface for function \code{CoxBoost} of package \code{CoxBoost}.
+#' 
+#' Formula interface for function \code{CoxBoost} of package \code{CoxBoost}.
+#' 
+#' See \code{CoxBoost}.
+#' 
+#' @param formula An event-history formula for competing risks of the form
+#' \code{Hist(time,status)~sex+age} where \code{status} defines competing
+#' events and right censored data. The code for right censored can be
+#' controlled with argument \code{cens.code}, see man page the function
+#' \code{\link{Hist}}.
+#' @param data A data.frame in which the variables of formula are defined.
+#' @param cv If \code{TRUE} perform cross-validation to optimize the parameter
+#' \code{stepno}. This calls the function \code{cv.CoxBoost} whose arguments
+#' are prefix controlled, that is \code{cv.K=7} sets the argument \code{K} of
+#' \code{cv.CoxBoost} to \code{7}.  If \code{FALSE} use \code{stepno}.
+#' @param cause The cause of interest in competing risk models.
+#' @param penalty See \code{CoxBoost}.
+#' @param \dots Arguments passed to either \code{CoxBoost} via
+#' \code{CoxBoost.arg} or to \code{cv.CoxBoost} via \code{cv.CoxBoost.arg}.
+#' @return See \code{CoxBoost}.
+#' @author Thomas Alexander Gerds \email{tag@@biostat.ku.dk}
+#' @seealso See \code{CoxBoost}.
+#' @references See \code{CoxBoost}.
+#' @keywords survival
+#' @export coxboost
 coxboost <- function(formula,data,cv=TRUE,cause,penalty,...){
   call <- match.call(expand.dots=TRUE)
   formula.names <- try(all.names(formula),silent=TRUE)
@@ -45,6 +71,7 @@ coxboost <- function(formula,data,cv=TRUE,cause,penalty,...){
   out
 }
 
+##' @S3method predictSurvProb coxboost
 predictSurvProb.coxboost <- function(object,newdata,times,...) {
   newcova <- model.matrix(terms(object$formula,data=newdata),
                           data=model.frame(object$formula,data=newdata,na.action=na.fail))[,-c(1)]
@@ -55,7 +82,7 @@ predictSurvProb.coxboost <- function(object,newdata,times,...) {
   p
 }
 
-
+##' @S3method predictEventProb coxboost
 predictEventProb.coxboost <- function(object,newdata,times,cause,...){
   if (missing(cause)) stop("missing cause")
   if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
@@ -73,10 +100,17 @@ predictEventProb.coxboost <- function(object,newdata,times,cause,...){
   }
   p
 }
-predictLifeYearsLost.rfsrc <- function(object, newdata, times, cause, ...){
+
+##' @S3method predictLifeYearsLost coxboost
+predictLifeYearsLost.coxboost <- function(object,newdata,times,cause,...){
   if (missing(cause)) stop("missing cause")
-  cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
-  pos <- sindex(jump.times=object$time.interest,eval.times=times)
+  ## if (cause!=1) stop("CoxBoost can only predict cause 1")
+  if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
+  newcova <- model.matrix(terms(object$formula,data=newdata),
+                          data=model.frame(object$formula,data=newdata))[,-c(1)]
+  time.interest <- sort(unique(object$coxboost$time))
+  cif <- predict(object$coxboost,newdata=newcova,type="CIF",times=time.interest)
+  pos <- sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]
@@ -87,3 +121,4 @@ predictLifeYearsLost.rfsrc <- function(object, newdata, times, cause, ...){
     stop("Prediction of life-years-lost failed")
   lyl
 }
+

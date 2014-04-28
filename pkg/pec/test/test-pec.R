@@ -1,8 +1,15 @@
 library(pec)
-data(cost)
+library(randomForestSRC)
+ data(cost)
 f <- coxph(Surv(time,status)~age+sex,data=cost)
-set.seed(17)
-fitpec <- pec(list("cox" = f),data = cost,formula = Surv(time, status) ~ 1,splitMethod = "Boot632plus",B = 11,M = 350,keep.index = TRUE,keep.matrix = TRUE)
+fitpec <- pec(list("cox" = f),
+              data = cost,
+              formula = Surv(time, status) ~ age+sex,
+              splitMethod = "Boot632plus",
+              B = 11,
+              M = 350,
+              keep.index = TRUE,
+              keep.matrix = TRUE)
 ## fitpec
 ## Range of integration: 0 and time=4259 :
 ## Integrated Brier score (crps):

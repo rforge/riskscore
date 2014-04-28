@@ -1,10 +1,54 @@
 # methods for competing risk regression
 # --------------------------------------------------------------------
-
+#' Predicting event probabilities (cumulative incidences) in competing risk
+#' models.
+#' 
+#' Function to extract event probability predictions from various modeling
+#' approaches. The most prominent one is the combination of cause-specific Cox
+#' regression models which can be fitted with the function \code{cumincCox}
+#' from the package \code{compRisk}.
+#' 
+#' The function predictEventProb is a generic function that means it invokes
+#' specifically designed functions depending on the 'class' of the first
+#' argument.
+#' 
+#' See \code{\link{predictSurvProb}}.
+#' 
+#' @aliases predictEventProb predictEventProb.CauseSpecificCox
+#' predictEventProb.riskRegression predictEventProb.FGR
+#' predictEventProb.prodlim predictEventProb.rfsrc
+#' @param object A fitted model from which to extract predicted event
+#' probabilities
+#' @param newdata A data frame containing predictor variable combinations for
+#' which to compute predicted event probabilities.
+#' @param times A vector of times in the range of the response variable, for
+#' which the cumulative incidences event probabilities are computed.
+#' @param cause Identifies the cause of interest among the competing events.
+#' @param \dots Additional arguments that are passed on to the current method.
+#' @return A matrix with as many rows as \code{NROW(newdata)} and as many
+#' columns as \code{length(times)}. Each entry should be a probability and in
+#' rows the values should be increasing.
+#' @author Thomas A. Gerds \email{tag@@biostat.ku.dk}
+#' @seealso See \code{\link{predictSurvProb}}.
+#' @keywords survival
+#' @examples
+#' 
+#' \donttest{
+#' library(pec)
+#' library(CoxBoost)
+#' library(survival)
+#' train <- SimCompRisk(100)
+#' test <- SimCompRisk(10)
+#' cb.fit <- coxboost(Hist(time,cause)~X1+X2,data=train,stepno=100)
+#' predictEventProb(cb.fit,newdata=test,times=seq(1:10),cause=1)
+#' }
+#' 
+#' @export predictEventProb
 predictEventProb <- function(object,newdata,times,cause,...){
   UseMethod("predictEventProb",object)
 }
 
+##' @S3method predictEventProb matrix
 predictEventProb.matrix <- function(object,newdata,times,...){
   if (NROW(object) != NROW(newdata) || NCOL(object) != length(times)){
     stop(paste("Prediction matrix has wrong dimensions: ",
@@ -21,6 +65,7 @@ predictEventProb.matrix <- function(object,newdata,times,...){
   object
 }
 
+##' @S3method predictEventProb prodlim
 predictEventProb.prodlim <- function(object,newdata,times,cause,...){
   ## require(prodlim)
   p <- predict(object=object,cause=cause,type="cuminc",newdata=newdata,times=times,mode="matrix",level.chaos=1)
@@ -41,6 +86,7 @@ predictEventProb.prodlim <- function(object,newdata,times,cause,...){
   p
 }
 
+##' @S3method predictEventProb FGR
 predictEventProb.FGR <- function(object,newdata,times,cause,...){
   ## require(cmprsk)
   # require(compRisk)
@@ -50,6 +96,7 @@ predictEventProb.FGR <- function(object,newdata,times,cause,...){
   p
 }
 
+##' @S3method predictEventProb riskRegression
 predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata,times=times)
@@ -60,6 +107,7 @@ predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
   p
 }
 
+##' @S3method predictEventProb ARR
 predictEventProb.ARR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata,times=times)
@@ -71,6 +119,7 @@ predictEventProb.ARR <- function(object,newdata,times,cause,...){
 }
 
 
+##' @S3method predictEventProb CauseSpecificCox
 predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ...) {
     survtype <- object$survtype
     N <- NROW(newdata)
@@ -122,6 +171,7 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
     p
 }
 
+##' @S3method predictEventProb rfsrc
 predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
   if (missing(cause)) stop("missing cause")
   if (!is.numeric(cause)) stop("cause is not numeric")

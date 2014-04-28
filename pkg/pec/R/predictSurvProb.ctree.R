@@ -1,5 +1,4 @@
 # CTREE
-# --------------------------------------------------------------------
 pecCtree <- function(...){
  out <- list(ctree=ctree(...))
  class(out) <- "pecCtree"
@@ -7,6 +6,7 @@ pecCtree <- function(...){
  out  
 }
 
+##' @S3method predictSurvProb pecCtree
 predictSurvProb.pecCtree <- function (object, newdata, times, ...) {
     require(party)
     N <- NROW(newdata)
