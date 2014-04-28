@@ -150,7 +150,8 @@ plot.Roc <- function(x,
     if (missing(auc))
         auc <- ifelse(length(names(models))>1,TRUE,FALSE)
     if (auc){
-        thelegend <- paste(models," (",round(100*unlist(x$Auc[models]),as.numeric(auc)),")",sep="")
+        AucString <- round(100*unlist(do.call("rbind",x$Auc)[,1]),as.numeric(auc))
+        thelegend <- paste(models," (",AucString,")",sep="")
         legend.title <- "AUC (%)"
     }
     else{

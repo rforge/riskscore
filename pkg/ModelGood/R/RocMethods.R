@@ -395,7 +395,9 @@ Roc.list <- function(object,
         else
             breaks.f <- breaks
         AppRoc <- Roc.default(object=pred,y=Y,breaks=breaks.f,cbRatio=cbRatio)
-        AppAuc <- Auc.default(object=AppRoc$Sensitivity,Spec=AppRoc$Specificity)
+        if (length(unique(pred))==1) AppAuc <- 0.5
+        AppAuc <- Auc.default(object=AppRoc$Sensitivity,
+                              Spec=AppRoc$Specificity)
         if (brier.obj[[f]])
             AppBS <- Brier.default(object=pred,y=Y,cbRatio=cbRatio)
         else

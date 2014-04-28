@@ -39,10 +39,16 @@ summary.Roc <- function(object,digits=2,print.it=TRUE,...){
             } else{
                 cat("Area under the ROC curve (AUC, higher better):\n")
                 tab.auc <- apply(as.data.frame(modelsAuc[order(-modelsAuc[,1,drop=TRUE]),,drop=FALSE]),2,round,digits=digits)
-                colnames(tab.auc) <- gsub("AppAuc","apparent",colnames(tab.auc))
+                if (is.null(dim(tab.auc)))
+                    names(tab.auc) <- gsub("AppAuc","apparent",names(tab.auc))
+                else
+                    colnames(tab.auc) <- gsub("AppAuc","apparent",colnames(tab.auc))
                 print(tab.auc,quote=FALSE)
                 cat("\nBrier score (Brier, lower better):\n")
                 tab.brier <- apply(as.data.frame(modelsBS[order(modelsBS[,1,drop=TRUE]),,drop=FALSE]),2,round,digits=digits)
+                if (is.null(dim(tab.auc)))
+                    names(tab.brier) <- gsub("AppBS","apparent",names(tab.brier))
+                else
                 colnames(tab.brier) <- gsub("AppBS","apparent",colnames(tab.brier))
                 print(tab.brier, quote=FALSE)
             }

@@ -140,13 +140,13 @@ Diagnose <- function(x,event,cutoff,comparison=">=",...){
         Event <- 1*(event==levels(event)[2])
     else
         Event <- 1*(event==max(event))
-    sens <- binom.test(x=sum(Test==1 & Event==1),n=sum(Test==1),...)
-    spec <- binom.test(x=sum(Test==0 & Event==0),n=sum(Test==0),...)
-    ppv <- binom.test(x=sum(Test==1 & Event==1),n=sum(Event==1),...)
-    npv <- binom.test(x=sum(Test==0 & Event==0),n=sum(Event==0),...)
+    sens <- binom.test(x=sum(Test==1 & Event==1),n=sum(Event==1),...)
+    spec <- binom.test(x=sum(Test==0 & Event==0),n=sum(Event==0),...)
+    ppv <- binom.test(x=sum(Test==1 & Event==1),n=sum(Test==1),...)
+    npv <- binom.test(x=sum(Test==0 & Event==0),n=sum(Test==0),...)
     out <- list(table=table(test=Test, event=Event),
                 diag=list(Sensitivity=list(Sensitivity=sens$estimate,conf.int=sens$conf.int),
-                    Specificity=list(Sensitivity=spec$estimate,conf.int=spec$conf.int),
+                    Specificity=list(Specificity=spec$estimate,conf.int=spec$conf.int),
                     PPV=list(PPV=ppv$estimate,conf.int=ppv$conf.int),
                     NPV=list(NPV=npv$estimate,conf.int=npv$conf.int)))
     class(out) <- "Diagnose"
