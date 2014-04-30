@@ -1,5 +1,4 @@
 ##' @S3method summary pec
-##' @method print prec
 summary.pec <-  function(object,
                            times,
                            what,

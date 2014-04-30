@@ -9,7 +9,7 @@ Depends:
 Imports:
     prodlim,
     foreach,
-    rms,
+    rms
 Suggests:
     survival,
     timereg,

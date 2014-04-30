@@ -18,7 +18,7 @@
 #' @seealso \code{\link{pec}}
 #' @keywords survival
 #' @S3method print pec
-#' @method print prec
+#' @method print pec
 print.pec <- function(x,
                       times,
                       digits=3,
