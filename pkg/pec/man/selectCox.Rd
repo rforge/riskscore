@@ -27,6 +27,7 @@ finally \code{cph} again.
 }
 \examples{
 data(GBSG2)
+library(survival)
 f <- selectCox(Surv(time,cens)~horTh+age+menostat+tsize+tgrade+pnodes+progrec+estrec ,
 	       data=GBSG2)
 }
