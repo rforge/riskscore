@@ -2,7 +2,7 @@
 \alias{coxboost}
 \title{Formula interface for function \code{CoxBoost} of package \code{CoxBoost}.}
 \usage{
-coxboost(formula, data, cv = TRUE, cause, penalty, ...)
+coxboost(formula, data, cv = TRUE, cause = 1, penalty, ...)
 }
 \arguments{
   \item{formula}{An event-history formula for competing
@@ -27,8 +27,8 @@ coxboost(formula, data, cv = TRUE, cause, penalty, ...)
 
   \item{penalty}{See \code{CoxBoost}.}
 
-  \item{\dots}{Arguments passed to either \code{CoxBoost}
-  via \code{CoxBoost.arg} or to \code{cv.CoxBoost} via
+  \item{...}{Arguments passed to either \code{CoxBoost} via
+  \code{CoxBoost.arg} or to \code{cv.CoxBoost} via
   \code{cv.CoxBoost.arg}.}
 }
 \value{

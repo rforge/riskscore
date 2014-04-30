@@ -3,18 +3,18 @@
 \alias{Pbc3}
 \title{Pbc3 data}
 \format{A data frame with 349 observations on the following 15 variables.
-\describe{ \item{list("ptno")}{patient identification}
-\item{list("unit")}{hospital (1: Hvidovre, 2: London, 3: Copenhagen, 4:
-Barcelona, 5: Munich, 6: Lyon)} \item{list("tment")}{treatment (0: placebo,
-1: CyA)} \item{list("sex")}{(1: males, 0: females)} \item{list("age")}{age
-in years} \item{list("stage")}{histological stage (1, 2, 3, 4)}
-\item{list("gibleed")}{previous gastrointestinal bleeding (1: yes, 0: no)}
-\item{list("crea")}{creatinine (micromoles/L)} \item{list("alb")}{albumin
-(g/L)} \item{list("bili")}{bilirubin (micromoles/L)}
-\item{list("alkph")}{alkaline phosphatase (IU/L)}
-\item{list("asptr")}{aspartate transaminase (IU/L)}
-\item{list("weight")}{body weight (kg)} \item{list("days")}{observation time
-(days)} \item{list("status")}{status at observation time (0: censored, 1:
+\describe{ \item{ptno}{patient identification}
+\item{unit}{hospital (1: Hvidovre, 2: London, 3: Copenhagen, 4:
+Barcelona, 5: Munich, 6: Lyon)} \item{tment}{treatment (0: placebo,
+1: CyA)} \item{sex}{(1: males, 0: females)} \item{age}{age
+in years} \item{stage}{histological stage (1, 2, 3, 4)}
+\item{gibleed}{previous gastrointestinal bleeding (1: yes, 0: no)}
+\item{crea}{creatinine (micromoles/L)} \item{alb}{albumin
+(g/L)} \item{bili}{bilirubin (micromoles/L)}
+\item{alkph}{alkaline phosphatase (IU/L)}
+\item{asptr}{aspartate transaminase (IU/L)}
+\item{weight}{body weight (kg)} \item{days}{observation time
+(days)} \item{status}{status at observation time (0: censored, 1:
 liver transplantation, 2 : dead)} }}
 \source{
 \url{http://192.38.117.59/~linearpredictors/?page=datasets&dataset=Pbc3}

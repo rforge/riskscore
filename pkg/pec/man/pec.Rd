@@ -4,7 +4,7 @@
 \usage{
 pec(object, formula, data, times, cause, start, maxtime, exact = TRUE,
   exactness = 100, fillChar = NA, cens.model = "cox",
-  ipcw.refit = FALSE, ipcw.args, splitMethod = "none", B, M,
+  ipcw.refit = FALSE, ipcw.args = NULL, splitMethod = "none", B, M,
   reference = TRUE, model.args = NULL, model.parms = NULL,
   keep.index = FALSE, keep.matrix = FALSE, keep.models = "Call",
   keep.residuals = FALSE, keep.pvalues = FALSE, noinf.permute = FALSE,
@@ -109,6 +109,9 @@ pec(object, formula, data, times, cause, start, maxtime, exact = TRUE,
   \item{ipcw.refit}{If \code{TRUE} the inverse probability
   of censoring weigths are estimated separately in each
   training set during cross-validation.}
+
+  \item{ipcw.args}{List of arguments passed to function
+  specified by argument \code{cens.model}.}
 
   \item{splitMethod}{SplitMethod for estimating the
   prediction error curves.
@@ -342,6 +345,7 @@ from \code{library(survnnet)}} \item{}{\code{rpart} (from
 
 set.seed(130971)
 library(prodlim)
+library(survival)
 dat <- SimSurv(300)
 
 # fit some candidate Cox models and compute the Kaplan-Meier estimate
@@ -365,7 +369,6 @@ summary(PredError)
 plot(PredError,xlim=c(0,30))
 
 # Comparison of Weibull model and Cox model
-\donttest{
 library(survival)
 library(rms)
 library(pec)
@@ -375,9 +378,7 @@ f2 <- coxph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
 brier <- pec(list("Weibull"=f1,"Cox"=f2),data=pbc,formula=Surv(time,status!=0)~1)
 print(brier)
 plot(brier)
-}
 
-\donttest{
 # compute the .632+ estimate of the generalization error
 set.seed(17100)
 PredError.632plus <- pec(object=Models,
@@ -386,14 +387,12 @@ PredError.632plus <- pec(object=Models,
                   exact=TRUE,
                   cens.model="marginal",
                   splitMethod="Boot632plus",
-                  B=100,
+                  B=3,
                   verbose=TRUE)
 
 print(PredError.632plus,times=seq(5,30,5))
 summary(PredError.632plus)
 plot(PredError.632plus,xlim=c(0,30))
-}
-\donttest{
 # do the same again but now in parallel
 set.seed(17100)
 library(doMC)
@@ -404,13 +403,12 @@ PredError.632plus <- pec(object=Models,
                   exact=TRUE,
                   cens.model="marginal",
                   splitMethod="Boot632plus",
-                  B=100,
+                  B=3,
                   verbose=TRUE)
-}
 
 # assessing parametric survival models in learn/validation setting
-learndat <- SimSurv(500)
-testdat <- SimSurv(300)
+learndat <- SimSurv(50)
+testdat <- SimSurv(30)
 library(rms)
 f1 <- psm(Surv(time,status)~X1+X2,data=learndat)
 f2 <- psm(Surv(time,status)~X1,data=learndat)
@@ -422,7 +420,6 @@ summary(pf)
 
 # ---------------- competing risks -----------------
 
-\donttest{
 library(survival)
 library(riskRegression)
 library(cmprsk)
@@ -431,10 +428,11 @@ data(pbc)
 f1  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc)
 f1a  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc,survtype="surv")
 f2  <- CSC(Hist(time,status)~sex,data=pbc,cause=2)
+require(cmprsk)
+predict.crr <- cmprsk:::predict.crr
 f3  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
 f4  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
 p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,status)~1,data=pbc,cause=2)
-}
 }
 \author{
 Thomas Alexander Gerds \email{tag@biostat.ku.dk}

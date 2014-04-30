@@ -25,6 +25,22 @@
 #' predictSurvProb.pecCforest predictSurvProb.prodlim predictSurvProb.psm
 #' predictSurvProb.selectCox predictSurvProb.survfit predictSurvProb.survnnet
 #' predictSurvProb.phnnet predictSurvProb.rpart
+#' @usage
+#' \method{predictSurvProb}{aalen}(object,newdata,times,...)
+#' \method{predictSurvProb}{riskRegression}(object,newdata,times,...)
+#' \method{predictSurvProb}{cox.aalen}(object,newdata,times,...)
+#' \method{predictSurvProb}{cph}(object,newdata,times,...)
+#' \method{predictSurvProb}{coxph}(object,newdata,times,...)
+#' \method{predictSurvProb}{mfp}(object,newdata,times,...)
+#' \method{predictSurvProb}{matrix}(object,newdata,times,...)
+#' \method{predictSurvProb}{selectCox}(object,newdata,times,...)
+#' \method{predictSurvProb}{pecCforest}(object,newdata,times,...)
+#' \method{predictSurvProb}{prodlim}(object,newdata,times,...)
+#' \method{predictSurvProb}{psm}(object,newdata,times,...)
+#' \method{predictSurvProb}{survfit}(object,newdata,times,...)
+#' \method{predictSurvProb}{survnnet}(object,newdata,times,train.data,...)
+#' \method{predictSurvProb}{rpart}(object,newdata,times,train.data,...)
+#' \method{predictSurvProb}{phnnet}(object,newdata,times,train.data,...)
 #' @param object A fitted model from which to extract predicted survival
 #' probabilities
 #' @param newdata A data frame containing predictor variable combinations for
@@ -75,6 +91,7 @@
 #' learndat <- SimSurv(100)
 #' valdat <- SimSurv(100)
 #' ## use the learning data to fit a Cox model
+#' library(survival)
 #' fitCox <- coxph(Surv(time,status)~X1+X2,data=learndat)
 #' ## suppose we want to predict the survival probabilities for all patients
 #' ## in the validation data at the following time points:
@@ -84,12 +101,10 @@
 #' ## one column for each of the 5 time points
 #' ## one row for each validation set individual
 #' 
-#' \donttest{
 #' # the same can be done e.g. for a randomSurvivalForest model
 #' library(randomForestSRC)
 #' rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 #' predictSurvProb(rsfmodel,newdata=ndat,times=ttt)
-#' }
 #' 
 #' @export predictSurvProb
 predictSurvProb <- function(object,newdata,times,...){
@@ -187,44 +202,36 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
 
 ##' @S3method predictSurvProb mfp
 predictSurvProb.mfp <- function(object,newdata,times,...){
-  # require(mfp)
-  p <- predictSurvProb.coxph(object$fit,newdata=newdata,times=times)
-##' @S3method predictSurvProb coxph(object$fit,newdata=newdata,times=times)
-
-  p
+    p <- predictSurvProb.coxph(object$fit,newdata=newdata,times=times)
+    predictSurvProb.coxph(object$fit,newdata=newdata,times=times)
+    p
 }
 
 
 ##' @S3method predictSurvProb survnnet
 predictSurvProb.survnnet <- function(object,newdata,times,train.data,...){
-#predictSurvProb.survnnet <- function(object,newdata,times,...){
-  ## require(rms)
-  learndat <- train.data
-  learndat$nnetFactor <- predict(object,train.data,...)
-  newdata$nnetFactor <- predict(object,newdata)
-  nnet.form <- reformulate("nnetFactor",object$call$formula[[2]])
-  fit.nnet <- cph(nnet.form,data=learndat,se.fit=FALSE,surv=TRUE,x=TRUE,y=TRUE)
-  p <- predictSurvProb.cph(fit.nnet,newdata=newdata,times=times)
-##' @S3method predictSurvProb cph(fit.nnet,newdata=newdata,times=times)
-
+    #predictSurvProb.survnnet <- function(object,newdata,times,...){
+    ## require(rms)
+    learndat <- train.data
+    learndat$nnetFactor <- predict(object,train.data,...)
+    newdata$nnetFactor <- predict(object,newdata)
+    nnet.form <- reformulate("nnetFactor",object$call$formula[[2]])
+    fit.nnet <- rms::cph(nnet.form,data=learndat,se.fit=FALSE,surv=TRUE,x=TRUE,y=TRUE)
+    p <- predictSurvProb.cph(fit.nnet,newdata=newdata,times=times)
+    predictSurvProb.cph(fit.nnet,newdata=newdata,times=times)
   p
 }
 
 
 ##' @S3method predictSurvProb rpart
 predictSurvProb.rpart <- function(object,newdata,times,train.data,...){
-#  require(rpart)
-  ## require(rms)
   learndat <- train.data
   nclass <- length(unique(object$where))
   learndat$rpartFactor <- factor(predict(object,newdata=train.data,...))
   newdata$rpartFactor <- factor(predict(object,newdata=newdata))
   rpart.form <- reformulate("rpartFactor",eval(object$call$formula)[[2]])  
-  ##   rpart.form <- reformulate("rpartFactor",object$call$formula[[2]])
-  #  fit.rpart <- cph(rpart.form,data=learndat,se.fit=FALSE,surv=TRUE,x=TRUE,y=TRUE)
   fit.rpart <- prodlim(rpart.form,data=learndat)
   p <- predictSurvProb(fit.rpart,newdata=newdata,times=times)
-  #  print(p[100:113,1:10])
   p
 }
 
@@ -296,7 +303,7 @@ predictSurvProb.coxph.penal <- function(object,newdata,times,...){
 ##' @S3method predictSurvProb cph
 predictSurvProb.cph <- function(object,newdata,times,...){
   if (!match("surv",names(object),nomatch=0)) stop("Argument missing: set surv=TRUE in the call to cph!")
-  p <- survest(object,times=times,newdata=newdata,se.fit=FALSE,what="survival")$surv
+  p <- rms::survest(object,times=times,newdata=newdata,se.fit=FALSE,what="survival")$surv
   if (is.null(dim(p))) p <- matrix(p,nrow=NROW(newdata))
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed")
@@ -410,18 +417,17 @@ predictSurvProb.survfit <- function(object,newdata,times,...){
 
 
 ## library randomSurvivalForest
-##' @S3method predictSurvProb rsf
-predictSurvProb.rsf <- function(object,newdata,times,...){
-   p <- predict.rsf(object,newdata=newdata,times=times,bytimes=TRUE,fill="last")
-  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
-   p
-}
+## predictSurvProb.rsf <- function(object,newdata,times,...){
+## p <- predict.rsf(object,newdata=newdata,times=times,bytimes=TRUE,fill="last")
+## if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+## stop("Prediction failed")
+## p
+## }
 
 
 ##' @S3method predictSurvProb psm
 predictSurvProb.psm <- function(object,newdata,times,...){
-  p <- survest(object,times=times,newdata=newdata,what="survival",conf.int=FALSE)
+  p <- rms::survest(object,times=times,newdata=newdata,what="survival",conf.int=FALSE)
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed")
   p
@@ -449,10 +455,9 @@ predictSurvProb.phnnet <- function(object,newdata,times,train.data,...){
   #  newdata$nnetFactor <- predict(object,newdata)
   nnet.form <- reformulate("nnetFactor",object$call$formula[[2]])
   ## require(rms)
-  fit.nnet <- cph(nnet.form,data=learndat,se.fit=FALSE,surv=TRUE,x=TRUE,y=TRUE)
+  fit.nnet <- rms::cph(nnet.form,data=learndat,se.fit=FALSE,surv=TRUE,x=TRUE,y=TRUE)
   p <- predictSurvProb.cph(fit.nnet,newdata=newdata,times=times)
-##' @S3method predictSurvProb cph(fit.nnet,newdata=newdata,times=times)
-
+  predictSurvProb.cph(fit.nnet,newdata=newdata,times=times)
   p
 }
 

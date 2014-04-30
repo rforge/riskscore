@@ -12,7 +12,7 @@ ipcw(formula, data, method, args, times, subjectTimes, subjectTimesLag = 1,
 }
 \arguments{
   \item{formula}{A survival formula like,
-  Surv(time,status)~1, where as usual status=0 means
+  \code{Surv(time,status)~1}, where as usual status=0 means
   censored. The status variable is internally reversed for
   estimation of censoring rather than survival
   probabilities. Some of the available models (see argument

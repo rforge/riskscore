@@ -1,9 +1,12 @@
-plot.Cindex <- function(x,ylim=c(.4,1),xlim=c(0,x$maxtime),abline=TRUE,...){
+##' @S3method plot Cindex
+plot.Cindex <- function(x,ylim=c(.4,1),xlim=c(0,x$maxtime),abline=TRUE,xlab="Time",ylab="C-index",...){
   argList <- match.call(expand.dots=TRUE)
   argList[[1]] <- as.name("list")
   argList <- eval(argList,parent.frame())
-  argList <- c(list("what"=switch(x$splitMethod$internal.name,"noPlan"={"AppCindex"},
-                      paste(x$splitMethod$internal.name,"Cindex",sep=""),ylab="C-index")),argList)
+  argList <- c(list("what"=switch(x$splitMethod$internal.name,
+                        "noPlan"={"AppCindex"},
+                        paste(x$splitMethod$internal.name,"Cindex",sep=""),
+                        xlab=xlab,ylab=ylab)),argList)
   argList$ylim <- ylim
   argList$xlim <- xlim
   argList$x$exact <- FALSE

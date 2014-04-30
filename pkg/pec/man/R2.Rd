@@ -46,6 +46,7 @@ sensible reference model for $R^2$.
 \examples{
 set.seed(18713)
 library(prodlim)
+library(survival)
 dat=SimSurv(100)
 nullmodel=prodlim(Hist(time,status)~1,data=dat)
 pmodel1=coxph(Surv(time,status)~X1+X2,data=dat)

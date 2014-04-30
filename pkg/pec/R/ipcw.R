@@ -15,7 +15,7 @@
 #' choices of \code{method}.
 #' 
 #' @aliases ipcw ipcw.none ipcw.marginal ipcw.nonpar ipcw.cox ipcw.aalen
-#' @param formula A survival formula like, Surv(time,status)~1, where
+#' @param formula A survival formula like, \code{Surv(time,status)~1}, where
 #' as usual status=0 means censored. The status variable is internally
 #' reversed for estimation of censoring rather than survival
 #' probabilities. Some of the available models (see argument
@@ -66,7 +66,7 @@
 #' WKM$fit
 #' 
 #' # using the Cox model for the censoring times given X2
-#' 
+#'
 #' WCox=ipcw(Surv(time,status)~X2,
 #'   data=dat,
 #'   method="cox",
@@ -155,8 +155,7 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
         args <- list(bootstrap="none",ntree=1000,nodesize=NROW(data)/2)
     ## if (is.null(args$importance) & (args$importance!="none"))
     args$importance <- "none"
-    rfsrc <- randomForestSRC::rfsrc
-    fit <- do.call("rfsrc",c(list(formula,data=reverse.data),args))
+    fit <- do.call(randomForestSRC::rfsrc,c(list(formula,data=reverse.data),args))
     ## browser()
     #  weigths at requested times
     #  predicted survival probabilities for all training subjects are in object$survival
@@ -261,6 +260,7 @@ ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimes
 #  if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
 #  call <- match.call()
 #  require(survival)
+#  require(rms)
 #  survival.survfit.coxph <- getFromNamespace("survfit.coxph",ns="survival")
 #  survival.summary.survfit <- getFromNamespace("summary.survfit",ns="survival")
 #  status.name <- all.vars(formula)[2]
@@ -270,14 +270,14 @@ ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimes
 #  fit <- coxph(formula,data=reverse.data)
 #  survfit.object <- survival.survfit.coxph(fit,newdata=data,se.fit=FALSE,conf.int=FALSE)
 #  if (match("IPCW.times",what,nomatch=FALSE))
-#    IPCW.times <- survest(fit,newdata=data,times=times,se.fit=FALSE)$surv
+#    IPCW.times <- rms::survest.cph(fit,newdata=data,times=times,se.fit=FALSE)$surv
 #  else
 #    IPCW.times <- NULL
 #  if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
 #    if (subjectTimesLag==1) 
-#      IPCW.subjectTimes <- survest(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
+#      IPCW.subjectTimes <- rms::survest.cph(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
 #    else if (subjectTimesLag==0)
-#      IPCW.subjectTimes <- survest(fit,times=subjectTimes,what='parallel')
+#      IPCW.subjectTimes <- rms::survest.cph(fit,times=subjectTimes,what='parallel')
 #    else stop("SubjectTimesLag must be 0 or 1")}
 #  else
 #    IPCW.subjectTimes <- NULL
@@ -298,19 +298,19 @@ ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag
   reverse.data <- data
   reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
   stopifnot(NROW(na.omit(data))>0)
-  fit <- cph(formula,data=reverse.data,surv=TRUE,x=TRUE,y=TRUE)
+  fit <- rms::cph(formula,data=reverse.data,surv=TRUE,x=TRUE,y=TRUE)
   #  weigths at requested times
   if (match("IPCW.times",what,nomatch=FALSE)){
-    IPCW.times <- survest(fit,newdata=data,times=times,se.fit=FALSE)$surv
+    IPCW.times <- rms::survest.cph(fit,newdata=data,times=times,se.fit=FALSE)$surv
   }
   else
     IPCW.times <- NULL
   #  weigths at subject specific event times
   if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
     if (subjectTimesLag==1)
-      IPCW.subjectTimes <- survest(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
+      IPCW.subjectTimes <- rms::survest.cph(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
     else if (subjectTimesLag==0){
-      IPCW.subjectTimes <- survest(fit,times=subjectTimes,what='parallel')
+      IPCW.subjectTimes <- rms::survest.cph(fit,times=subjectTimes,what='parallel')
     }
     else stop("SubjectTimesLag must be 0 or 1")
   }
@@ -369,7 +369,7 @@ ipcw.aalen <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
 #  reverse.data <- data
 #  reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
 #  stopifnot(NROW(na.omit(data))>0)
-#  fit <- cph(formula,data=reverse.data,surv=TRUE,x=TRUE,y=TRUE)
+#  fit <- rms::cph(formula,data=reverse.data,surv=TRUE,x=TRUE,y=TRUE)
 #  data$lp <- predict(fit,type="lp")
 #  reform <- reformulate("lp",formula[[2]])
 #  fit <- prodlim(reform,data=data,reverse=TRUE,bandwidth="smooth")

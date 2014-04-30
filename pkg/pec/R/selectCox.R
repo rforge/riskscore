@@ -19,23 +19,21 @@
 #' @keywords survival
 #' @examples
 #' 
-#' \donttest{
 #' data(GBSG2)
 #' f <- selectCox(Surv(time,cens)~horTh+age+menostat+tsize+tgrade+pnodes+progrec+estrec ,
 #' 	       data=GBSG2)
-#' }
 #' 
 #' @export selectCox
 selectCox <- function(formula,data,rule="aic"){
-    fit <- cph(formula, data, surv=TRUE)
-    bwfit <- fastbw(fit,rule=rule)
+    fit <- rms::cph(formula, data, surv=TRUE)
+    bwfit <- rms::fastbw(fit,rule=rule)
     if (length(bwfit$names.kept)==0){
         newform <- reformulate("1",formula[[2]])
         newfit <- prodlim(newform,data=data)
     }
     else{
         newform <- reformulate(bwfit$names.kept, formula[[2]])
-        newfit <- cph(newform,data, surv=TRUE)
+        newfit <- rms::cph(newform,data, surv=TRUE)
     }
     out <- list(fit=newfit,In=bwfit$names.kept)
     out$call <- match.call()

@@ -1,16 +1,15 @@
 \name{cindex}
 \alias{cindex}
-\alias{cindex.list}
 \title{Concordance index for right censored survival time data}
 \usage{
 cindex(object, formula, data, eval.times, pred.times, cause, lyl = FALSE,
-  cens.model = "marginal", ipcw.refit = FALSE, ipcw.limit,
-  tiedPredictionsIn = TRUE, tiedOutcomeIn = TRUE, tiedMatchIn = TRUE,
-  splitMethod = "noPlan", B, M, model.args = NULL, model.parms = NULL,
-  keep.models = "Call", keep.residuals = FALSE, keep.pvalues = FALSE,
-  keep.weights = FALSE, keep.index = FALSE, keep.matrix = FALSE,
-  multiSplitTest = FALSE, testTimes, confInt = FALSE, confLevel = 0.95,
-  verbose = TRUE, savePath = NULL, slaveseed = NULL,
+  cens.model = "marginal", ipcw.refit = FALSE, ipcw.args = NULL,
+  ipcw.limit, tiedPredictionsIn = TRUE, tiedOutcomeIn = TRUE,
+  tiedMatchIn = TRUE, splitMethod = "noPlan", B, M, model.args = NULL,
+  model.parms = NULL, keep.models = "Call", keep.residuals = FALSE,
+  keep.pvalues = FALSE, keep.weights = FALSE, keep.index = FALSE,
+  keep.matrix = FALSE, multiSplitTest = FALSE, testTimes, confInt = FALSE,
+  confLevel = 0.95, verbose = TRUE, savePath = NULL, slaveseed = NULL,
   na.action = na.fail, ...)
 }
 \arguments{
@@ -93,6 +92,9 @@ cindex(object, formula, data, eval.times, pred.times, cause, lyl = FALSE,
   \item{ipcw.refit}{If \code{TRUE} the inverse probability
   of censoring weigths are estimated separately in each
   training set during cross-validation.}
+
+  \item{ipcw.args}{List of arguments passed to function
+  specified by argument \code{cens.model}.}
 
   \item{ipcw.limit}{Value between 0 and 1 (but no equal to
   0!) used to cut for small weights in order to stabilize
@@ -225,11 +227,10 @@ with the functions \code{rcorr.cens} and \code{rcorrcens}
 from the \code{Hmisc} package (see examples).
 }
 \examples{
-\donttest{
- # simulate data based on Weibull regression
+# simulate data based on Weibull regression
 library(prodlim)
  set.seed(13)
- dat <- SimSurv(300)
+ dat <- SimSurv(100)
  # fit three different Cox models and a random survival forest
  # note: low number of trees for the purpose of illustration
  library(survival)
@@ -262,12 +263,10 @@ bcvCindex  <- cindex(list("Cox X1"=cox1,
 		  formula=Surv(time,status)~X1+X2,
 		  data=dat,
                   splitMethod="bootcv",
-                  B=10,
+                  B=5,
 		  eval.times=seq(5,500,50))
   print(bcvCindex)
   plot(bcvCindex)
-}
-\donttest{
  # for uncensored data the results are the same
  # as those obtained with the function rcorr.cens from Hmisc
 library(Hmisc)
@@ -292,11 +291,11 @@ harrelC12[["C Index"]]==Cpec$AppCindex[["Cox.X1.X2"]]
  #
  # competing risks
  #
-# require(lava)
-\% m <- lvm()
-\% X <- paste("X",seq(5),sep="")
-
-}
+library(riskRegression)
+set.seed(30)
+dcr.learn <- SimCompRisk(30)
+dcr.val <- SimCompRisk(30)
+cindex(CSC(Hist(time,event)~X1+X2,data=dcr.learn),data=dcr.val)
 }
 \author{
 Thomas A Gerds \email{tag@biostat.ku.dk}

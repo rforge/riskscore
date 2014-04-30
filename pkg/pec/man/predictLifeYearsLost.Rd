@@ -49,7 +49,6 @@ depending on the 'class' of the first argument.
 See \code{\link{predictSurvProb}}.
 }
 \examples{
-\donttest{
 library(pec)
 library(riskRegression)
 library(survival)
@@ -57,7 +56,6 @@ train <- SimCompRisk(100)
 test <- SimCompRisk(10)
 fit <- CSC(Hist(time,cause)~X1+X2,data=train,cause=1)
 predictLifeYearsLost(fit,newdata=test,times=seq(1:10),cv=FALSE,cause=1)
-}
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

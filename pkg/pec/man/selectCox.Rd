@@ -26,11 +26,9 @@ This function first calls \code{cph} then \code{fastbw} and
 finally \code{cph} again.
 }
 \examples{
-\donttest{
 data(GBSG2)
 f <- selectCox(Surv(time,cens)~horTh+age+menostat+tsize+tgrade+pnodes+progrec+estrec ,
 	       data=GBSG2)
-}
 }
 \references{
 Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).

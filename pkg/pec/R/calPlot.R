@@ -316,14 +316,15 @@ calPlot <- function(object,
             bootpred <- do.call("cbind",lapply(1:NF,function(f){
                 fit.b <- internalReevalFit(object=object[[f]],data=train.b,step=b,silent=FALSE,verbose=verbose)
                 extraArgs <- giveToModel[[f]]
-                try2predict <- try(switch(model.type,
-                                          "competing.risks"={do.call(predictHandlerFun,list(object=fit.b,newdata=val.b,times=time,cause=cause,train.data=train.b))},
-                                          "survival"={do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=time,train.data=train.b),extraArgs))},
-                                          "binary"={do.call(predictHandlerFun,list(object=fit.b,newdata=val.b))}),silent=TRUE)
+                try2predict <- try(pred.b <- switch(model.type,
+                                                    "competing.risks"={do.call(predictHandlerFun,list(object=fit.b,newdata=val.b,times=time,cause=cause,train.data=train.b))},
+                                                    "survival"={do.call(predictHandlerFun,c(list(object=fit.b,newdata=val.b,times=time,train.data=train.b),extraArgs))},
+                                                    "binary"={do.call(predictHandlerFun,list(object=fit.b,newdata=val.b))}),silent=TRUE)
                 if (inherits(try2predict,"try-error")==TRUE){
                     rep(NA,NROW(val.b))
+                }else{
+                    pred.b
                 }
-                pred.b
             }))
             colnames(bootpred) <- names(object)
             cbind(frame.b,bootpred)

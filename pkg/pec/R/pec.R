@@ -47,7 +47,8 @@
 #' \item{}{\code{cph}, \code{psm} from \code{library(rms)}}
 #' \item{}{\code{prodlim} from \code{library(prodlim)}} \item{}{\code{glm} from
 #' \code{library(stats)}} }
-#' 
+#'
+#' @aliases pec
 #' @param object A named list of prediction models, where allowed entries are
 #' (1) R-objects for which a \link{predictSurvProb} method exists (see
 #' details), (2) a \code{call} that evaluates to such an R-object (see
@@ -112,6 +113,7 @@
 #' @param ipcw.refit If \code{TRUE} the inverse probability of censoring
 #' weigths are estimated separately in each training set during
 #' cross-validation.
+#' @param ipcw.args List of arguments passed to function specified by argument \code{cens.model}.
 #' @param splitMethod SplitMethod for estimating the prediction error curves.
 #' 
 #' \code{none/noPlan}: Assess the models in the same data where they are
@@ -263,6 +265,7 @@
 #' 
 #' set.seed(130971)
 #' library(prodlim)
+#' library(survival)
 #' dat <- SimSurv(300)
 #' 
 #' # fit some candidate Cox models and compute the Kaplan-Meier estimate 
@@ -286,7 +289,6 @@
 #' plot(PredError,xlim=c(0,30))
 #' 
 #' # Comparison of Weibull model and Cox model
-#' \donttest{
 #' library(survival)
 #' library(rms)
 #' library(pec)
@@ -296,9 +298,7 @@
 #' brier <- pec(list("Weibull"=f1,"Cox"=f2),data=pbc,formula=Surv(time,status!=0)~1)
 #' print(brier)
 #' plot(brier)
-#' }
 #' 
-#' \donttest{
 #' # compute the .632+ estimate of the generalization error 
 #' set.seed(17100)
 #' PredError.632plus <- pec(object=Models,
@@ -307,14 +307,12 @@
 #'                   exact=TRUE,
 #'                   cens.model="marginal",
 #'                   splitMethod="Boot632plus",
-#'                   B=100,
+#'                   B=3,
 #'                   verbose=TRUE)
 #' 
 #' print(PredError.632plus,times=seq(5,30,5))
 #' summary(PredError.632plus)
 #' plot(PredError.632plus,xlim=c(0,30))
-#' }
-#' \donttest{
 #' # do the same again but now in parallel
 #' set.seed(17100)
 #' library(doMC)
@@ -325,13 +323,12 @@
 #'                   exact=TRUE,
 #'                   cens.model="marginal",
 #'                   splitMethod="Boot632plus",
-#'                   B=100,
+#'                   B=3,
 #'                   verbose=TRUE)
-#' }
 #' 
 #' # assessing parametric survival models in learn/validation setting
-#' learndat <- SimSurv(500)
-#' testdat <- SimSurv(300)
+#' learndat <- SimSurv(50)
+#' testdat <- SimSurv(30)
 #' library(rms)
 #' f1 <- psm(Surv(time,status)~X1+X2,data=learndat)
 #' f2 <- psm(Surv(time,status)~X1,data=learndat)
@@ -343,7 +340,6 @@
 #' 
 #' # ---------------- competing risks -----------------
 #' 
-#' \donttest{
 #' library(survival)
 #' library(riskRegression)
 #' library(cmprsk)
@@ -352,13 +348,14 @@
 #' f1  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc)
 #' f1a  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc,survtype="surv")
 #' f2  <- CSC(Hist(time,status)~sex,data=pbc,cause=2)
+#' require(cmprsk)
+#' predict.crr <- cmprsk:::predict.crr
 #' f3  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
 #' f4  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
 #' p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,status)~1,data=pbc,cause=2)
-#' }
-#' 
+#'
+#' @export 
 # {{{ header pec.list
-#' @export pec
 pec <- function(object,
                      formula,
                      data,

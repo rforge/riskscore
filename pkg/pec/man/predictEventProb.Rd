@@ -48,15 +48,16 @@ on the 'class' of the first argument.
 See \code{\link{predictSurvProb}}.
 }
 \examples{
-\donttest{
 library(pec)
 library(CoxBoost)
 library(survival)
+library(riskRegression)
 train <- SimCompRisk(100)
 test <- SimCompRisk(10)
-cb.fit <- coxboost(Hist(time,cause)~X1+X2,data=train,stepno=100)
-predictEventProb(cb.fit,newdata=test,times=seq(1:10),cause=1)
-}
+cox.fit  <- CSC(Hist(time,cause)~X1+X2,data=train)
+predictEventProb(cox.fit,newdata=test,times=seq(1:10),cause=1)
+## cb.fit <- coxboost(Hist(time,cause)~X1+X2,cause=1,data=train,stepno=10)
+## predictEventProb(cb.fit,newdata=test,times=seq(1:10),cause=1)
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

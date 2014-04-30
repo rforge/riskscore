@@ -73,7 +73,6 @@
 #' 
 #' # simulate data
 #' # with a survival response and two predictors
-#' \donttest{
 #' library(prodlim)
 #' library(survival)
 #' set.seed(280180)
@@ -99,7 +98,7 @@
 #'                          exact=TRUE,
 #'                          cens.model="marginal",
 #'                          splitMethod="boot632plus",
-#'                          B=10,
+#'                          B=5,
 #'                          keep.matrix=TRUE,
 #'                          verbose=TRUE)
 #' 
@@ -116,7 +115,6 @@
 #'      special.bench="Cox.X2",
 #'      special.benchcol=2,
 #'      special.addprederr="AppErr")
-#' }
 #' 
 #'
 ##' @S3method plot pec

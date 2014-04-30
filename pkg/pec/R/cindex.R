@@ -20,7 +20,7 @@
 #' functions \code{rcorr.cens} and \code{rcorrcens} from the \code{Hmisc}
 #' package (see examples).
 #' 
-#' @aliases cindex cindex.list
+#' @aliases cindex 
 #' @param object A named list of prediction models, where allowed entries are
 #' (1) R-objects for which a \link{predictSurvProb} method exists (see
 #' details), (2) a \code{call} that evaluates to such an R-object (see
@@ -76,6 +76,7 @@
 #' @param ipcw.refit If \code{TRUE} the inverse probability of censoring
 #' weigths are estimated separately in each training set during
 #' cross-validation.
+#' @param ipcw.args List of arguments passed to function specified by argument \code{cens.model}.
 #' @param ipcw.limit Value between 0 and 1 (but no equal to 0!) used to cut for
 #' small weights in order to stabilize the estimate at late times were few
 #' individuals are observed.
@@ -158,11 +159,10 @@
 #' @keywords survival
 #' @examples
 #' 
-#' \donttest{
 #'  # simulate data based on Weibull regression  
 #' library(prodlim)
 #'  set.seed(13)
-#'  dat <- SimSurv(300)
+#'  dat <- SimSurv(100)
 #'  # fit three different Cox models and a random survival forest
 #'  # note: low number of trees for the purpose of illustration 
 #'  library(survival)
@@ -195,12 +195,10 @@
 #' 		  formula=Surv(time,status)~X1+X2,
 #' 		  data=dat,
 #'                   splitMethod="bootcv",
-#'                   B=10,
+#'                   B=5,
 #' 		  eval.times=seq(5,500,50))
 #'   print(bcvCindex)
 #'   plot(bcvCindex)
-#' }
-#' \donttest{
 #'  # for uncensored data the results are the same
 #'  # as those obtained with the function rcorr.cens from Hmisc
 #' library(Hmisc)
@@ -225,12 +223,13 @@
 #'  #
 #'  # competing risks 
 #'  #
-#' # require(lava)
-#' % m <- lvm()
-#' % X <- paste("X",seq(5),sep="")
-#' 
-#' }
-#' 
+#' library(riskRegression)
+#' set.seed(30)
+#' dcr.learn <- SimCompRisk(30)
+#' dcr.val <- SimCompRisk(30)
+#' cindex(CSC(Hist(time,event)~X1+X2,data=dcr.learn),data=dcr.val)
+#'
+#' @export 
 # {{{ header cindex.list
 cindex <- function(object,
                    formula,
@@ -241,6 +240,7 @@ cindex <- function(object,
                    lyl=FALSE,
                    cens.model="marginal",
                    ipcw.refit=FALSE,
+                   ipcw.args=NULL,
                    ipcw.limit,
                    tiedPredictionsIn=TRUE,
                    tiedOutcomeIn=TRUE,

@@ -19,7 +19,21 @@
 \alias{predictSurvProb.survnnet}
 \title{Predicting survival probabilities}
 \usage{
-predictSurvProb(object, newdata, times, ...)
+\method{predictSurvProb}{aalen}(object,newdata,times,...)
+\method{predictSurvProb}{riskRegression}(object,newdata,times,...)
+\method{predictSurvProb}{cox.aalen}(object,newdata,times,...)
+\method{predictSurvProb}{cph}(object,newdata,times,...)
+\method{predictSurvProb}{coxph}(object,newdata,times,...)
+\method{predictSurvProb}{mfp}(object,newdata,times,...)
+\method{predictSurvProb}{matrix}(object,newdata,times,...)
+\method{predictSurvProb}{selectCox}(object,newdata,times,...)
+\method{predictSurvProb}{pecCforest}(object,newdata,times,...)
+\method{predictSurvProb}{prodlim}(object,newdata,times,...)
+\method{predictSurvProb}{psm}(object,newdata,times,...)
+\method{predictSurvProb}{survfit}(object,newdata,times,...)
+\method{predictSurvProb}{survnnet}(object,newdata,times,train.data,...)
+\method{predictSurvProb}{rpart}(object,newdata,times,train.data,...)
+\method{predictSurvProb}{phnnet}(object,newdata,times,train.data,...)
 }
 \arguments{
   \item{object}{A fitted model from which to extract
@@ -103,6 +117,7 @@ predictSurvProb(coxmodel,newdata=ndat,times=ttt)
 learndat <- SimSurv(100)
 valdat <- SimSurv(100)
 ## use the learning data to fit a Cox model
+library(survival)
 fitCox <- coxph(Surv(time,status)~X1+X2,data=learndat)
 ## suppose we want to predict the survival probabilities for all patients
 ## in the validation data at the following time points:
@@ -112,12 +127,10 @@ psurv <- predictSurvProb(fitCox,newdata=valdat,times=seq(0,60,12))
 ## one column for each of the 5 time points
 ## one row for each validation set individual
 
-\donttest{
 # the same can be done e.g. for a randomSurvivalForest model
 library(randomForestSRC)
 rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 predictSurvProb(rsfmodel,newdata=ndat,times=ttt)
-}
 }
 \author{
 Thomas A. Gerds \email{tag@biostat.ku.dk}

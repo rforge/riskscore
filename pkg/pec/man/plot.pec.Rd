@@ -99,7 +99,6 @@ functions.
 \examples{
 # simulate data
 # with a survival response and two predictors
-\donttest{
 library(prodlim)
 library(survival)
 set.seed(280180)
@@ -125,7 +124,7 @@ PredError.632plus <- pec(object=Models,
                          exact=TRUE,
                          cens.model="marginal",
                          splitMethod="boot632plus",
-                         B=10,
+                         B=5,
                          keep.matrix=TRUE,
                          verbose=TRUE)
 
@@ -142,7 +141,6 @@ plot(PredError.632plus,
      special.bench="Cox.X2",
      special.benchcol=2,
      special.addprederr="AppErr")
-}
 }
 \author{
 Ulla B. Mogensen \email{ulmo@biostat.ku.dk}, Thomas A.

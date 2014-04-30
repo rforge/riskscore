@@ -1,3 +1,4 @@
+##' @S3method plot confScoreSurv
 plot.confScoreSurv <- function(x,
                                what="mean",
                                xlim,

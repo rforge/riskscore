@@ -36,7 +36,6 @@
 #' @keywords survival
 #' @examples
 #' 
-#' \donttest{
 #' library(pec)
 #' library(riskRegression)
 #' library(survival)
@@ -44,7 +43,6 @@
 #' test <- SimCompRisk(10)
 #' fit <- CSC(Hist(time,cause)~X1+X2,data=train,cause=1)
 #' predictLifeYearsLost(fit,newdata=test,times=seq(1:10),cv=FALSE,cause=1)
-#' }
 #' 
 #' @export predictLifeYearsLost
 predictLifeYearsLost <- function(object,newdata,times,cause,...){

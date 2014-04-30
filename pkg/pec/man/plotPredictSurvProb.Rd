@@ -74,7 +74,6 @@ These arguments are processed via \code{\dots{}} of
 \code{SmartControl}.
 }
 \examples{
-\donttest{
 # generate some survival data
 library(prodlim)
 d <- SimSurv(100)
@@ -91,7 +90,6 @@ plotPredictSurvProb(coxmodel,newdata=ndat,times=ttt)
 library(randomForestSRC)
 rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 plotPredictSurvProb(rsfmodel,newdata=ndat,times=ttt)
-}
 }
 \author{
 Ulla B. Mogensen \email{ulmo@biostat.ku.dk}, Thomas A.

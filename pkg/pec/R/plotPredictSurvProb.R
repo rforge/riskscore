@@ -50,7 +50,6 @@
 #' @keywords survival
 #' @examples
 #' 
-#' \donttest{
 #' # generate some survival data
 #' library(prodlim)
 #' d <- SimSurv(100)
@@ -67,7 +66,6 @@
 #' library(randomForestSRC)
 #' rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 #' plotPredictSurvProb(rsfmodel,newdata=ndat,times=ttt)
-#' }
 #' 
 #' @export plotPredictSurvProb
 plotPredictSurvProb <- function(x,

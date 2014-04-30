@@ -32,10 +32,10 @@
 #' @examples
 #' set.seed(18713)
 #' library(prodlim)
+#' library(survival)
 #' dat=SimSurv(100)
-#' nullmodel=prodlim(Hist(time,status)~1,data=dat)
 #' pmodel=coxph(Surv(time,status)~X1+X2,data=dat)
-#' perror=pec(list(KaplanMeier=nullmodel,Cox=pmodel),Hist(time,status)~1,data=dat)
+#' perror=pec(list(Cox=pmodel),Hist(time,status)~1,data=dat)
 #' 
 #' ## cumulative prediction error
 #' crps(perror,times=1) # between min time and 1

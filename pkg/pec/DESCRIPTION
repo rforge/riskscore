@@ -1,6 +1,6 @@
 Package: pec
 Title: Prediction Error Curves for Survival Models
-Version: 2.3.5
+Version: 2.3.6
 Author: Thomas A. Gerds
 Description: Validation of predicted survival probabilities using inverse
     weighting and resampling.
@@ -9,19 +9,20 @@ Depends:
 Imports:
     prodlim,
     foreach,
-    rms
+    rms,
 Suggests:
     survival,
     timereg,
     randomForestSRC,
     party,
-    rpart,
     cmprsk,
+    rpart,
     doMC,
     CoxBoost,
     crrstep,
     riskRegression,
-    lava
+    lava,
+    Hmisc
 Maintainer: Thomas A. Gerds <tag@biostat.ku.dk>
 License: GPL (>= 2)
 Packaged: 16 Sep 2011 (09:23); tag

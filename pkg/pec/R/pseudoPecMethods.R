@@ -1,38 +1,35 @@
-pseudoPec <- function(object,...){
-  UseMethod("pseudoPec",object=object)
-}
-pseudoPec.list <- function(object,
-                     formula,
-                     data,
-                     times,
-                     cause,
-                     start,
-                     maxtime,
-                     exact=TRUE,
-                     exactness=100,
-                     fillChar=NA,
-                     cens.model="cox",
-                     ipcw.refit=FALSE,
-                     splitMethod="none",
-                     B,
-                     M,
-                     reference=TRUE,
-                     model.args=NULL,
-                     model.parms=NULL,
-                     keep.index=FALSE,
-                     keep.matrix=FALSE,
-                     keep.models=FALSE,
-                     keep.residuals=FALSE,
-                     keep.pvalues=FALSE,
-                     noinf.permute=FALSE,
-                     multiSplitTest=FALSE,
-                     testIBS,
-                     testTimes,
-                     confInt=FALSE,
-                     confLevel=0.95,
-                     verbose=TRUE,
-                     savePath=NULL,
-                     ...){
+pseudoPec <- function(object,
+                      formula,
+                      data,
+                      times,
+                      cause,
+                      start,
+                      maxtime,
+                      exact=TRUE,
+                      exactness=100,
+                      fillChar=NA,
+                      cens.model="cox",
+                      ipcw.refit=FALSE,
+                      splitMethod="none",
+                      B,
+                      M,
+                      reference=TRUE,
+                      model.args=NULL,
+                      model.parms=NULL,
+                      keep.index=FALSE,
+                      keep.matrix=FALSE,
+                      keep.models=FALSE,
+                      keep.residuals=FALSE,
+                      keep.pvalues=FALSE,
+                      noinf.permute=FALSE,
+                      multiSplitTest=FALSE,
+                      testIBS,
+                      testTimes,
+                      confInt=FALSE,
+                      confLevel=0.95,
+                      verbose=TRUE,
+                      savePath=NULL,
+                      ...){
   
   # {{{ checking integrity some arguments
   theCall=match.call()
@@ -40,15 +37,20 @@ pseudoPec.list <- function(object,
     stop("Argument name 'replan' has been replaced by 'splitMethod'.")
   
   if (!missing(testIBS) && (!(is.logical(testIBS) || (length(testIBS)==2 && is.numeric(testIBS)))))
-    stop("Argument testIBS can be TRUE/FALSE or a vector of two numeric values.")
+      stop("Argument testIBS can be TRUE/FALSE or a vector of two numeric values.")
   if (missing(testIBS)) testIBS <- FALSE
   if (keep.residuals && missing(testTimes))
-    stop("To keep.residuals please spseudoPecify testTimes.")
+      stop("To keep.residuals please spseudoPecify testTimes.")
   if (missing(splitMethod) && multiSplitTest==TRUE){
-    stop("Need data splitting to compute van de Wiel's test")
+      stop("Need data splitting to compute van de Wiel's test")
   }
   if (missing(M) && multiSplitTest)
-    M <- NA
+      M <- NA
+  # }}}
+  # {{{ check and convert object
+  if (class(object)[1]!="list") {
+      object <- list(object)
+  }
   # }}}
   # {{{ formula
 
@@ -440,38 +442,3 @@ pseudoPec.list <- function(object,
 }
 
 
-pseudoPec.glm <- function(object,...){
-  f <- eval(object$call$formula)
-  d <- eval(object$call$data)
-  pseudoPec(list("GLM"=object),formula=f,data=d,...)
-}
-
-pseudoPec.coxph <- function(object,...){
-  f <- eval(object$call$formula)
-  d <- eval(object$call$data)
-  pseudoPec(list("CoxModel"=object),formula=f,data=d,...)
-}
-
-pseudoPec.cph <- function(object,...){
-  f <- eval(object$call$formula)
-  d <- eval(object$call$data)
-  pseudoPec(list("CoxModel"=object),formula=f,data=d,...)
-}
-
-pseudoPec.survfit <- function(object,...){
-  f <- eval(object$call$formula)
-  d <- eval(object$call$data)
-  pseudoPec(list("SurvFit"=object),formula=f,data=d,...)
-}
-
-pseudoPec.prodlim <- function(object,...){
-  f <- eval(object$call$formula)
-  d <- eval(object$call$data)
-  pseudoPec(list("ProductLimit"=object),formula=f,data=d,...)
-}
-
-pseudoPec.aalen <- function(object,...){
-  f <- eval(object$call$formula)
-  d <- eval(object$call$data)
-  pseudoPec(list("AalenModel"=object),formula=f,data=d,...)
-}

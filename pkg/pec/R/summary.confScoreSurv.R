@@ -1,3 +1,4 @@
+##' @S3method summary confScoreSurv
 summary.confScoreSurv <- function(object,
                                   times,
                                   type=1,

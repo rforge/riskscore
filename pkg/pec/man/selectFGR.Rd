@@ -32,7 +32,6 @@ the \code{crrstep} package and then returns a fitted Fine &
 Gray regression model with the selected variables.
 }
 \examples{
-\donttest{
 library(riskRegression)
 library(prodlim)
 library(pec)
@@ -42,6 +41,8 @@ d <- SimCompRisk(100)
 newvars <- as.data.frame(matrix(runif(8*100),nrow=100))
 colnames(newvars) <- c('X3','X4','X5','X6','X7','X8','X9','X10')
 d <- cbind(d,newvars)
+require(cmprsk)
+predict.crr <- cmprsk:::predict.crr
 fg <- FGR(Hist(time, cause) ~ X1 + X2 + X3 + X4,cause=1,data=d)
 sfg <- selectFGR(Hist(time, cause) ~ X1 + X2 + X3 + X4,
 		 cause=1,
@@ -60,9 +61,8 @@ set.seed(7)
 pec(list(full.model=fg,selected.model=sfg),
     formula=Hist(time, cause)~1,
     data=d,
-    B=10,
+    B=5,
     splitMethod="bootcv")
-}
 }
 \author{
 Rob C.M. van Kruijsdijk
