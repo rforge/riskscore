@@ -51,7 +51,7 @@
 #' @examples
 #' 
 #' library(prodlim)
-#' dat=SimSurv(300)
+#' dat=SimSurv(30)
 #' 
 #' dat <- dat[order(dat$time),]
 #' 
@@ -66,8 +66,8 @@
 #' WKM$fit
 #' 
 #' # using the Cox model for the censoring times given X2
-#'
-#' WCox=ipcw(Surv(time,status)~X2,
+#' library(survival)
+#' WCox=ipcw(Hist(time,status)~X2,
 #'   data=dat,
 #'   method="cox",
 #'   times=sort(unique(dat$time)),
@@ -91,7 +91,7 @@
 #' # using the stratified Kaplan-Meier
 #' # for the censoring times given X2
 #' 
-#' WKM2=ipcw(Surv(time,status)~X2,
+#' WKM2=ipcw(Hist(time,status)~X2,
 #'   data=dat,
 #'   method="nonpar",
 #'   times=sort(unique(dat$time)),
@@ -270,14 +270,14 @@ ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimes
 #  fit <- coxph(formula,data=reverse.data)
 #  survfit.object <- survival.survfit.coxph(fit,newdata=data,se.fit=FALSE,conf.int=FALSE)
 #  if (match("IPCW.times",what,nomatch=FALSE))
-#    IPCW.times <- rms::survest.cph(fit,newdata=data,times=times,se.fit=FALSE)$surv
+#    IPCW.times <- rms::survest(fit,newdata=data,times=times,se.fit=FALSE)$surv
 #  else
 #    IPCW.times <- NULL
 #  if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
 #    if (subjectTimesLag==1) 
-#      IPCW.subjectTimes <- rms::survest.cph(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
+#      IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
 #    else if (subjectTimesLag==0)
-#      IPCW.subjectTimes <- rms::survest.cph(fit,times=subjectTimes,what='parallel')
+#      IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes,what='parallel')
 #    else stop("SubjectTimesLag must be 0 or 1")}
 #  else
 #    IPCW.subjectTimes <- NULL
@@ -293,6 +293,11 @@ ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag
   if (missing(subjectTimesLag)) subjectTimesLag=1
   if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
   call <- match.call()
+  ## in case that Hist is used
+  if (all.names(formula)[2]=="Hist"){
+      lhs <- sub("Hist","Surv", as.character(formula)[2])
+      formula <- update(formula,paste(lhs,"~."))
+  }
   environment(call$formula) <- NULL
   status.name <- all.vars(formula)[2]
   reverse.data <- data
@@ -301,16 +306,16 @@ ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag
   fit <- rms::cph(formula,data=reverse.data,surv=TRUE,x=TRUE,y=TRUE)
   #  weigths at requested times
   if (match("IPCW.times",what,nomatch=FALSE)){
-    IPCW.times <- rms::survest.cph(fit,newdata=data,times=times,se.fit=FALSE)$surv
+    IPCW.times <- rms::survest(fit,newdata=data,times=times,se.fit=FALSE)$surv
   }
   else
     IPCW.times <- NULL
   #  weigths at subject specific event times
   if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
     if (subjectTimesLag==1)
-      IPCW.subjectTimes <- rms::survest.cph(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
+      IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
     else if (subjectTimesLag==0){
-      IPCW.subjectTimes <- rms::survest.cph(fit,times=subjectTimes,what='parallel')
+      IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes,what='parallel')
     }
     else stop("SubjectTimesLag must be 0 or 1")
   }

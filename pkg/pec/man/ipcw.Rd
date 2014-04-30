@@ -75,7 +75,7 @@ choices of \code{method}.
 }
 \examples{
 library(prodlim)
-dat=SimSurv(300)
+dat=SimSurv(30)
 
 dat <- dat[order(dat$time),]
 
@@ -90,8 +90,8 @@ plot(WKM$fit)
 WKM$fit
 
 # using the Cox model for the censoring times given X2
-
-WCox=ipcw(Surv(time,status)~X2,
+library(survival)
+WCox=ipcw(Hist(time,status)~X2,
   data=dat,
   method="cox",
   times=sort(unique(dat$time)),
@@ -115,7 +115,7 @@ lines(sort(unique(dat$time)),
 # using the stratified Kaplan-Meier
 # for the censoring times given X2
 
-WKM2=ipcw(Surv(time,status)~X2,
+WKM2=ipcw(Hist(time,status)~X2,
   data=dat,
   method="nonpar",
   times=sort(unique(dat$time)),

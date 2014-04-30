@@ -9,9 +9,9 @@ Depends:
 Imports:
     prodlim,
     foreach,
-    rms
+    rms,
+    survival
 Suggests:
-    survival,
     timereg,
     randomForestSRC,
     party,
