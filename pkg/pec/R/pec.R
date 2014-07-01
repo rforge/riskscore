@@ -485,28 +485,29 @@ pec <- function(object,
   # }}}
   # {{{ prediction models
   if (reference==TRUE) {
-    ProdLimform <- as.formula(update(formula,".~NULL"))
-    ProdLimfit <- do.call(prodlim::prodlim,list(formula=ProdLimform,data=data))
-    ProdLimfit$call$data <- NULL
-    ProdLimfit$formula <- NULL
-    ProdLimfit$call$formula=ProdLimform
-    ProdLimfit$formula <- as.formula(ProdLimfit$formula)
-    ## print(environment(ProdLimfit$formula))
-    if (model.type=="competing.risks")
+      ProdLimform <- as.formula(update(formula,".~NULL"))
+      ## ProdLimfit <- do.call(prodlim::prodlim,list(formula=ProdLimform,data=data))
+      ProdLimfit <- prodlim::prodlim(formula=ProdLimform,data=data)
+      ProdLimfit$call$data <- as.character(substitute(data))
+      ProdLimfit$call$formula=ProdLimform
+      ProdLimfit$formula <- as.formula(ProdLimfit$formula)
+      ## print(environment(ProdLimfit$formula))
+      ## if (model.type=="competing.risks")
+      ## object <- c(list(Reference=ProdLimfit),object)
+      ## else
+      ## browser()
       object <- c(list(Reference=ProdLimfit),object)
-    else
-      object <- c(list(Reference=ProdLimfit),object)
-  }
-  if (is.null(names(object))){
-    names(object) <- sapply(object,function(o)class(o)[1])
-  }
-  else{
-    names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])
-  }
-  names(object) <- make.names(names(object),unique=TRUE)
-  NF <- length(object)
-  # }}}  
-  # {{{ sort the data 
+      }
+      if (is.null(names(object))){
+          names(object) <- sapply(object,function(o)class(o)[1])
+      }
+      else{
+          names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])
+      }
+      names(object) <- make.names(names(object),unique=TRUE)
+      NF <- length(object)
+      # }}}  
+      # {{{ sort the data 
 
   if (survp){
     neworder <- order(response[,"time"],-response[,"status"])
@@ -891,22 +892,22 @@ pec <- function(object,
   # }}}
   # {{{ put out
   if(keep.models==TRUE)
-    outmodels <- object
+      outmodels <- object
   else if (keep.models=="Call"){
-    outmodels <- lapply(object,function(o){
-      cc <- try(as.character(o$call),silent=TRUE)
-      if(class(cc)=="try-error")
-        class(object)
-      else{
-        names(cc) <- names(o$call)
-        cc
-      }
-    })
-    names(outmodels) <- names(object)
+      outmodels <- lapply(object,function(o){
+          cc <- try(as.character(o$call),silent=TRUE)
+          if(class(cc)=="try-error")
+              class(object)
+          else{
+              names(cc) <- names(o$call)
+              cc
+          }
+      })
+      names(outmodels) <- names(object)
   }
   else{
-    outmodels <- names(object)
-    names(outmodels) <- names(object)
+      outmodels <- names(object)
+      names(outmodels) <- names(object)
   }
   out <- c(out,
            list(call=theCall,

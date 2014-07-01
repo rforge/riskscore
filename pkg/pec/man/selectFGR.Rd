@@ -3,8 +3,8 @@
 \title{Stepwise variable selection in the Fine & Gray regression competing risk
 model}
 \usage{
-selectFGR(formula, data, cause = 1, rule = "AIC", direction = "backward",
-  ...)
+  selectFGR(formula, data, cause = 1, rule = "AIC",
+    direction = "backward", ...)
 }
 \arguments{
   \item{formula}{A formula whose left hand side is a
@@ -26,10 +26,10 @@ selectFGR(formula, data, cause = 1, rule = "AIC", direction = "backward",
   \item{\dots}{Further arguments passed to \code{crrstep}.}
 }
 \description{
-This is a wrapper function which first selects variables in
-the Fine & Gray regression model using \code{crrstep} from
-the \code{crrstep} package and then returns a fitted Fine &
-Gray regression model with the selected variables.
+  This is a wrapper function which first selects variables
+  in the Fine & Gray regression model using \code{crrstep}
+  from the \code{crrstep} package and then returns a fitted
+  Fine & Gray regression model with the selected variables.
 }
 \examples{
 library(riskRegression)
@@ -65,10 +65,10 @@ pec(list(full.model=fg,selected.model=sfg),
     splitMethod="bootcv")
 }
 \author{
-Rob C.M. van Kruijsdijk
-\email{R.C.M.vanKruijsdijk@umcutrecht.nl}
+  Rob C.M. van Kruijsdijk
+  \email{R.C.M.vanKruijsdijk@umcutrecht.nl}
 
-Thomas Alexander Gerds \email{tag@biostat.ku.dk}
+  Thomas Alexander Gerds \email{tag@biostat.ku.dk}
 }
 \keyword{survival}
 

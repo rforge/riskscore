@@ -3,7 +3,7 @@
 \alias{ibs}
 \title{Summarizing prediction error curves}
 \usage{
-crps(object, models, what, times, start)
+  crps(object, models, what, times, start)
 }
 \arguments{
   \item{object}{An object with estimated prediction error
@@ -24,18 +24,18 @@ crps(object, models, what, times, start)
   the prediction error curve is started.}
 }
 \value{
-A matrix with a column for the crps (ibs) at every
-requested time point and a row for each model
+  A matrix with a column for the crps (ibs) at every
+  requested time point and a row for each model
 }
 \description{
-Computes the cumulative prediction error curves, aka
-integrated Brier scores, in ranges of time.
+  Computes the cumulative prediction error curves, aka
+  integrated Brier scores, in ranges of time.
 }
 \details{
-The cumulative prediction error (continuous ranked
-probability score) is defined as the area under the
-prediction error curve, hence the alias name, ibs, which is
-short for integrated Brier score.
+  The cumulative prediction error (continuous ranked
+  probability score) is defined as the area under the
+  prediction error curve, hence the alias name, ibs, which
+  is short for integrated Brier score.
 }
 \examples{
 set.seed(18713)
@@ -53,18 +53,19 @@ crps(perror,times=1,start=0) # between 0 and 1
 crps(perror,times=seq(0,1,.2),start=0) # between 0 and seq(0,1,.2)
 }
 \author{
-Thomas A. Gerds \email{tag@biostat.ku.dk}
+  Thomas A. Gerds \email{tag@biostat.ku.dk}
 }
 \references{
-E. Graf et al.  (1999), Assessment and comparison of
-prognostic classification schemes for survival data.
-Statistics in Medicine, vol 18, pp= 2529--2545.
+  E. Graf et al.  (1999), Assessment and comparison of
+  prognostic classification schemes for survival data.
+  Statistics in Medicine, vol 18, pp= 2529--2545.
 
-Gerds TA, Cai T & Schumacher M (2008) The performance of
-risk prediction models Biometrical Journal, 50(4), 457--479
+  Gerds TA, Cai T & Schumacher M (2008) The performance of
+  risk prediction models Biometrical Journal, 50(4),
+  457--479
 }
 \seealso{
-\code{\link{pec}}
+  \code{\link{pec}}
 }
 \keyword{survival}
 

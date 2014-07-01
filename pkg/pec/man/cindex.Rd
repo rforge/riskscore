@@ -2,15 +2,18 @@
 \alias{cindex}
 \title{Concordance index for right censored survival time data}
 \usage{
-cindex(object, formula, data, eval.times, pred.times, cause, lyl = FALSE,
-  cens.model = "marginal", ipcw.refit = FALSE, ipcw.args = NULL,
-  ipcw.limit, tiedPredictionsIn = TRUE, tiedOutcomeIn = TRUE,
-  tiedMatchIn = TRUE, splitMethod = "noPlan", B, M, model.args = NULL,
-  model.parms = NULL, keep.models = "Call", keep.residuals = FALSE,
-  keep.pvalues = FALSE, keep.weights = FALSE, keep.index = FALSE,
-  keep.matrix = FALSE, multiSplitTest = FALSE, testTimes, confInt = FALSE,
-  confLevel = 0.95, verbose = TRUE, savePath = NULL, slaveseed = NULL,
-  na.action = na.fail, ...)
+  cindex(object, formula, data, eval.times, pred.times,
+    cause, lyl = FALSE, cens.model = "marginal",
+    ipcw.refit = FALSE, ipcw.args = NULL, ipcw.limit,
+    tiedPredictionsIn = TRUE, tiedOutcomeIn = TRUE,
+    tiedMatchIn = TRUE, splitMethod = "noPlan", B, M,
+    model.args = NULL, model.parms = NULL,
+    keep.models = "Call", keep.residuals = FALSE,
+    keep.pvalues = FALSE, keep.weights = FALSE,
+    keep.index = FALSE, keep.matrix = FALSE,
+    multiSplitTest = FALSE, testTimes, confInt = FALSE,
+    confLevel = 0.95, verbose = TRUE, savePath = NULL,
+    slaveseed = NULL, na.action = na.fail, ...)
 }
 \arguments{
   \item{object}{A named list of prediction models, where
@@ -198,33 +201,36 @@ cindex(object, formula, data, eval.times, pred.times, cause, lyl = FALSE,
   \item{...}{Not used.}
 }
 \value{
-Estimates of the C-index.
+  Estimates of the C-index.
 }
 \description{
-In survival analysis, a pair of patients is called
-concordant if the risk of the event predicted by a model is
-lower for the patient who experiences the event at a later
-timepoint. The concordance probability (C-index) is the
-frequency of concordant pairs among all pairs of subjects.
-It can be used to measure and compare the discriminative
-power of a risk prediction models. The function provides an
-inverse of the probability of censoring weigthed estimate
-of the concordance probability to adjust for right
-censoring. Cross-validation based on bootstrap resampling
-or bootstrap subsampling can be applied to assess and
-compare the discriminative power of various regression
-modelling strategies on the same set of data.
+  In survival analysis, a pair of patients is called
+  concordant if the risk of the event predicted by a model
+  is lower for the patient who experiences the event at a
+  later timepoint. The concordance probability (C-index) is
+  the frequency of concordant pairs among all pairs of
+  subjects. It can be used to measure and compare the
+  discriminative power of a risk prediction models. The
+  function provides an inverse of the probability of
+  censoring weigthed estimate of the concordance
+  probability to adjust for right censoring.
+  Cross-validation based on bootstrap resampling or
+  bootstrap subsampling can be applied to assess and
+  compare the discriminative power of various regression
+  modelling strategies on the same set of data.
 }
 \details{
-Pairs with identical observed times, where one is
-uncensored and one is censored, are always considered
-usuable (independent of the value of \code{tiedOutcomeIn}),
-as it can be assumed that the event occurs at a later
-timepoint for the censored observation.
+  Pairs with identical observed times, where one is
+  uncensored and one is censored, are always considered
+  usuable (independent of the value of
+  \code{tiedOutcomeIn}), as it can be assumed that the
+  event occurs at a later timepoint for the censored
+  observation.
 
-For uncensored response the result equals the one obtained
-with the functions \code{rcorr.cens} and \code{rcorrcens}
-from the \code{Hmisc} package (see examples).
+  For uncensored response the result equals the one
+  obtained with the functions \code{rcorr.cens} and
+  \code{rcorrcens} from the \code{Hmisc} package (see
+  examples).
 }
 \examples{
 # simulate data based on Weibull regression
@@ -298,24 +304,24 @@ dcr.val <- SimCompRisk(30)
 cindex(CSC(Hist(time,event)~X1+X2,data=dcr.learn),data=dcr.val)
 }
 \author{
-Thomas A Gerds \email{tag@biostat.ku.dk}
+  Thomas A Gerds \email{tag@biostat.ku.dk}
 }
 \references{
-TA Gerds, MW Kattan, M Schumacher, and C Yu. Estimating a
-time-dependent concordance index for survival prediction
-models with covariate dependent censoring. Statistics in
-Medicine, Ahead of print:to appear, 2013. DOI =
-10.1002/sim.5681
+  TA Gerds, MW Kattan, M Schumacher, and C Yu. Estimating a
+  time-dependent concordance index for survival prediction
+  models with covariate dependent censoring. Statistics in
+  Medicine, Ahead of print:to appear, 2013. DOI =
+  10.1002/sim.5681
 
-Wolbers, M and Koller, MT and Witteman, JCM and Gerds, TA
-(2013) Concordance for prognostic models with competing
-risks Research report 13/3. Department of Biostatistics,
-University of Copenhagen
+  Wolbers, M and Koller, MT and Witteman, JCM and Gerds, TA
+  (2013) Concordance for prognostic models with competing
+  risks Research report 13/3. Department of Biostatistics,
+  University of Copenhagen
 
-Andersen, PK (2012) A note on the decomposition of number
-of life years lost according to causes of death Research
-report 12/2. Department of Biostatistics, University of
-Copenhagen
+  Andersen, PK (2012) A note on the decomposition of number
+  of life years lost according to causes of death Research
+  report 12/2. Department of Biostatistics, University of
+  Copenhagen
 }
 \keyword{survival}
 

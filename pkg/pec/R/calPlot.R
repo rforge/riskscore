@@ -7,54 +7,59 @@
 #' function \code{\link{dpik}} from the package \code{KernSmooth} for a box
 #' kernel function.
 #' 
-#' @param object A named list of prediction models, where allowed entries are
-#' (1) R-objects for which a \link{predictSurvProb} method exists (see
-#' details), (2) a \code{call} that evaluates to such an R-object (see
-#' examples), (3) a matrix with predicted probabilities having as many rows as
-#' \code{data} and as many columns as \code{times}. For cross-validation all
-#' objects in this list must include their \code{call}.
-#' @param time The evaluation time point at predicted event probabilities are
-#' plotted against pseudo-observed event status.
-#' @param formula A survival or event history formula. The left hand side is
-#' used to compute the expected event status. If \code{formula} is
-#' \code{missing}, try to extract a formula from the first element in object.
-#' @param data A data frame in which to validate the prediction models and to
-#' fit the censoring model. If \code{data} is missing, try to extract a data
-#' set from the first element in object.
+#' @param object A named list of prediction models, where allowed
+#' entries are (1) R-objects for which a \link{predictSurvProb} method
+#' exists (see details), (2) a \code{call} that evaluates to such an
+#' R-object (see examples), (3) a matrix with predicted probabilities
+#' having as many rows as \code{data} and as many columns as
+#' \code{times}. For cross-validation all objects in this list must
+#' include their \code{call}.
+#' @param time The evaluation time point at predicted event
+#' probabilities are plotted against pseudo-observed event status.
+#' @param formula A survival or event history formula. The left hand
+#' side is used to compute the expected event status. If
+#' \code{formula} is \code{missing}, try to extract a formula from the
+#' first element in object.
+#' @param data A data frame in which to validate the prediction models
+#' and to fit the censoring model. If \code{data} is missing, try to
+#' extract a data set from the first element in object.
 #' @param splitMethod Defines the internal validation design:
 #' 
 #' \code{none/noPlan}: Assess the models in the give \code{data}, usually
 #' either in the same data where they are fitted, or in independent test data.
 #' 
-#' \code{BootCv}: Bootstrap cross validation. The prediction models are trained
-#' on \code{B} bootstrap samples, that are either drawn with replacement of the
-#' same size as the original data or without replacement from \code{data} of
-#' the size \code{M}.  The models are assessed in the observations that are NOT
-#' in the bootstrap sample.
+#' \code{BootCv}: Bootstrap cross validation. The prediction models
+#' are trained on \code{B} bootstrap samples, that are either drawn
+#' with replacement of the same size as the original data or without
+#' replacement from \code{data} of the size \code{M}.  The models are
+#' assessed in the observations that are NOT in the bootstrap sample.
 #' @param B The number of cross-validation steps.
 #' @param M The size of the subsamples for cross-validation.
 #' @param outcome The method for estimating expected event status:
 #' 
-#' \code{"pseudo"}: Use average pseudo-values.  \code{"prodlim"}: Use the
-#' product-limit estimate, i.e., apply the Kaplan-Meier method for right
-#' censored survival and the Aalen-Johansen method for right censored competing
-#' risks data.
+#' \code{"pseudo"}: Use average pseudo-values.  \code{"prodlim"}: Use
+#' the product-limit estimate, i.e., apply the Kaplan-Meier method for
+#' right censored survival and the Aalen-Johansen method for right
+#' censored competing risks data.
 #' @param showPseudo If \code{TRUE} and \code{outcome=="pseudo"} the
 #' pseudo-values are shown as dots on the plot.
+#' @param pseudo.col Colour for pseudo-values.
+#' @param pseudo.pch Dot type (see par) for pseudo-values.
 #' @param method The method for estimating the calibration curve(s):
 #' 
 #' \code{"nne"}: The expected event status is obtained in the nearest
 #' neighborhood around the predicted event probabilities.
 #' 
-#' \code{"quantile"}: The expected event status is obtained in groups defined
-#' by quantiles of the predicted event probabilities.
-#' @param round If \code{TRUE} predicted probabilities are rounded to two
-#' digits before smoothing. This may have a considerable effect on computing
-#' efficiency in large data sets.
+#' \code{"quantile"}: The expected event status is obtained in groups
+#' defined by quantiles of the predicted event probabilities.
+#' @param round If \code{TRUE} predicted probabilities are rounded to
+#' two digits before smoothing. This may have a considerable effect on
+#' computing efficiency in large data sets.
 #' @param bandwidth The bandwidth for \code{method="nne"}
 #' @param q The number of quantiles for \code{method="quantile"}.
 #' @param jack.density Gray scale for pseudo-observations.
-#' @param add If \code{TRUE} the line(s) are added to an existing plot.
+#' @param add If \code{TRUE} the line(s) are added to an existing
+#' plot.
 #' @param diag If \code{FALSE} no diagonal line is drawn.
 #' @param legend If \code{FALSE} no legend is drawn.
 #' @param axes If \code{FALSE} no axes are drawn.
@@ -62,30 +67,57 @@
 #' @param ylim Limits of y-axis.
 #' @param xlab Label for y-axis.
 #' @param ylab Label for x-axis.
-#' @param col Vector with colors, one for each element of object. Passed to
-#' \code{\link{lines}}.
-#' @param lwd Vector with line widths, one for each element of object. Passed
-#' to \code{\link{lines}}.
-#' @param lty lwd Vector with line style, one for each element of object.
-#' Passed to \code{\link{lines}}.
+#' @param col Vector with colors, one for each element of
+#' object. Passed to \code{\link{lines}}.
+#' @param lwd Vector with line widths, one for each element of
+#' object. Passed to \code{\link{lines}}.
+#' @param lty lwd Vector with line style, one for each element of
+#' object.  Passed to \code{\link{lines}}.
 #' @param pch Passed to \code{\link{points}}.
-#' @param cause For competing risks models, the cause of failure or event of
-#' interest
+#' @param cause For competing risks models, the cause of failure or
+#' event of interest
 #' @param percent If TRUE axes labels are multiplied by 100 and thus
 #' interpretable on a percent scale.
 #' @param giveToModel List of with exactly one entry for each entry in
-#' \code{object}. Each entry names parts of the value of the fitted models that
-#' should be extracted and added to the value.
+#' \code{object}. Each entry names parts of the value of the fitted
+#' models that should be extracted and added to the value.
 #' @param na.action Passed to \code{\link{model.frame}}
-#' @param cores Number of cores for parallel computing.  Passed as value of
-#' argument \code{mc.cores} to \code{\link{mclapply}}.
-#' @param verbose if \code{TRUE} report details of the progress, e.g. count the
-#' steps in cross-validation.
-#' @param ... Used to control the subroutines: plot, axis, lines, legend. See
-#' \code{\link{SmartControl}}.
+#' @param cores Number of cores for parallel computing.  Passed as
+#' value of argument \code{mc.cores} to \code{\link{mclapply}}.
+#' @param verbose if \code{TRUE} report details of the progress,
+#' e.g. count the steps in cross-validation.
+#' @param ... Used to control the subroutines: plot, axis, lines,
+#' legend. See \code{\link{SmartControl}}.
 #' @return list with elements: time, pseudoFrame and bandwidth (NULL for method
 #' quantile).
-#' @author Thomas Alexander Gerds
+#' @keywords survival 
+##' @examples
+##' 
+##' library(prodlim)
+##' library(lava)
+##' library(riskRegression)
+##' set.seed(13)
+##' m <- crModel()
+##' regression(m, from = "X1", to = "eventtime1") <- 1
+##' regression(m, from = "X2", to = "eventtime1") <- 1
+##' m <- addvar(m,c("X3","X4","X5"))
+##' distribution(m, "X1") <- binomial.lvm()
+##' distribution(m, "X4") <- binomial.lvm()
+##' d1 <- sim(m,100)
+##' d2 <- sim(m,100)
+##' csc <- CSC(Hist(time,event)~X1+X2+X3+X4+X5,data=d1)
+##' fgr <- FGR(Hist(time,event)~X1+X2+X3+X4+X5,data=d1)
+##' predict.crr <- cmprsk:::predict.crr
+##' par(mar=c(5,5,5,5),cex=1.3)
+##' calPlot(list(csc,fgr),
+##'         time=5,
+##'         legend.x=-0.3,
+##'         legend.y=1.35,
+##'         ylab="Observed event status",
+##'         legend.legend=c("Cause-specific Cox regression","Fine-Gray regression"),
+##'         legend.xpd=NA)
+'
+#' @author Thomas Alexander Gerds \email{tag@@biostat.ku.dk}
 #' @export calPlot
 calPlot <- function(object,
                     time,
@@ -96,6 +128,8 @@ calPlot <- function(object,
                     M,
                     outcome=c("pseudo","prodlim"),
                     showPseudo,
+                    pseudo.col=NULL,
+                    pseudo.pch=NULL,
                     method="nne",
                     round=TRUE,
                     bandwidth=NULL,
@@ -124,19 +158,19 @@ calPlot <- function(object,
     if (missing(showPseudo))
         showPseudo <- ifelse(add||(outcome!="pseudo"),FALSE,TRUE)
     
-  # {{{ find number of objects and lines
-  cobj=class(object)[[1]]
-  if (cobj!="list"){
-    object <- list(object)
-  }
-  if (is.null(names(object))){
-    names(object) <- sapply(object,function(o)class(o)[1])
-  }
-  else{
-    names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])
-  }
-  names(object) <- make.names(names(object),unique=TRUE)
-  NF <- length(object)
+    # {{{ find number of objects and lines
+    cobj=class(object)[[1]]
+    if (cobj!="list"){
+        object <- list(object)
+    }
+    if (is.null(names(object))){
+        names(object) <- sapply(object,function(o)class(o)[1])
+        names(object) <- make.names(names(object),unique=TRUE)
+    }
+    else{
+        names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])
+    }
+    NF <- length(object)
 
     # }}}
     # {{{ lines types
@@ -181,15 +215,17 @@ calPlot <- function(object,
         data <- data[neworder,]
         # }}}
         # {{{ prediction timepoint 
-  
+
         if (missing(time))
             time <- median(Y)
         else
             if (length(time)>1)
                 stop("Please specify only one time point.")
     }
+
     # }}}
     # {{{ compute pseudo-values
+
     #  require(pseudo)
     #  jack=pseudosurv(time=Y,event=status,tmax=time)[[3]]
     predictHandlerFun <- switch(model.type,
@@ -204,9 +240,10 @@ calPlot <- function(object,
     ## ==levels(response)[1])
     else{
         margForm <- reformulate("1",response=formula[[2]])
-        margFit <- prodlim(margForm,data=data)
-        jack <- jackknife(margFit,cause=cause,times=time)
+        margFit <- prodlim::prodlim(margForm,data=data)
+        jack <- prodlim::jackknife(margFit,cause=cause,times=time)
     }
+
     # }}}
     # {{{ call smartControls
     axis1.DefaultArgs <- list(side=1,las=1,at=seq(0,1,.25))
@@ -244,6 +281,7 @@ calPlot <- function(object,
     # }}}
     # {{{ cv, predictions and expectations
     # {{{ ---------------------------Apparent predictions---------------------------
+
     apppred <- do.call("cbind",lapply(1:NF,function(f){
         if (class(object[[f]][[1]])=="matrix"){
             apppred <- object[[f]][[1]][neworder,]
@@ -259,8 +297,10 @@ calPlot <- function(object,
     if (splitMethod$internal.name %in% c("noPlan")){
         predframe <- apppred
     }
+
     # }}}
     # {{{--------------k-fold and leave-one-out CrossValidation-----------------------
+
     if (splitMethod$internal.name %in% c("crossval","loocv")){
         groups <- splitMethod$index[,1,drop=TRUE]
         cv.list <- lapply(1:k,function(g){
@@ -289,6 +329,7 @@ calPlot <- function(object,
         predframe <- cbind(data.frame(jack=jack),predframe)
         ## predframe <- na.omit(predframe)
     }
+
     # }}} 
     # {{{ ----------------------BootstrapCrossValidation----------------------
   
@@ -299,14 +340,14 @@ calPlot <- function(object,
         ResampleIndex <- splitMethod$index
         ## predframe <- do.call("rbind",lapply(1:B,function(b){
         ## predframe <- matrix
-        pred.list <- mclapply(1:B,function(b){
+        pred.list <- parallel::mclapply(1:B,function(b){
             if (verbose==TRUE) internalTalk(b,B)
             jackRefit <- FALSE
             vindex.b <- match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0
             val.b <- data[vindex.b,,drop=FALSE]
             if (jackRefit){
-                margFit.b <- prodlim(margForm,data=val.b)
-                jack.b <- jackknife(margFit.b,cause=cause,times=time)
+                margFit.b <- prodlim::prodlim(margForm,data=val.b)
+                jack.b <- prodlim::jackknife(margFit.b,cause=cause,times=time)
             }
             else{
                 jack.b <- jack[match(1:N,unique(ResampleIndex[,b]),nomatch=0)==0]
@@ -333,70 +374,79 @@ calPlot <- function(object,
         rm(pred.list)
     }
   
-  # }}}
-  # }}}
-  # {{{ smoothing
-  method <- match.arg(method,c("quantile","nne"))
-  outcome <- match.arg(outcome,c("pseudo","prodlim"))
-
-  plotFrames <- lapply(1:NF,function(f){
-      p <- predframe[,f+1]
-      jackF <- predframe[,1]
-      switch(method,
-             "quantile"={
-                 groups <- quantile(p,seq(0,1,1/q))
-                 xgroups <- (groups[-(q+1)]+groups[-1])/2
-                 if (outcome=="pseudo"){
-                     plotFrame=data.frame(x=xgroups,y=tapply(jackF,cut(p,groups,include.lowest=TRUE),mean))
-                 }
-                 else{
-                     pcut <- cut(p,groups,include.lowest=TRUE)
-                     form.pcut <- reformulate("pcut",response=formula[[2]])
-                     y <- unlist(predict(prodlim(form.pcut,data=cbind(data,p=pcut)),
-                                         cause=cause,
-                                         newdata=data.frame(pcut=levels(pcut)),
-                                         times=time,
-                                         type=ifelse(model.type=="competing.risks","cuminc","surv")))
-                     plotFrame=data.frame(x=xgroups,y=y)
-                 }
-             },
-             "nne"={
-                 if (outcome=="pseudo"){
-                     ## Round probabilities to 2 digits
-                     ## to avoit memory explosion ...
-                     ## a difference in the 3 digit should
-                     ## not play a role for the patient.
-                     if (round==TRUE) p <- round(p,2)
-                     p <- na.omit(p)
-                     if (no <- length(attr(p,"na.action")))
-                         warning("calPlot: removed ",no," missing values in risk prediction.",call.=FALSE,immediate.=TRUE)
-                     if (is.null(bandwidth)){
-                         if (length(p)>length(apppred[,f+1])){
-                             bw <- prodlim::neighborhood(apppred[,f+1])$bandwidth
-                         }else{
-                             bw <- prodlim::neighborhood(p)$bandwidth
-                         }
-                     } else{
-                         bw <- bandwidth
-                     }
-                     ## print(bw)
-                     nbh <- prodlim::meanNeighbors(x=p,y=jackF,bandwidth=bw)
-                     plotFrame <- data.frame(x=nbh$uniqueX,y=nbh$averageY)
-                     attr(plotFrame,"bandwidth") <- bw
-                     plotFrame
-                 }else{
-                     form.p <- reformulate("p",response=formula[[2]])
-                     y <- unlist(predict(prodlim(form.p,data=cbind(data,p=p)),
-                                         cause=cause,
-                                         newdata=data.frame(p=sort(p)),
-                                         times=time,
-                                         type=ifelse(model.type=="competing.risks","cuminc","surv")))
-                     plotFrame <- data.frame(x=sort(p),y=y)
-                 }
-             })
-  })
-  # }}}
-  # {{{ plot an empty frame
+    # }}}
+    # }}}
+    # {{{ smoothing
+    method <- match.arg(method,c("quantile","nne"))
+    outcome <- match.arg(outcome,c("pseudo","prodlim"))
+    plotFrames <- lapply(1:NF,function(f){
+        p <- predframe[,f+1]
+        jackF <- predframe[,1]
+        switch(method,
+               "quantile"={
+                   groups <- quantile(p,seq(0,1,1/q))
+                   xgroups <- (groups[-(q+1)]+groups[-1])/2
+                   if (outcome=="pseudo"){
+                       plotFrame=data.frame(x=xgroups,y=tapply(jackF,cut(p,groups,include.lowest=TRUE),mean))
+                   }
+                   else{
+                       pcut <- cut(p,groups,include.lowest=TRUE)
+                       form.pcut <- reformulate("pcut",response=formula[[2]])
+                       y <- unlist(predict(prodlim::prodlim(form.pcut,data=cbind(data,p=pcut)),
+                                           cause=cause,
+                                           newdata=data.frame(pcut=levels(pcut)),
+                                           times=time,
+                                           type=ifelse(model.type=="competing.risks","cuminc","surv")))
+                       plotFrame=data.frame(x=xgroups,y=y)
+                   }
+               },
+               "nne"={
+                   if (outcome=="pseudo"){
+                       ## Round probabilities to 2 digits
+                       ## to avoit memory explosion ...
+                       ## a difference in the 3 digit should
+                       ## not play a role for the patient.
+                       if (round==TRUE){
+                           if (!is.null(bandwidth) && bandwidth>=1){
+                               message("No need to round predicted probabilities to calculate calibration in the large")
+                           } else{
+                               p <- round(p,2)
+                           }
+                       }
+                       p <- na.omit(p)
+                       if (no <- length(attr(p,"na.action")))
+                           warning("calPlot: removed ",no," missing values in risk prediction.",call.=FALSE,immediate.=TRUE)
+                       if (is.null(bandwidth)){
+                           if (length(p)>length(apppred[,f+1])){
+                               bw <- prodlim::neighborhood(apppred[,f+1])$bandwidth
+                           }else{
+                               bw <- prodlim::neighborhood(p)$bandwidth
+                           }
+                       } else{
+                           bw <- bandwidth
+                       }
+                       if (bw>=1){
+                           ## calibration in the large
+                           plotFrame <- data.frame(x=mean(p),y=mean(jackF))
+                       } else{
+                           nbh <- prodlim::meanNeighbors(x=p,y=jackF,bandwidth=bw)
+                           plotFrame <- data.frame(x=nbh$uniqueX,y=nbh$averageY)
+                       }
+                       attr(plotFrame,"bandwidth") <- bw
+                       plotFrame
+                   }else{
+                       form.p <- reformulate("p",response=formula[[2]])
+                       y <- unlist(predict(prodlim::prodlim(form.p,data=cbind(data,p=p)),
+                                           cause=cause,
+                                           newdata=data.frame(p=sort(p)),
+                                           times=time,
+                                           type=ifelse(model.type=="competing.risks","cuminc","surv")))
+                       plotFrame <- data.frame(x=sort(p),y=y)
+                   }
+               })
+    })
+    # }}}
+    # {{{ plot an empty frame
   
     if (add==FALSE){
         do.call("plot",smartA$plot)
@@ -429,20 +479,30 @@ calPlot <- function(object,
     # }}}
     # {{{ add lines and pseudovalues
     nix <- lapply(1:NF,function(f){
-        plotFrame <- plotFrames[[f]]
-        ## calibration in the large
-        if (!is.null(bandwidth) && bandwidth>=1){
-            with(na.omit(plotFrame),points(mean(x),mean(y),col=col[f],pch=16,cex=2))
-        }else{
-            with(na.omit(plotFrame),lines(x,y,col=col[f],lwd=lwd[f],lty=lty[f],type=ifelse(method=="quantile","b","l")))
+        if (is.null(pseudo.col)){
+            ccrgb=as.list(col2rgb(col[f],alpha=TRUE))
+            names(ccrgb) <- c("red","green","blue","alpha")
+            ccrgb$alpha <- jack.density
+            jack.col <- do.call("rgb",c(ccrgb,list(max=255)))
         }
-        ccrgb=as.list(col2rgb(col[f],alpha=TRUE))
-        names(ccrgb) <- c("red","green","blue","alpha")
-        ccrgb$alpha <- jack.density
-        jack.col <- do.call("rgb",c(ccrgb,list(max=255)))
+        else
+            jack.col <- pseudo.col
+        if (is.null(pseudo.pch)) pseudo.pch <- 1
         if (showPseudo) {
-            points(apppred[,f+1],apppred[,1],col=jack.col)
+            points(apppred[,f+1],apppred[,1],col=jack.col,pch=pseudo.pch)
         }
+        plotFrame <- plotFrames[[f]]
+        if(NROW(plotFrame)==1){
+            plottype <- "p"
+        } else{
+            if (method=="quantile"){
+                plottype <- "b"
+            } else{
+                plottype <- "l"
+            }
+        }
+        with(na.omit(plotFrame),lines(x,y,col=col[f],lwd=lwd[f],lty=lty[f],type=plottype))
+        ## }
     })
 
   # }}}
@@ -458,9 +518,9 @@ calPlot <- function(object,
   # }}}
   # {{{ invisibly output the jackknife pseudo-values
     if (model.type=="binary")
-        out <- list(pseudoFrame=predframe,bandwidth=sapply(plotFrames,function(x)attr(x,"bandwidth")))
+        out <- list(pseudoFrame=plotFrames,bandwidth=sapply(plotFrames,function(x)attr(x,"bandwidth")))
     else
-    out <- list(time=time,pseudoFrame=predframe,bandwidth=sapply(plotFrames,function(x)attr(x,"bandwidth")))
+    out <- list(time=time,pseudoFrame=plotFrames,bandwidth=sapply(plotFrames,function(x)attr(x,"bandwidth")))
   invisible(out)
   # }}}
 }
