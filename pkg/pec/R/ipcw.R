@@ -1,3 +1,4 @@
+# {{{ roxy header
 #' Estimation of censoring probabilities
 #' 
 #' This function is used internally by the function \code{pec} to obtain
@@ -67,7 +68,7 @@
 #' 
 #' # using the Cox model for the censoring times given X2
 #' library(survival)
-#' WCox=ipcw(Hist(time,status)~X2,
+#' WCox=ipcw(Hist(time=time,event=status)~X2,
 #'   data=dat,
 #'   method="cox",
 #'   times=sort(unique(dat$time)),
@@ -98,7 +99,9 @@
 #'   subjectTimes=dat$time)
 #' plot(WKM2$fit,add=FALSE)
 #' 
-#'  
+#'
+# }}}
+# {{{ method ipcw
 #' @export ipcw
 ipcw <- function(formula,
                  data,
@@ -112,17 +115,21 @@ ipcw <- function(formula,
         stopifnot(all(match(what,c("IPCW.times","IPCW.subjectTimes"))))
     if (missing(what) || match("IPCW.times",what,nomatch=FALSE)){
         stopifnot(length(times)>0)
-    }  
+    }
+    workdata <- model.frame(formula,data)
+    MR <- model.response(workdata)
+    ## FIXME
+    FIXME()
     class(method) <- method
     UseMethod("ipcw",method)
 }
-
+# }}}
+# {{{ uncensored data: return just 1
 ##' @S3method ipcw none
 ipcw.none <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
-    environment(call$formula) <- NULL
     #  weigths at requested times
     if (match("IPCW.times",what,nomatch=FALSE)){
         IPCW.times <- rep(1,length(times))
@@ -139,14 +146,15 @@ ipcw.none <- function(formula,data,method,args,times,subjectTimes,subjectTimesLa
     class(out) <- "IPCW"
     out
 }
-
-## reverse Random Survival Forests
+# }}}
+# {{{ reverse Random Survival Forests
 ##' @S3method ipcw rfsrc
 ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
     ## require(randomForestSRC)
+    ## FIXME: this is not good: all.vars(Hist(event=event,time)[2])
     status.name <- all.vars(formula)[2]
     reverse.data <- data
     reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
@@ -187,14 +195,13 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
     class(out) <- "IPCW"
     out
 }
-
-## reverse Kaplan-Meier
+# }}}
+# {{{ reverse Kaplan-Meier
 ##' @S3method ipcw marginal
 ipcw.marginal <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
   if (missing(subjectTimesLag)) subjectTimesLag=1
   if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
   call <- match.call()
-  environment(call$formula) <- NULL
   formula <- update.formula(formula,"~1")
   fit <- prodlim(formula,data=data,reverse=TRUE)
   #  weigths at requested times
@@ -222,14 +229,13 @@ ipcw.marginal <- function(formula,data,method,args,times,subjectTimes,subjectTim
   ##   IPCW.subjectTimes <- c(1,fit$surv)[locsubjectTimes] ## at (subjectTimes_i-)
   ##   IPCW.times <- c(1,fit$surv)[sindex(jump.times=fit$time,eval.times=times) +1] ## at all requested times
 }
-
-## reverse Stone-Beran 
+# }}}
+# {{{ reverse Stone-Beran 
 ##' @S3method ipcw nonpar
 ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
   if (missing(subjectTimesLag)) subjectTimesLag=1
   if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
   call <- match.call()
-  environment(call$formula) <- NULL
   fit <- prodlim(formula,data=data,reverse=TRUE,bandwidth="smooth")
   #  weigths at requested times
   if (match("IPCW.times",what,nomatch=FALSE)){
@@ -285,8 +291,8 @@ ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimes
 #  class(out) <- "IPCW"
 #  out
 #}
-
-#reverse Cox via Harrel's package
+# }}}
+# {{{ reverse Cox via Harrel's package
 ##' @S3method ipcw cox
 ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
   ## require(rms)
@@ -298,7 +304,7 @@ ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag
       lhs <- sub("Hist","Surv", as.character(formula)[2])
       formula <- update(formula,paste(lhs,"~."))
   }
-  environment(call$formula) <- NULL
+  ## debug here
   status.name <- all.vars(formula)[2]
   reverse.data <- data
   reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
@@ -330,14 +336,13 @@ ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag
   class(out) <- "IPCW"
   out
 }
-
-#reverse Aalen method via the timereg package
+# }}}
+# {{{ reverse Aalen method via the timereg package
 ##' @S3method ipcw aalen
 ipcw.aalen <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
-    environment(call$formula) <- NULL
     require(timereg)
     ## require(rms)
     status.name <- all.vars(formula)[2]
@@ -363,6 +368,7 @@ ipcw.aalen <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
     class(out) <- "IPCW"
     out
 }
+# }}}
 
 #Stone-Beran using the linear predictor of a reverse Cox method
 #ipcw.project <- function(formula,data,method,args,times,subjectTimes){ 

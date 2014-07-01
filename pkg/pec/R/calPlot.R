@@ -116,7 +116,6 @@
 ##'         ylab="Observed event status",
 ##'         legend.legend=c("Cause-specific Cox regression","Fine-Gray regression"),
 ##'         legend.xpd=NA)
-'
 #' @author Thomas Alexander Gerds \email{tag@@biostat.ku.dk}
 #' @export calPlot
 calPlot <- function(object,

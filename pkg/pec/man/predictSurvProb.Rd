@@ -19,21 +19,21 @@
 \alias{predictSurvProb.survnnet}
 \title{Predicting survival probabilities}
 \usage{
-  \method{predictSurvProb}{aalen}(object,newdata,times,...)
-    \method{predictSurvProb}{riskRegression}(object,newdata,times,...)
-    \method{predictSurvProb}{cox.aalen}(object,newdata,times,...)
-    \method{predictSurvProb}{cph}(object,newdata,times,...)
-    \method{predictSurvProb}{coxph}(object,newdata,times,...)
-    \method{predictSurvProb}{mfp}(object,newdata,times,...)
-    \method{predictSurvProb}{matrix}(object,newdata,times,...)
-    \method{predictSurvProb}{selectCox}(object,newdata,times,...)
-    \method{predictSurvProb}{pecCforest}(object,newdata,times,...)
-    \method{predictSurvProb}{prodlim}(object,newdata,times,...)
-    \method{predictSurvProb}{psm}(object,newdata,times,...)
-    \method{predictSurvProb}{survfit}(object,newdata,times,...)
-    \method{predictSurvProb}{survnnet}(object,newdata,times,train.data,...)
-    \method{predictSurvProb}{rpart}(object,newdata,times,train.data,...)
-    \method{predictSurvProb}{phnnet}(object,newdata,times,train.data,...)
+\method{predictSurvProb}{aalen}(object,newdata,times,...)
+\method{predictSurvProb}{riskRegression}(object,newdata,times,...)
+\method{predictSurvProb}{cox.aalen}(object,newdata,times,...)
+\method{predictSurvProb}{cph}(object,newdata,times,...)
+\method{predictSurvProb}{coxph}(object,newdata,times,...)
+\method{predictSurvProb}{mfp}(object,newdata,times,...)
+\method{predictSurvProb}{matrix}(object,newdata,times,...)
+\method{predictSurvProb}{selectCox}(object,newdata,times,...)
+\method{predictSurvProb}{pecCforest}(object,newdata,times,...)
+\method{predictSurvProb}{prodlim}(object,newdata,times,...)
+\method{predictSurvProb}{psm}(object,newdata,times,...)
+\method{predictSurvProb}{survfit}(object,newdata,times,...)
+\method{predictSurvProb}{survnnet}(object,newdata,times,train.data,...)
+\method{predictSurvProb}{rpart}(object,newdata,times,train.data,...)
+\method{predictSurvProb}{phnnet}(object,newdata,times,train.data,...)
 }
 \arguments{
   \item{object}{A fitted model from which to extract
@@ -56,48 +56,46 @@
   the current method.}
 }
 \value{
-  A matrix with as many rows as \code{NROW(newdata)} and as
-  many columns as \code{length(times)}. Each entry should
-  be a probability and in rows the values should be
-  decreasing.
+A matrix with as many rows as \code{NROW(newdata)} and as
+many columns as \code{length(times)}. Each entry should be
+a probability and in rows the values should be decreasing.
 }
 \description{
-  Function to extract survival probability predictions from
-  various modeling approaches. The most prominent one is
-  the Cox regression model which can be fitted for example
-  with `coxph' and with `cph'.
+Function to extract survival probability predictions from
+various modeling approaches. The most prominent one is the
+Cox regression model which can be fitted for example with
+`coxph' and with `cph'.
 }
 \details{
-  The function predictSurvProb is a generic function that
-  means it invokes specifically designed functions
-  depending on the 'class' of the first argument.
+The function predictSurvProb is a generic function that
+means it invokes specifically designed functions depending
+on the 'class' of the first argument.
 
-  The function \code{pec} requires survival probabilities
-  for each row in newdata at requested times. These
-  probabilities are extracted from a fitted model of class
-  \code{CLASS} with the function
-  \code{predictSurvProb.CLASS}.
+The function \code{pec} requires survival probabilities for
+each row in newdata at requested times. These probabilities
+are extracted from a fitted model of class \code{CLASS}
+with the function \code{predictSurvProb.CLASS}.
 
-  Currently there are \code{predictSurvProb} methods for
-  objects of class cph (library rms), coxph (library
-  survival), aalen (library timereg), cox.aalen (library
-  timereg), mfp (library mfp), phnnet (library survnnet),
-  survnnet (library survnnet), rpart (library rpart),
-  product.limit (library prodlim), survfit (library
-  survival), psm (library rms)
+Currently there are \code{predictSurvProb} methods for
+objects of class cph (library rms), coxph (library
+survival), aalen (library timereg), cox.aalen (library
+timereg), mfp (library mfp), phnnet (library survnnet),
+survnnet (library survnnet), rpart (library rpart),
+product.limit (library prodlim), survfit (library
+survival), psm (library rms)
 }
 \note{
-  In order to assess the predictive performance of a new
-  survival model a specific \code{predictSurvProb} S3
-  method has to be written. For examples, see the bodies of
-  the existing methods.
+In order to assess the predictive performance of a new
+survival model a specific \code{predictSurvProb} S3 method
+has to be written. For examples, see the bodies of the
+existing methods.
 
-  The performance of the assessment procedure, in
-  particular for resampling where the model is repeatedly
-  evaluated, will be improved by supressing in the call to
-  the model all the computations that are not needed for
-  probability prediction. For example, \code{se.fit=FALSE}
-  can be set in the call to \code{cph}.
+The performance of the assessment procedure, in particular
+for resampling where the model is repeatedly evaluated,
+will be improved by supressing in the call to the model all
+the computations that are not needed for probability
+prediction. For example, \code{se.fit=FALSE} can be set in
+the call to \code{cph}.
 }
 \examples{
 # generate some survival data
@@ -135,17 +133,16 @@ rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 predictSurvProb(rsfmodel,newdata=ndat,times=ttt)
 }
 \author{
-  Thomas A. Gerds \email{tag@biostat.ku.dk}
+Thomas A. Gerds \email{tag@biostat.ku.dk}
 }
 \references{
-  Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds
-  (2012). Evaluating Random Forests for Survival Analysis
-  Using Prediction Error Curves. Journal of Statistical
-  Software, 50(11), 1-23. URL
-  http://www.jstatsoft.org/v50/i11/.
+Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
+Evaluating Random Forests for Survival Analysis Using
+Prediction Error Curves. Journal of Statistical Software,
+50(11), 1-23. URL http://www.jstatsoft.org/v50/i11/.
 }
 \seealso{
-  \code{\link{predict}},\code{\link{survfit}}
+\code{\link{predict}},\code{\link{survfit}}
 }
 \keyword{survival}
 

@@ -7,8 +7,8 @@
 \alias{ipcw.nonpar}
 \title{Estimation of censoring probabilities}
 \usage{
-  ipcw(formula, data, method, args, times, subjectTimes,
-    subjectTimesLag = 1, what)
+ipcw(formula, data, method, args, times, subjectTimes, subjectTimesLag = 1,
+  what)
 }
 \arguments{
   \item{formula}{A survival formula like,
@@ -48,31 +48,30 @@
   \code{subjectTimes}.  If missing then produce both.}
 }
 \value{
-  \item{times}{The times at which weights are estimated}
-  \item{IPCW.times}{Estimated weights at \code{times}}
-  \item{IPCW.subjectTimes}{Estimated weights at individual
-  time values \code{subjectTimes}} \item{fit}{The fitted
-  censoring model} \item{method}{The method for modelling
-  the censoring distribution} \item{call}{The call}
+\item{times}{The times at which weights are estimated}
+\item{IPCW.times}{Estimated weights at \code{times}}
+\item{IPCW.subjectTimes}{Estimated weights at individual
+time values \code{subjectTimes}} \item{fit}{The fitted
+censoring model} \item{method}{The method for modelling the
+censoring distribution} \item{call}{The call}
 }
 \description{
-  This function is used internally by the function
-  \code{pec} to obtain inverse of the probability of
-  censoring weights.
+This function is used internally by the function \code{pec}
+to obtain inverse of the probability of censoring weights.
 }
 \details{
-  Inverse of the probability of censoring weights (IPCW)
-  usually refer to the probabilities of not being censored
-  at certain time points. These probabilities are also the
-  values of the conditional survival function of the
-  censoring time given covariates. The function ipcw
-  estimates the conditional survival function of the
-  censoring times and derives the weights.
+Inverse of the probability of censoring weights (IPCW)
+usually refer to the probabilities of not being censored at
+certain time points. These probabilities are also the
+values of the conditional survival function of the
+censoring time given covariates. The function ipcw
+estimates the conditional survival function of the
+censoring times and derives the weights.
 
-  IMPORTANT: the data set should be ordered,
-  \code{order(time,-status)} in order to get the values
-  \code{IPCW.subjectTimes} in the right order for some
-  choices of \code{method}.
+IMPORTANT: the data set should be ordered,
+\code{order(time,-status)} in order to get the values
+\code{IPCW.subjectTimes} in the right order for some
+choices of \code{method}.
 }
 \examples{
 library(prodlim)
@@ -92,7 +91,7 @@ WKM$fit
 
 # using the Cox model for the censoring times given X2
 library(survival)
-WCox=ipcw(Hist(time,status)~X2,
+WCox=ipcw(Hist(time=time,event=status)~X2,
   data=dat,
   method="cox",
   times=sort(unique(dat$time)),
@@ -124,10 +123,10 @@ WKM2=ipcw(Hist(time,status)~X2,
 plot(WKM2$fit,add=FALSE)
 }
 \author{
-  Thomas A. Gerds \email{tag@biostat.ku.dk}
+Thomas A. Gerds \email{tag@biostat.ku.dk}
 }
 \seealso{
-  \code{\link{pec}}
+\code{\link{pec}}
 }
 \keyword{survival}
 

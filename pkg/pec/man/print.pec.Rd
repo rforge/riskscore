@@ -3,8 +3,7 @@
 \alias{summary.pec}
 \title{Printing a `pec' (prediction error curve) object.}
 \usage{
-  \method{print}{pec} (x, times, digits = 3, what = NULL,
-    ...)
+\method{print}{pec}(x, times, digits = 3, what = NULL, ...)
 }
 \arguments{
   \item{x}{Object of class \code{pec}}
@@ -23,17 +22,17 @@
   \item{\dots}{Not used}
 }
 \value{
-  The first argument in the invisible cloak.
+The first argument in the invisible cloak.
 }
 \description{
-  Print the important arguments of call and the prediction
-  error values at selected time points.
+Print the important arguments of call and the prediction
+error values at selected time points.
 }
 \author{
-  Thomas A. Gerds \email{tag@biostat.ku.dk}
+Thomas A. Gerds \email{tag@biostat.ku.dk}
 }
 \seealso{
-  \code{\link{pec}}
+\code{\link{pec}}
 }
 \keyword{survival}
 

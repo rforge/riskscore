@@ -4,8 +4,8 @@
 of models. The prediction error for an optional benchmark model can be added
 together with bootstrapped cross-validation error and apparent errors.}
 \usage{
-  Special(x, y, addprederr, models, bench, benchcol, times,
-    maxboot, bootcol, col, lty, lwd)
+Special(x, y, addprederr, models, bench, benchcol, times, maxboot, bootcol, col,
+  lty, lwd)
 }
 \arguments{
   \item{x}{an object of class 'pec' as returned by the
@@ -46,18 +46,17 @@ together with bootstrapped cross-validation error and apparent errors.}
   \code{models}.}
 }
 \value{
-  Invisible object.
+Invisible object.
 }
 \description{
-  This function is invoked and controlled by
-  \code{plot.pec}.
+This function is invoked and controlled by \code{plot.pec}.
 }
 \details{
-  This function should not be called directly. The
-  arguments can be specified as \code{Special.arg} in the
-  call to \code{plot.pec}.
+This function should not be called directly. The arguments
+can be specified as \code{Special.arg} in the call to
+\code{plot.pec}.
 }
 \seealso{
-  \code{\link{plot.pec}}
+\code{\link{plot.pec}}
 }
 
