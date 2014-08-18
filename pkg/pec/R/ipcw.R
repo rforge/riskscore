@@ -116,10 +116,6 @@ ipcw <- function(formula,
     if (missing(what) || match("IPCW.times",what,nomatch=FALSE)){
         stopifnot(length(times)>0)
     }
-    workdata <- model.frame(formula,data)
-    MR <- model.response(workdata)
-    ## FIXME
-    FIXME()
     class(method) <- method
     UseMethod("ipcw",method)
 }
@@ -149,27 +145,26 @@ ipcw.none <- function(formula,data,method,args,times,subjectTimes,subjectTimesLa
 # }}}
 # {{{ reverse Random Survival Forests
 ##' @S3method ipcw rfsrc
-ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
-    if (missing(subjectTimesLag)) subjectTimesLag=1
+ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){    if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
-    call <- match.call()
+    call <- match.call() ## needed for refit in crossvalidation loop
+    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
+    wdata <- as.data.frame(EHF)
+    wdata$status <- 1-wdata$status
+    wform <- update(formula,"Surv(time,status)~.")
     ## require(randomForestSRC)
-    ## FIXME: this is not good: all.vars(Hist(event=event,time)[2])
-    status.name <- all.vars(formula)[2]
-    reverse.data <- data
-    reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
-    stopifnot(NROW(na.omit(data))>0)
+    stopifnot(NROW(na.omit(wdata))>0)
     if (missing(args) || is.null(args))
-        args <- list(bootstrap="none",ntree=1000,nodesize=NROW(data)/2)
+        ## args <- list(bootstrap="none",ntree=1000,nodesize=NROW(data)/2)
+        args <- list(ntree=1000)
     ## if (is.null(args$importance) & (args$importance!="none"))
     args$importance <- "none"
-    fit <- do.call(randomForestSRC::rfsrc,c(list(formula,data=reverse.data),args))
-    ## browser()
+    fit <- do.call(randomForestSRC::rfsrc,c(list(wform,data=wdata),args))
     #  weigths at requested times
     #  predicted survival probabilities for all training subjects are in object$survival
     #  out-of-bag prediction in object$survival.oob
     if (match("IPCW.times",what,nomatch=FALSE)){
-        IPCW.times <- predictSurvProb(fit,newdata=data,times=times)
+        IPCW.times <- predictSurvProb(fit,newdata=wdata,times=times)
     }
     else
         IPCW.times <- NULL
@@ -192,6 +187,7 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
                 call=call,
                 method=method)
     ## browser()
+    print(head(IPCW.subjectTimes))
     class(out) <- "IPCW"
     out
 }
@@ -199,142 +195,104 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
 # {{{ reverse Kaplan-Meier
 ##' @S3method ipcw marginal
 ipcw.marginal <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
-  if (missing(subjectTimesLag)) subjectTimesLag=1
-  if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
-  call <- match.call()
-  formula <- update.formula(formula,"~1")
-  fit <- prodlim(formula,data=data,reverse=TRUE)
-  #  weigths at requested times
-  if (match("IPCW.times",what,nomatch=FALSE)){
-    IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
-  }
-  else
-    IPCW.times <- NULL
-  #  weigths at subject specific event times
-  if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
-    IPCW.subjectTimes <- predictSurvIndividual(fit,lag=subjectTimesLag)
-  }
-  else
-    IPCW.subjectTimes <- NULL
-  out <- list(times=times,
-              IPCW.times=IPCW.times,
-              IPCW.subjectTimes=IPCW.subjectTimes,
-              fit=fit,
-              call=call,
-              method=method)
-  class(out) <- "IPCW"
-  out
-  ##   locsubjectTimes <- match(subjectTimes,fit$time,nomatch=NA)
-  ##   if (any(is.na(locsubjectTimes))) stop("Can not locate all individual observation times" )
-  ##   IPCW.subjectTimes <- c(1,fit$surv)[locsubjectTimes] ## at (subjectTimes_i-)
-  ##   IPCW.times <- c(1,fit$surv)[prodlim::sindex(jump.times=fit$time,eval.times=times) +1] ## at all requested times
+    if (missing(subjectTimesLag)) subjectTimesLag=1
+    if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
+    call <- match.call()
+    formula <- update.formula(formula,"~1")
+    fit <- prodlim(formula,data=data,reverse=TRUE)
+    #  weigths at requested times
+    if (match("IPCW.times",what,nomatch=FALSE)){
+        IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
+    }
+    else
+        IPCW.times <- NULL
+    #  weigths at subject specific event times
+    if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
+        IPCW.subjectTimes <- predictSurvIndividual(fit,lag=subjectTimesLag)
+    }
+    else
+        IPCW.subjectTimes <- NULL
+    out <- list(times=times,
+                IPCW.times=IPCW.times,
+                IPCW.subjectTimes=IPCW.subjectTimes,
+                fit=fit,
+                call=call,
+                method=method)
+    class(out) <- "IPCW"
+    out
+    ##   locsubjectTimes <- match(subjectTimes,fit$time,nomatch=NA)
+    ##   if (any(is.na(locsubjectTimes))) stop("Can not locate all individual observation times" )
+    ##   IPCW.subjectTimes <- c(1,fit$surv)[locsubjectTimes] ## at (subjectTimes_i-)
+    ##   IPCW.times <- c(1,fit$surv)[prodlim::sindex(jump.times=fit$time,eval.times=times) +1] ## at all requested times
 }
 # }}}
 # {{{ reverse Stone-Beran 
 ##' @S3method ipcw nonpar
 ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
-  if (missing(subjectTimesLag)) subjectTimesLag=1
-  if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
-  call <- match.call()
-  fit <- prodlim(formula,data=data,reverse=TRUE,bandwidth="smooth")
-  #  weigths at requested times
-  if (match("IPCW.times",what,nomatch=FALSE)){
-    IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
-  }
-  else
-    IPCW.times <- NULL
-  #  weigths at subject specific event times
-  if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
-    IPCW.subjectTimes <- predictSurvIndividual(fit,lag=subjectTimesLag)
-  }
-  else
-    IPCW.subjectTimes <- NULL
-  out <- list(times=times,
-              IPCW.times=IPCW.times,
-              IPCW.subjectTimes=IPCW.subjectTimes,
-              fit=fit,
-              call=call,
-              method=method)
-  ## browser()
-  class(out) <- "IPCW"
-  out
+    if (missing(subjectTimesLag)) subjectTimesLag=1
+    if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
+    call <- match.call()
+    fit <- prodlim(formula,data=data,reverse=TRUE,bandwidth="smooth")
+    #  weigths at requested times
+    if (match("IPCW.times",what,nomatch=FALSE)){
+        IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
+    }
+    else
+        IPCW.times <- NULL
+    #  weigths at subject specific event times
+    if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
+        IPCW.subjectTimes <- predictSurvIndividual(fit,lag=subjectTimesLag)
+    }
+    else
+        IPCW.subjectTimes <- NULL
+    out <- list(times=times,
+                IPCW.times=IPCW.times,
+                IPCW.subjectTimes=IPCW.subjectTimes,
+                fit=fit,
+                call=call,
+                method=method)
+    class(out) <- "IPCW"
+    out
 }
-
-#reverse Cox via the survival package
-#ipcw.coxph <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
-#  if (missing(subjectTimesLag)) subjectTimesLag=1
-#  if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
-#  call <- match.call()
-#  require(survival)
-#  require(rms)
-#  survival.survfit.coxph <- getFromNamespace("survfit.coxph",ns="survival")
-#  survival.summary.survfit <- getFromNamespace("summary.survfit",ns="survival")
-#  status.name <- all.vars(formula)[2]
-#  reverse.data <- data
-#  reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
-#  stopifnot(NROW(na.omit(data))>0)
-#  fit <- coxph(formula,data=reverse.data)
-#  survfit.object <- survival.survfit.coxph(fit,newdata=data,se.fit=FALSE,conf.int=FALSE)
-#  if (match("IPCW.times",what,nomatch=FALSE))
-#    IPCW.times <- rms::survest(fit,newdata=data,times=times,se.fit=FALSE)$surv
-#  else
-#    IPCW.times <- NULL
-#  if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
-#    if (subjectTimesLag==1) 
-#      IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
-#    else if (subjectTimesLag==0)
-#      IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes,what='parallel')
-#    else stop("SubjectTimesLag must be 0 or 1")}
-#  else
-#    IPCW.subjectTimes <- NULL
-#  out <- list(times=times,IPCW.times=IPCW.times,IPCW.subjectTimes=IPCW.subjectTimes,fit=fit,call=call,method=method)
-#  class(out) <- "IPCW"
-#  out
-#}
 # }}}
 # {{{ reverse Cox via Harrel's package
 ##' @S3method ipcw cox
 ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
-  ## require(rms)
-  if (missing(subjectTimesLag)) subjectTimesLag=1
-  if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
-  call <- match.call()
-  ## in case that Hist is used
-  if (all.names(formula)[2]=="Hist"){
-      lhs <- sub("Hist","Surv", as.character(formula)[2])
-      formula <- update(formula,paste(lhs,"~."))
-  }
-  ## debug here
-  status.name <- all.vars(formula)[2]
-  reverse.data <- data
-  reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
-  stopifnot(NROW(na.omit(data))>0)
-  fit <- rms::cph(formula,data=reverse.data,surv=TRUE,x=TRUE,y=TRUE)
-  #  weigths at requested times
-  if (match("IPCW.times",what,nomatch=FALSE)){
-    IPCW.times <- rms::survest(fit,newdata=data,times=times,se.fit=FALSE)$surv
-  }
-  else
-    IPCW.times <- NULL
-  #  weigths at subject specific event times
-  if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
-    if (subjectTimesLag==1)
-      IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
-    else if (subjectTimesLag==0){
-      IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes,what='parallel')
+    ## require(rms)
+    if (missing(subjectTimesLag)) subjectTimesLag=1
+    if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
+    call <- match.call()
+    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
+    wdata <- as.data.frame(EHF)
+    wdata$status <- 1-wdata$status
+    wform <- update(formula,"Surv(time,status)~.")
+    stopifnot(NROW(na.omit(wdata))>0)
+    fit <- rms::cph(wform,data=wdata,surv=TRUE,x=TRUE,y=TRUE)
+    #  weigths at requested times
+    if (match("IPCW.times",what,nomatch=FALSE)){
+        IPCW.times <- rms::survest(fit,newdata=wdata,times=times,se.fit=FALSE)$surv
     }
-    else stop("SubjectTimesLag must be 0 or 1")
-  }
-  else
-    IPCW.subjectTimes <- NULL
-  out <- list(times=times,
-              IPCW.times=IPCW.times,
-              IPCW.subjectTimes=IPCW.subjectTimes,
-              fit=fit,
-              call=call,
-              method=method)
-  class(out) <- "IPCW"
-  out
+    else
+        IPCW.times <- NULL
+    #  weigths at subject specific event times
+    if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
+        if (subjectTimesLag==1)
+            IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes-min(diff(c(0,unique(subjectTimes))))/2,what='parallel')
+        else if (subjectTimesLag==0){
+            IPCW.subjectTimes <- rms::survest(fit,times=subjectTimes,what='parallel')
+        }
+        else stop("SubjectTimesLag must be 0 or 1")
+    }
+    else
+        IPCW.subjectTimes <- NULL
+    out <- list(times=times,
+                IPCW.times=IPCW.times,
+                IPCW.subjectTimes=IPCW.subjectTimes,
+                fit=fit,
+                call=call,
+                method=method)
+    class(out) <- "IPCW"
+    out
 }
 # }}}
 # {{{ reverse Aalen method via the timereg package
@@ -343,15 +301,15 @@ ipcw.aalen <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
-    require(timereg)
-    ## require(rms)
-    status.name <- all.vars(formula)[2]
-    reverse.data <- data
-    reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
-    fit <- do.call(method,list(formula=formula,data=reverse.data,n.sim=0))
+    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
+    wdata <- as.data.frame(EHF)
+    wdata$status <- 1-wdata$status
+    wform <- update(formula,"Surv(time,status)~.")
+    stopifnot(NROW(na.omit(wdata))>0)
+    fit <- do.call(timereg::aalen,list(formula=formula,data=wdata,n.sim=0))
     #  weigths at requested times
     if (match("IPCW.times",what,nomatch=FALSE)){
-        IPCW.times <- predictSurvProb(fit,newdata=data,times=times)
+        IPCW.times <- predictSurvProb(fit,newdata=wdata,times=times)
     }  else {
         IPCW.times <- NULL
     }
@@ -370,23 +328,3 @@ ipcw.aalen <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
 }
 # }}}
 
-#Stone-Beran using the linear predictor of a reverse Cox method
-#ipcw.project <- function(formula,data,method,args,times,subjectTimes){ 
-#  if (missing(subjectTimesLag)) subjectTimesLag=1
-#  if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
-#  call <- match.call()
-#  require(rms)
-#  status.name <- all.vars(formula)[2]
-#  reverse.data <- data
-#  reverse.data[,status.name] <- 1 * (reverse.data[,status.name]==0)
-#  stopifnot(NROW(na.omit(data))>0)
-#  fit <- rms::cph(formula,data=reverse.data,surv=TRUE,x=TRUE,y=TRUE)
-#  data$lp <- predict(fit,type="lp")
-#  reform <- reformulate("lp",formula[[2]])
-#  fit <- prodlim(reform,data=data,reverse=TRUE,bandwidth="smooth")
-#  IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
-#  IPCW.subjectTimes <- predictSurvIndividual(fit,subjectTimesLag=1)
-#  out <- list(times=times,IPCW.times=IPCW.times,IPCW.subjectTimes=IPCW.subjectTimes,fit=fit,call=call,method=method)
-#  class(out) <- "IPCW"
-#  out
-#}
