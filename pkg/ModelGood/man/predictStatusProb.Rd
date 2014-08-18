@@ -9,7 +9,7 @@
 \alias{predictStatusProb.rpart}
 \title{Probability Predictions}
 \usage{
-  \method{predictStatusProb}{glm}(object,newdata,...)
+\method{predictStatusProb}{glm}(object,newdata,...)
 }
 \arguments{
   \item{object}{A model from which predicted probabilities
@@ -25,33 +25,33 @@
   current method.}
 }
 \value{
-  A vector with the predicted status probability for each
-  row in \code{NROW(newdata)}.
+A vector with the predicted status probability for each row
+in \code{NROW(newdata)}.
 }
 \description{
-  Function to extract probabilistic event status
-  predictions from various diagnostic and prognostic models
-  with binary status response. The function has a speficic
-  method depending on the 'class' of the object.
+Function to extract probabilistic event status predictions
+from various diagnostic and prognostic models with binary
+status response. The function has a speficic method
+depending on the 'class' of the object.
 }
 \details{
-  The function delivers predicted probabilities tailored
-  for the model performance measures of the package. These
-  probabilities are extracted from a fitted model of class
-  \code{CLASS} with the function
-  \code{predictStatusProb.CLASS}. See \code{help(Roc)} for
-  details.
+The function delivers predicted probabilities tailored for
+the model performance measures of the package. These
+probabilities are extracted from a fitted model of class
+\code{CLASS} with the function
+\code{predictStatusProb.CLASS}. See \code{help(Roc)} for
+details.
 }
 \note{
-  It is rather easy to write a new predictStatusProb
-  method, see \code{help(Roc)}. However, if you do not
-  succeed, please send me an email.
+It is rather easy to write a new predictStatusProb method,
+see \code{help(Roc)}. However, if you do not succeed,
+please send me an email.
 
-  The performance, in particular when doing
-  cross-validation where the model is evaluated many times,
-  can be improved by supressing in the call to the model
-  all the computations that are not needed for probability
-  prediction, for example standard error calculations.
+The performance, in particular when doing cross-validation
+where the model is evaluated many times, can be improved by
+supressing in the call to the model all the computations
+that are not needed for probability prediction, for example
+standard error calculations.
 }
 \examples{
 library(rms)
@@ -63,10 +63,10 @@ fit <- lrm(y~x+z,d)
 predictStatusProb(fit,newdata=nd)
 }
 \author{
-  Thomas A. Gerds \email{tag@biostat.ku.dk}
+Thomas A. Gerds \email{tag@biostat.ku.dk}
 }
 \seealso{
-  \code{\link{predict}},\code{\link{Roc}}
+\code{\link{predict}},\code{\link{Roc}}
 }
 \keyword{models}
 

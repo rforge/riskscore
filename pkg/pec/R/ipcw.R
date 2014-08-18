@@ -145,11 +145,13 @@ ipcw.none <- function(formula,data,method,args,times,subjectTimes,subjectTimesLa
 # }}}
 # {{{ reverse Random Survival Forests
 ##' @S3method ipcw rfsrc
-ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){    if (missing(subjectTimesLag)) subjectTimesLag=1
+ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
+    if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call() ## needed for refit in crossvalidation loop
     EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
-    wdata <- as.data.frame(EHF)
+    wdata <- data.frame(cbind(unclass(EHF$event.history),do.call("cbind",EHF[-1])))
+    ## wdata <- as.data.frame(EHF)
     wdata$status <- 1-wdata$status
     wform <- update(formula,"Surv(time,status)~.")
     ## require(randomForestSRC)
@@ -160,6 +162,7 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
     ## if (is.null(args$importance) & (args$importance!="none"))
     args$importance <- "none"
     fit <- do.call(randomForestSRC::rfsrc,c(list(wform,data=wdata),args))
+    fit$call <- NULL
     #  weigths at requested times
     #  predicted survival probabilities for all training subjects are in object$survival
     #  out-of-bag prediction in object$survival.oob
@@ -187,7 +190,8 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
                 call=call,
                 method=method)
     ## browser()
-    print(head(IPCW.subjectTimes))
+    ## print(head(IPCW.subjectTimes))
+
     class(out) <- "IPCW"
     out
 }
@@ -263,7 +267,9 @@ ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
     EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
-    wdata <- as.data.frame(EHF)
+    wdata <- data.frame(cbind(unclass(EHF$event.history),do.call("cbind",EHF[-1])))
+    ## wdata <- prodlim::as.data.frame.EventHistory.frame(EHF)
+    ## 
     wdata$status <- 1-wdata$status
     wform <- update(formula,"Surv(time,status)~.")
     stopifnot(NROW(na.omit(wdata))>0)
@@ -302,11 +308,13 @@ ipcw.aalen <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
     EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
-    wdata <- as.data.frame(EHF)
+    wdata <- data.frame(cbind(unclass(EHF$event.history),do.call("cbind",EHF[-1])))
+    ## wdata <- as.data.frame(EHF)
     wdata$status <- 1-wdata$status
     wform <- update(formula,"Surv(time,status)~.")
     stopifnot(NROW(na.omit(wdata))>0)
     fit <- do.call(timereg::aalen,list(formula=formula,data=wdata,n.sim=0))
+    fit$call <- NULL
     #  weigths at requested times
     if (match("IPCW.times",what,nomatch=FALSE)){
         IPCW.times <- predictSurvProb(fit,newdata=wdata,times=times)

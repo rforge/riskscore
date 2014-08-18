@@ -427,10 +427,10 @@ predictSurvProb.survfit <- function(object,newdata,times,...){
 
 ##' @S3method predictSurvProb psm
 predictSurvProb.psm <- function(object,newdata,times,...){
-  p <- rms::survest(object,times=times,newdata=newdata,what="survival",conf.int=FALSE)$surv
-  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
-  p
+    p <- rms::survest(object,times=times,newdata=newdata,what="survival",conf.int=FALSE)
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+        stop("Prediction failed")
+    p
 }
 
 ##' @S3method predictSurvProb phnnet

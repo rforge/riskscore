@@ -112,20 +112,15 @@ selectFGR <- function(formula,
     class(response) <- "matrix"
     m <- cbind(response,m[-1])
     crrstep.form <- as.formula(update(formula,paste(timevar,"~1+.")))
-    capture.output(crrstep.fit <- do.call(crrstep::crrstep,list(formula=crrstep.form,
-                                                                data=m,
-                                                                etype=Event,
-                                                                failcode=cause,
-                                                                cencode=cens.code,
-                                                                trace = FALSE,
-                                                                ...)))
+    capture.output(crrstep.fit <- do.call(crrstep::crrstep,list(formula=crrstep.form,data=m,etype=Event,failcode=cause,cencode=cens.code,trace = FALSE,...)))
     if (length(crrstep.fit$coefficients)==0){
         newform <- as.formula(update(formula,.~1),env=NULL)
         newfit <- prodlim::prodlim(newform,data=data)
     }
     else{
         newform <- as.formula(update(formula,paste(".~",paste(rownames(crrstep.fit$coefficients),collapse="+"))),env=NULL)
-        newfit <- riskRegression::FGR(newform,data=data,cause=cause)
+        ## newfit <- riskRegression::FGR(newform,data=data,cause=cause)
+        newfit <- FGR(newform,data=data,cause=cause)
         newfit$call$formula <- newform
     }
     out <- list(fit=newfit,In=rownames(crrstep.fit$coefficients))
