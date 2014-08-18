@@ -76,7 +76,7 @@ predictLifeYearsLost.prodlim <- function(object,newdata,times,cause,...){
   ## in this exceptional case we proceed a vector
   if (NROW(cif)==1 && NROW(newdata)>1)
     cif <- as.vector(cif)
-  pos <- sindex(jump.times=time.interest,eval.times=times)
+  pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]
@@ -93,7 +93,7 @@ predictLifeYearsLost.FGR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- sort(unique(object$crrFit$uftime))
   cif <- predict(object,newdata=newdata,times=time.interest)
-  pos <- sindex(jump.times=time.interest,eval.times=times)
+  pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]
@@ -110,7 +110,7 @@ predictLifeYearsLost.riskRegression <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- object$time
   cif <- predict(object,newdata=newdata,times=time.interest)
-  pos <- sindex(jump.times=time.interest,eval.times=times)
+  pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]
@@ -127,7 +127,7 @@ predictLifeYearsLost.ARR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   time.interest <- object$time
   cif <- predict(object,newdata=newdata,times=time.interest)
-  pos <- sindex(jump.times=time.interest,eval.times=times)
+  pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]
@@ -172,7 +172,7 @@ predictLifeYearsLost.CauseSpecificCox <- function (object, newdata, times, cause
     lagsurv <- predictSurvProb(object$models[["OverallSurvival"]],times=eTimes-tdiff,newdata=newdata)
     cif <- t(apply(lagsurv*Haz1,1,cumsum))
   }
-  pos <- sindex(jump.times=eTimes,eval.times=times)
+  pos <- prodlim::sindex(jump.times=eTimes,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]
@@ -189,7 +189,7 @@ predictLifeYearsLost.CauseSpecificCox <- function (object, newdata, times, cause
 predictLifeYearsLost.rfsrc <- function(object, newdata, times, cause, ...){
   if (missing(cause)) stop("missing cause")
   cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
-  pos <- sindex(jump.times=object$time.interest,eval.times=times)
+  pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]

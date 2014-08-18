@@ -86,8 +86,8 @@ R2 <- function(object,
     })))
     names(out) <- names(object$models)[models]
     ## cat("R^2 based on the estimate stored in ",what,":\n\n")
-    ## print(cbind(time=times,RR=rbind(0,out)[1+sindex(object.times,times),,drop=FALSE]))
-    cbind(time=times,RR=rbind(0,out)[1+sindex(object.times,times),,drop=FALSE])
+    ## print(cbind(time=times,RR=rbind(0,out)[1+prodlim::sindex(object.times,times),,drop=FALSE]))
+    cbind(time=times,RR=rbind(0,out)[1+prodlim::sindex(object.times,times),,drop=FALSE])
   })
   # }}}
   # {{{ prepare output

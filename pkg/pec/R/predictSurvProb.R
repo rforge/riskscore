@@ -159,7 +159,7 @@ predictSurvProb.aalen <- function(object,newdata,times,...){
   hazard <- matrix(hazard,ncol=ntime,nrow=nobs,dimnames=list(1:nobs,paste("TP",1:ntime,sep="")))
   surv <- pmin(exp(-hazard),1)
   if (missing(times)) times <- sort(unique(objecttime))
-  pred <- surv[,sindex(jump.times=objecttime,eval.times=times)]
+  pred <- surv[,prodlim::sindex(jump.times=objecttime,eval.times=times)]
   pred
   if (NROW(pred) != NROW(newdata) || NCOL(pred) != length(times))
     stop("Prediction failed")
@@ -189,7 +189,7 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
                         dimnames=list(1:nobs,paste("TP",1:ntime,sep="")))
     surv <- pmin(exp(-time.part*constant.part),1)
     if (missing(times)) times <- sort(unique(fittime))
-    pred <- surv[,sindex(fittime,times)]
+    pred <- surv[,prodlim::sindex(fittime,times)]
     class(pred) <- c("survest","cox.aalen")
     pred
   }
@@ -289,7 +289,7 @@ predictSurvProb.coxph.penal <- function(object,newdata,times,...){
   survPred <- do.call("rbind",lapply(1:NROW(newdata),function(i){
     (1+frailVar*bhValues*exp(linearPred[i]))^{-1/frailVar}
   }))
-  where <- sindex(jump.times=bhTimes,eval.times=times)
+  where <- prodlim::sindex(jump.times=bhTimes,eval.times=times)
   p <- cbind(1,survPred)[,where+1]
   if ((miss.time <- (length(times) - NCOL(p)))>0)
     p <- cbind(p,matrix(rep(NA,miss.time*NROW(p)),nrow=NROW(p)))
@@ -466,7 +466,7 @@ predictSurvProb.phnnet <- function(object,newdata,times,train.data,...){
 predictSurvProb.riskRegression <- function(object,newdata,times,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata)
-  pos <- sindex(jump.times=temp$time,eval.times=times)
+  pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
   p <- cbind(1,1-temp$cuminc)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed")
@@ -476,7 +476,7 @@ predictSurvProb.riskRegression <- function(object,newdata,times,...){
 ##' @S3method predictSurvProb rfsrc
 predictSurvProb.rfsrc <- function(object, newdata, times, ...){
   ptemp <- predict(object,newdata=newdata,importance="none",...)$survival
-  pos <- sindex(jump.times=object$time.interest,eval.times=times)
+  pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
   p <- cbind(1,ptemp)[,pos+1]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed.")

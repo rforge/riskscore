@@ -19,7 +19,7 @@ predictEventProb.pseudoForest <- function(object,
   pos <- match(times,object$times,nomatch=FALSE)
   if (any(pos==FALSE))
     stop("Requested forests at times ",paste(times[!pos],collapse=", "),"not available. Available are forests at times:",paste(object$times,collapse=", "))
-  ##   pos <- sindex(jump.times=object$times,eval.times=times)
+  ##   pos <- prodlim::sindex(jump.times=object$times,eval.times=times)
   p <- do.call("cbind",lapply(pos,function(t){
     getForest <- forestList[[t]]
     if (class(getForest)!="randomForest")

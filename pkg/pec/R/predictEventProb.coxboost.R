@@ -113,7 +113,7 @@ predictLifeYearsLost.coxboost <- function(object,newdata,times,cause,...){
                           data=model.frame(object$formula,data=newdata))[,-c(1)]
   time.interest <- sort(unique(object$coxboost$time))
   cif <- predict(object$coxboost,newdata=newcova,type="CIF",times=time.interest)
-  pos <- sindex(jump.times=time.interest,eval.times=times)
+  pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
   lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
     pos.j <- 1:(pos[j]+1)
     p <- cbind(0,cif)[,pos.j,drop=FALSE]

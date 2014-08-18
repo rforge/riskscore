@@ -888,7 +888,7 @@ pec <- function(object,
   
   
   if (!keep.index) splitMethod$index <- NULL
-  n.risk <- N - sindex(Y,times)
+  n.risk <- N - prodlim::sindex(Y,times)
   # }}}
   # {{{ put out
   if(keep.models==TRUE)

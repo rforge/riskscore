@@ -475,8 +475,8 @@ cindex <- function(object,
   # truncate the weights
   if (!missing(ipcw.limit) && ipcw.limit!=0){
     pfit <- prodlim::prodlim(update(formula,".~1"),data=data)
-    limit.i <- 1/(1+c(0,cumsum(pfit$n.lost))[1+sindex(jump.times=pfit$time,eval.times=Y-min(diff(Y))/2)])
-    limit.times <- 1/(1+c(0,cumsum(pfit$n.lost))[1+sindex(jump.times=pfit$time,eval.times=unique.Y)])
+    limit.i <- 1/(1+c(0,cumsum(pfit$n.lost))[1+prodlim::sindex(jump.times=pfit$time,eval.times=Y-min(diff(Y))/2)])
+    limit.times <- 1/(1+c(0,cumsum(pfit$n.lost))[1+prodlim::sindex(jump.times=pfit$time,eval.times=unique.Y)])
     if (ipcw.limit<1 && ipcw.limit>0){
       limit.i <- pmax(ipcw.limit,limit.i)
       limit.times <- pmax(ipcw.limit,limit.times)

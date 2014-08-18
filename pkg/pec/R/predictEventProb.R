@@ -101,7 +101,7 @@ predictEventProb.FGR <- function(object,newdata,times,cause,...){
 predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata,times=times)
-  pos <- sindex(jump.times=temp$time,eval.times=times)
+  pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
   p <- cbind(0,temp$risk)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed")
@@ -112,7 +112,7 @@ predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
 predictEventProb.ARR <- function(object,newdata,times,cause,...){
   if (missing(times))stop("Argument times is missing")
   temp <- predict(object,newdata=newdata,times=times)
-  pos <- sindex(jump.times=temp$time,eval.times=times)
+  pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
   p <- cbind(0,temp$P1)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed")
@@ -165,7 +165,7 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
             stop("Prediction of overall curvival Cox model failed")
         cuminc1 <- t(apply(lagsurv*Haz1,1,cumsum))
     }
-    pos <- sindex(jump.times=eTimes, eval.times=times)
+    pos <- prodlim::sindex(jump.times=eTimes, eval.times=times)
     p <- cbind(0,cuminc1)[,pos+1,drop=FALSE]
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
         stop("Prediction failed")
@@ -177,7 +177,7 @@ predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
   if (missing(cause)) stop("missing cause")
   if (!is.numeric(cause)) stop("cause is not numeric")
   cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
-  pos <- sindex(jump.times=object$time.interest,eval.times=times)
+  pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
   p <- cbind(0,cif)[,pos+1]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed")
@@ -209,7 +209,7 @@ predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
     ## lagsurv <- predictSurvProb(object$models[["OverallSurvival"]],times=eTimes-tdiff,newdata=newdata)
     ## cuminc1 <- t(apply(lagsurv*Haz1,1,cumsum))
   ## }
-  ## pos <- sindex(jump.times=eTimes, eval.times=times)
+  ## pos <- prodlim::sindex(jump.times=eTimes, eval.times=times)
   ## cbind(0,cuminc1)[,pos+1,drop=FALSE]
 ## }
 

@@ -200,7 +200,7 @@ CindexBootstrapCrossValidation <- function(object,
     loopOut=list(PredCindexStepB=PredCindexStepB)
     ##     if (keepResiduals==TRUE)  
     ##       loopOut=c(loopOut,list(Residuals=lapply(Residuals,function(R){
-    ##         R[,sindex(eval.times=testTimes,jump.times=times)]
+    ##         R[,prodlim::sindex(eval.times=testTimes,jump.times=times)]
     ##       })))
 
     if (!is.null(getFromModel)){

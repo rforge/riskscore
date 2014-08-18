@@ -20,7 +20,7 @@ predictSurvProb.pseudoForest <- function(object,
   # }}}
   # {{{ predict to given time points
   # find the forest
-  ## pos <- sindex(jump.times=object$times,eval.times=times)
+  ## pos <- prodlim::sindex(jump.times=object$times,eval.times=times)
   pos <- match(times,object$times,nomatch=FALSE)
     if (any(pos==FALSE))
     stop("Requested forests at times ",paste(times[!pos],collapse=", "),"not available. Available are forests at times:",paste(object$times,collapse=", "))

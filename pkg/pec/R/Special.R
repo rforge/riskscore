@@ -39,7 +39,7 @@ Special <-  function(x,
                      lwd){
    if(length(models) != 1)
      stop("Need to choose one and only one 'models'")
-   at <- sindex(x$time,times)
+   at <- prodlim::sindex(x$time,times)
 
    # add the bootstrap curves 
    boot <- x$BootstrapCrossValErrMat[[models]]

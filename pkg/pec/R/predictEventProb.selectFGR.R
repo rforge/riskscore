@@ -109,9 +109,11 @@ selectFGR <- function(formula,
     else{
         stop("This does not look like a competing risk setting.\nMaybe there is only one event type in the data?")
     }
+    class(response) <- "matrix"
+    m <- cbind(response,m[-1])
     crrstep.form <- as.formula(update(formula,paste(timevar,"~1+.")))
     capture.output(crrstep.fit <- do.call(crrstep::crrstep,list(formula=crrstep.form,
-                                                                data=data,
+                                                                data=m,
                                                                 etype=Event,
                                                                 failcode=cause,
                                                                 cencode=cens.code,

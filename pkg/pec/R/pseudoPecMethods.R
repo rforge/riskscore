@@ -406,7 +406,7 @@ pseudoPec <- function(object,
   if (!is.null(model.parms)) out <- c(out,list("ModelParameters"=BootCv$ModelParameters))
   ## if (na.accept>0) out <- c(out,list("failed"=failed))
   out
-  n.risk <- N - sindex(Y,times)
+  n.risk <- N - prodlim::sindex(Y,times)
   if (!keep.index) splitMethod$index <- NULL
 
   # }}}    

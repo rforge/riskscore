@@ -227,7 +227,7 @@ ipcw.marginal <- function(formula,data,method,args,times,subjectTimes,subjectTim
   ##   locsubjectTimes <- match(subjectTimes,fit$time,nomatch=NA)
   ##   if (any(is.na(locsubjectTimes))) stop("Can not locate all individual observation times" )
   ##   IPCW.subjectTimes <- c(1,fit$surv)[locsubjectTimes] ## at (subjectTimes_i-)
-  ##   IPCW.times <- c(1,fit$surv)[sindex(jump.times=fit$time,eval.times=times) +1] ## at all requested times
+  ##   IPCW.times <- c(1,fit$surv)[prodlim::sindex(jump.times=fit$time,eval.times=times) +1] ## at all requested times
 }
 # }}}
 # {{{ reverse Stone-Beran 
