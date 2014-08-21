@@ -178,7 +178,7 @@ predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
   if (!is.numeric(cause)) stop("cause is not numeric")
   cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
   pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
-  p <- cbind(0,cif)[,pos+1]
+  p <- cbind(0,cif)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
     stop("Prediction failed")
   p

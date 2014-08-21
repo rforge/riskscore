@@ -2,7 +2,7 @@
 \alias{selectCox}
 \title{Backward variable selection in the Cox regression model}
 \usage{
-selectCox(formula, data, rule = "aic")
+  selectCox(formula, data, rule = "aic")
 }
 \arguments{
   \item{formula}{A formula object with a \code{Surv} object
@@ -16,14 +16,14 @@ selectCox(formula, data, rule = "aic")
   \code{\link{fastbw}} for details.}
 }
 \description{
-This is a wrapper function which first selects variables in
-the Cox regression model using \code{fastbw} from the
-\code{rms} package and then returns a fitted Cox regression
-model with the selected variables.
+  This is a wrapper function which first selects variables
+  in the Cox regression model using \code{fastbw} from the
+  \code{rms} package and then returns a fitted Cox
+  regression model with the selected variables.
 }
 \details{
-This function first calls \code{cph} then \code{fastbw} and
-finally \code{cph} again.
+  This function first calls \code{cph} then \code{fastbw}
+  and finally \code{cph} again.
 }
 \examples{
 data(GBSG2)
@@ -32,10 +32,11 @@ f <- selectCox(Surv(time,cens)~horTh+age+menostat+tsize+tgrade+pnodes+progrec+es
 	       data=GBSG2)
 }
 \references{
-Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
-Evaluating Random Forests for Survival Analysis Using
-Prediction Error Curves. Journal of Statistical Software,
-50(11), 1-23. URL http://www.jstatsoft.org/v50/i11/.
+  Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds
+  (2012). Evaluating Random Forests for Survival Analysis
+  Using Prediction Error Curves. Journal of Statistical
+  Software, 50(11), 1-23. URL
+  http://www.jstatsoft.org/v50/i11/.
 }
 \keyword{survival}
 

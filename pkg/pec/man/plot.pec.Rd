@@ -2,10 +2,12 @@
 \alias{plot.pec}
 \title{Plotting prediction error curves}
 \usage{
-\method{plot}{pec}(x, what, models, xlim = c(x$start, x$minmaxtime),
-  ylim = c(0, 0.3), xlab = "Time", ylab, axes = TRUE, col, lty, lwd, type,
-  smooth = FALSE, add.refline = FALSE, add = FALSE, legend = ifelse(add,
-  FALSE, TRUE), special = FALSE, ...)
+  plot.pec(x, what, models,
+    xlim = c(x$start, x$minmaxtime), ylim = c(0, 0.3),
+    xlab = "Time", ylab, axes = TRUE, col, lty, lwd, type,
+    smooth = FALSE, add.refline = FALSE, add = FALSE,
+    legend = ifelse(add, FALSE, TRUE), special = FALSE,
+    ...)
 }
 \arguments{
   \item{x}{Object of class \code{pec} obtained with
@@ -70,31 +72,31 @@
   \code{\link{plot}}.}
 }
 \value{
-The (invisible) object.
+  The (invisible) object.
 }
 \description{
-Plotting prediction error curves for one or more prediction
-models.
+  Plotting prediction error curves for one or more
+  prediction models.
 }
 \details{
-From version 2.0.1 on the arguments legend.text,
-legend.args, lines.type, lwd.lines, specials are obsolete
-and only available for backward compatibility. Instead
-arguments for the invoked functions \code{legend},
-\code{axis}, \code{Special} are simply specified as
-\code{legend.lty=2}. The specification is not case
-sensitive, thus \code{Legend.lty=2} or \code{LEGEND.lty=2}
-will have the same effect.  The function \code{axis} is
-called twice, and arguments of the form
-\code{axis1.labels}, \code{axis1.at} are used for the time
-axis whereas \code{axis2.pos}, \code{axis1.labels}, etc.
-are used for the y-axis.
+  From version 2.0.1 on the arguments legend.text,
+  legend.args, lines.type, lwd.lines, specials are obsolete
+  and only available for backward compatibility. Instead
+  arguments for the invoked functions \code{legend},
+  \code{axis}, \code{Special} are simply specified as
+  \code{legend.lty=2}. The specification is not case
+  sensitive, thus \code{Legend.lty=2} or
+  \code{LEGEND.lty=2} will have the same effect.  The
+  function \code{axis} is called twice, and arguments of
+  the form \code{axis1.labels}, \code{axis1.at} are used
+  for the time axis whereas \code{axis2.pos},
+  \code{axis1.labels}, etc. are used for the y-axis.
 
-These arguments are processed via \code{\dots{}} of
-\code{plot.pec} and inside by using the function
-\code{resolveSmartArgs}.  Documentation of these arguments
-can be found in the help pages of the corresponding
-functions.
+  These arguments are processed via \code{\dots{}} of
+  \code{plot.pec} and inside by using the function
+  \code{resolveSmartArgs}.  Documentation of these
+  arguments can be found in the help pages of the
+  corresponding functions.
 }
 \examples{
 # simulate data
@@ -143,11 +145,11 @@ plot(PredError.632plus,
      special.addprederr="AppErr")
 }
 \author{
-Ulla B. Mogensen \email{ulmo@biostat.ku.dk}, Thomas A.
-Gerds \email{tag@biostat.ku.dk}
+  Ulla B. Mogensen \email{ulmo@biostat.ku.dk}, Thomas A.
+  Gerds \email{tag@biostat.ku.dk}
 }
 \seealso{
-\code{\link{pec}}\code{\link{summary.pec}}\code{\link{Special}}\code{\link{prodlim}}
+  \code{\link{pec}}\code{\link{summary.pec}}\code{\link{Special}}\code{\link{prodlim}}
 }
 \keyword{survival}
 

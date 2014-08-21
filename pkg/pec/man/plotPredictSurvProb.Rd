@@ -2,9 +2,9 @@
 \alias{plotPredictSurvProb}
 \title{Plotting predicted survival curves.}
 \usage{
-plotPredictSurvProb(x, newdata, times, xlim, ylim, xlab, ylab, axes = TRUE,
-  col, density, lty, lwd, add = FALSE, legend = TRUE, percent = FALSE,
-  ...)
+  plotPredictSurvProb(x, newdata, times, xlim, ylim, xlab,
+    ylab, axes = TRUE, col, density, lty, lwd, add = FALSE,
+    legend = TRUE, percent = FALSE, ...)
 }
 \arguments{
   \item{x}{A survival prediction model including
@@ -53,25 +53,26 @@ plotPredictSurvProb(x, newdata, times, xlim, ylim, xlab, ylab, axes = TRUE,
   \code{\link{legend}}.}
 }
 \value{
-The (invisible) object.
+  The (invisible) object.
 }
 \description{
-Ploting prediction survival curves for one prediction model
-using \code{predictSurvProb} .
+  Ploting prediction survival curves for one prediction
+  model using \code{predictSurvProb} .
 }
 \details{
-Arguments for the invoked functions \code{legend} and
-\code{axis} are simply specified as \code{legend.lty=2}.
-The specification is not case sensitive, thus
-\code{Legend.lty=2} or \code{LEGEND.lty=2} will have the
-same effect. The function \code{axis} is called twice, and
-arguments of the form \code{axis1.labels}, \code{axis1.at}
-are used for the time axis whereas \code{axis2.pos},
-\code{axis1.labels}, etc.  are used for the y-axis.
+  Arguments for the invoked functions \code{legend} and
+  \code{axis} are simply specified as \code{legend.lty=2}.
+  The specification is not case sensitive, thus
+  \code{Legend.lty=2} or \code{LEGEND.lty=2} will have the
+  same effect. The function \code{axis} is called twice,
+  and arguments of the form \code{axis1.labels},
+  \code{axis1.at} are used for the time axis whereas
+  \code{axis2.pos}, \code{axis1.labels}, etc.  are used for
+  the y-axis.
 
-These arguments are processed via \code{\dots{}} of
-\code{plotPredictSurvProb} and inside by using the function
-\code{SmartControl}.
+  These arguments are processed via \code{\dots{}} of
+  \code{plotPredictSurvProb} and inside by using the
+  function \code{SmartControl}.
 }
 \examples{
 # generate some survival data
@@ -92,17 +93,18 @@ rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 plotPredictSurvProb(rsfmodel,newdata=ndat,times=ttt)
 }
 \author{
-Ulla B. Mogensen \email{ulmo@biostat.ku.dk}, Thomas A.
-Gerds \email{tag@biostat.ku.dk}
+  Ulla B. Mogensen \email{ulmo@biostat.ku.dk}, Thomas A.
+  Gerds \email{tag@biostat.ku.dk}
 }
 \references{
-Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
-Evaluating Random Forests for Survival Analysis Using
-Prediction Error Curves. Journal of Statistical Software,
-50(11), 1-23. URL http://www.jstatsoft.org/v50/i11/.
+  Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds
+  (2012). Evaluating Random Forests for Survival Analysis
+  Using Prediction Error Curves. Journal of Statistical
+  Software, 50(11), 1-23. URL
+  http://www.jstatsoft.org/v50/i11/.
 }
 \seealso{
-\code{\link{predictSurvProb}}\code{\link{prodlim}}
+  \code{\link{predictSurvProb}}\code{\link{prodlim}}
 }
 \keyword{survival}
 
