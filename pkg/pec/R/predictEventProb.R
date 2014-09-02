@@ -37,6 +37,7 @@
 #' library(CoxBoost)
 #' library(survival)
 #' library(riskRegression)
+#' library(prodlim)
 #' train <- SimCompRisk(100)
 #' test <- SimCompRisk(10)
 #' cox.fit  <- CSC(Hist(time,cause)~X1+X2,data=train)

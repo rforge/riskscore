@@ -2,8 +2,7 @@
 \alias{coxboost}
 \title{Formula interface for function \code{CoxBoost} of package \code{CoxBoost}.}
 \usage{
-  coxboost(formula, data, cv = TRUE, cause = 1, penalty,
-    ...)
+coxboost(formula, data, cv = TRUE, cause = 1, penalty, ...)
 }
 \arguments{
   \item{formula}{An event-history formula for competing
@@ -33,23 +32,23 @@
   \code{cv.CoxBoost.arg}.}
 }
 \value{
-  See \code{CoxBoost}.
+See \code{CoxBoost}.
 }
 \description{
-  Formula interface for function \code{CoxBoost} of package
-  \code{CoxBoost}.
+Formula interface for function \code{CoxBoost} of package
+\code{CoxBoost}.
 }
 \details{
-  See \code{CoxBoost}.
+See \code{CoxBoost}.
 }
 \author{
-  Thomas Alexander Gerds \email{tag@biostat.ku.dk}
+Thomas Alexander Gerds \email{tag@biostat.ku.dk}
 }
 \references{
-  See \code{CoxBoost}.
+See \code{CoxBoost}.
 }
 \seealso{
-  See \code{CoxBoost}.
+See \code{CoxBoost}.
 }
 \keyword{survival}
 

@@ -96,6 +96,7 @@
 ##' library(prodlim)
 ##' library(lava)
 ##' library(riskRegression)
+##' library(survival)
 ##' set.seed(13)
 ##' m <- crModel()
 ##' regression(m, from = "X1", to = "eventtime1") <- 1
@@ -106,7 +107,7 @@
 ##' d1 <- sim(m,100)
 ##' d2 <- sim(m,100)
 ##' csc <- CSC(Hist(time,event)~X1+X2+X3+X4+X5,data=d1)
-##' fgr <- FGR(Hist(time,event)~X1+X2+X3+X4+X5,data=d1)
+##' fgr <- FGR(Hist(time,event)~X1+X2+X3+X4+X5,data=d1,cause=1)
 ##' predict.crr <- cmprsk:::predict.crr
 ##' par(mar=c(5,5,5,5),cex=1.3)
 ##' calPlot(list(csc,fgr),

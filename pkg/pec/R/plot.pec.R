@@ -1,11 +1,3 @@
-# --------------------------------------------------------------------
-# plot.pec function
-# last update: 24 Sep 2010 (11:20)
-# --------------------------------------------------------------------
-
-# {{{ function arguments
-
-
 #' Plotting prediction error curves
 #' 
 #' Plotting prediction error curves for one or more prediction models.
@@ -118,6 +110,7 @@
 #' 
 #'
 ##' @S3method plot pec
+##' @method plot pec
 plot.pec <- function(x,
                      what,
                      models,

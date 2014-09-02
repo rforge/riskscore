@@ -2,7 +2,7 @@
 \alias{R2}
 \title{Explained variation for survival models}
 \usage{
-  R2(object, models, what, times, reference = 1)
+R2(object, models, what, times, reference = 1)
 }
 \arguments{
   \item{object}{An object with estimated prediction error
@@ -26,23 +26,22 @@
   constructing $R^2$}
 }
 \value{
-  A matrix where the first column holds the times and the
-  following columns are the corresponding $R^2$ values for
-  the requested prediction models.
+A matrix where the first column holds the times and the
+following columns are the corresponding $R^2$ values for
+the requested prediction models.
 }
 \description{
-  This function computes a time-dependent $R^2$ like
-  measure of the variation explained by a survival
-  prediction model, by dividing the mean squared error
-  (Brier score) of the model by the mean squared error
-  (Brier score) of a reference model which ignores all the
-  covariates.
+This function computes a time-dependent $R^2$ like measure
+of the variation explained by a survival prediction model,
+by dividing the mean squared error (Brier score) of the
+model by the mean squared error (Brier score) of a
+reference model which ignores all the covariates.
 }
 \details{
-  In survival analysis the prediction error of the
-  Kaplan-Meier estimator plays a similar role as the total
-  sum of squares in linear regression. Hence, it is a
-  sensible reference model for $R^2$.
+In survival analysis the prediction error of the
+Kaplan-Meier estimator plays a similar role as the total
+sum of squares in linear regression. Hence, it is a
+sensible reference model for $R^2$.
 }
 \examples{
 set.seed(18713)
@@ -56,19 +55,18 @@ perror=pec(list(Cox1=pmodel1,Cox2=pmodel2),Hist(time,status)~1,data=dat,referenc
 R2(perror,times=seq(0,1,.1),reference=1)
 }
 \author{
-  Thomas A. Gerds \email{tag@biostat.ku.dk}
+Thomas A. Gerds \email{tag@biostat.ku.dk}
 }
 \references{
-  E. Graf et al.  (1999), Assessment and comparison of
-  prognostic classification schemes for survival data.
-  Statistics in Medicine, vol 18, pp= 2529--2545.
+E. Graf et al.  (1999), Assessment and comparison of
+prognostic classification schemes for survival data.
+Statistics in Medicine, vol 18, pp= 2529--2545.
 
-  Gerds TA, Cai T & Schumacher M (2008) The performance of
-  risk prediction models Biometrical Journal, 50(4),
-  457--479
+Gerds TA, Cai T & Schumacher M (2008) The performance of
+risk prediction models Biometrical Journal, 50(4), 457--479
 }
 \seealso{
-  \code{\link{pec}}
+\code{\link{pec}}
 }
 \keyword{survival}
 

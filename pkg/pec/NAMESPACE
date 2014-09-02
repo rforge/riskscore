@@ -1,5 +1,6 @@
 S3method(ipcw,aalen)
 S3method(ipcw,cox)
+S3method(ipcw,forest)
 S3method(ipcw,marginal)
 S3method(ipcw,none)
 S3method(ipcw,nonpar)

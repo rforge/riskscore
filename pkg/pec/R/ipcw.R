@@ -121,6 +121,7 @@ ipcw <- function(formula,
 }
 # }}}
 # {{{ uncensored data: return just 1
+
 ##' @S3method ipcw none
 ipcw.none <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
     if (missing(subjectTimesLag)) subjectTimesLag=1
@@ -142,6 +143,7 @@ ipcw.none <- function(formula,data,method,args,times,subjectTimes,subjectTimesLa
     class(out) <- "IPCW"
     out
 }
+
 # }}}
 # {{{ reverse Random Survival Forests
 ##' @S3method ipcw rfsrc
@@ -162,6 +164,7 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
     ## if (is.null(args$importance) & (args$importance!="none"))
     args$importance <- "none"
     fit <- do.call(randomForestSRC::rfsrc,c(list(wform,data=wdata),args))
+    ## print(fit)
     fit$call <- NULL
     #  weigths at requested times
     #  predicted survival probabilities for all training subjects are in object$survival
@@ -191,7 +194,54 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
                 method=method)
     ## browser()
     ## print(head(IPCW.subjectTimes))
-
+    class(out) <- "IPCW"
+    out
+}
+##' @S3method ipcw forest
+ipcw.forest <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag,what){
+    if (missing(subjectTimesLag)) subjectTimesLag=1
+    if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
+    call <- match.call() ## needed for refit in crossvalidation loop
+    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
+    wdata <- data.frame(cbind(unclass(EHF$event.history),do.call("cbind",EHF[-1])))
+    ## wdata$status <- 1-wdata$status
+    wform <- update(formula,"Surv(time,status)~.")
+    ## require(randomForestSRC)
+    stopifnot(NROW(na.omit(wdata))>0)
+    if (missing(args) || is.null(args))
+        args <- list(ntree=1000)
+    args$importance <- "none"
+    fit <- do.call(randomForestSRC::rfsrc,c(list(wform,data=wdata),args))
+    ## print(fit)
+    fit$call <- NULL
+    # forest weights
+    FW <- predict(fit,newdata=wdata,forest.wt=TRUE)$forest.wt
+    #  weigths at requested times
+    #  predicted survival probabilities for all training subjects are in object$survival
+    #  out-of-bag prediction in object$survival.oob
+    if (match("IPCW.times",what,nomatch=FALSE)){
+        # reverse Kaplan-Meier with forest weigths
+        IPCW.times <- apply(data,1,function(i){
+            predict(prodlim(Hist(time,status)~1,data=wdata,reverse=TRUE,caseweights=FW[i,]),times=times)
+        })
+    }
+    else
+        IPCW.times <- NULL
+    #  weigths at subject specific event times
+    if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
+        IPCW.subjectTimes <- sapply(1:length(subjectTimes),function(i){
+            ## browser()
+            predictSurvIndividual(prodlim(Hist(time,status)~1,data=wdata,reverse=TRUE,caseweights=FW[i,]),lag=1)[i]
+        })
+    }
+    else
+        IPCW.subjectTimes <- NULL
+    out <- list(times=times,
+                IPCW.times=IPCW.times,
+                IPCW.subjectTimes=IPCW.subjectTimes,
+                fit=fit,
+                call=call,
+                method=method)
     class(out) <- "IPCW"
     out
 }

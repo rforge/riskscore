@@ -2,18 +2,15 @@
 \alias{pec}
 \title{Prediction error curves}
 \usage{
-  pec(object, formula, data, times, cause, start, maxtime,
-    exact = TRUE, exactness = 100, fillChar = NA,
-    cens.model = "cox", ipcw.refit = FALSE,
-    ipcw.args = NULL, splitMethod = "none", B, M,
-    reference = TRUE, model.args = NULL,
-    model.parms = NULL, keep.index = FALSE,
-    keep.matrix = FALSE, keep.models = "Call",
-    keep.residuals = FALSE, keep.pvalues = FALSE,
-    noinf.permute = FALSE, multiSplitTest = FALSE, testIBS,
-    testTimes, confInt = FALSE, confLevel = 0.95,
-    verbose = TRUE, savePath = NULL, slaveseed = NULL,
-    na.action = na.fail, ...)
+pec(object, formula, data, times, cause, start, maxtime, exact = TRUE,
+  exactness = 100, fillChar = NA, cens.model = "cox",
+  ipcw.refit = FALSE, ipcw.args = NULL, splitMethod = "none", B, M,
+  reference = TRUE, model.args = NULL, model.parms = NULL,
+  keep.index = FALSE, keep.matrix = FALSE, keep.models = "Call",
+  keep.residuals = FALSE, keep.pvalues = FALSE, noinf.permute = FALSE,
+  multiSplitTest = FALSE, testIBS, testTimes, confInt = FALSE,
+  confLevel = 0.95, verbose = TRUE, savePath = NULL, slaveseed = NULL,
+  na.action = na.fail, ...)
 }
 \arguments{
   \item{object}{A named list of prediction models, where
@@ -235,116 +232,112 @@
   \item{...}{Not used.}
 }
 \value{
-  A \code{pec} object. See also the help pages of the
-  corresponding \code{print}, \code{summary}, and
-  \code{plot} methods.  The object includes the following
-  components: \item{PredErr}{ The estimated prediction
-  error according to the \code{splitMethod}. A matrix where
-  each column represents the estimated prediction error of
-  a fit at the time points in time.  } \item{AppErr}{ The
-  training error or apparent error obtained when the
-  model(s) are evaluated in the same data where they were
-  trained. Only if \code{splitMethod} is one of "NoInf",
-  "cvK", "BootCv", "Boot632" or "Boot632plus".  }
-  \item{BootCvErr}{ The prediction error when the model(s)
-  are trained in the bootstrap sample and evaluated in the
-  data that are not in the bootstrap sample.  Only if
-  \code{splitMethod} is one of "Boot632" or "Boot632plus".
-  When \code{splitMethod="BootCv"} then the
-  \code{BootCvErr} is stored in the component
-  \code{PredErr}.  } \item{NoInfErr}{ The prediction error
-  when the model(s) are evaluated in the permuted data.
-  Only if \code{splitMethod} is one of "BootCv", "Boot632",
-  or "Boot632plus".  For \code{splitMethod="NoInf"} the
-  \code{NoInfErr} is stored in the component
-  \code{PredErr}.  } \item{weight}{ The weight used to
-  linear combine the \code{AppErr} and the \code{BootCvErr}
-  Only if \code{splitMethod} is one of "Boot632", or
-  "Boot632plus".  } \item{overfit}{ Estimated
-  \code{overfit} of the model(s).  See Efron \& Tibshirani
-  (1997, Journal of the American Statistical Association)
-  and Gerds \& Schumacher (2007, Biometrics).  Only if
-  \code{splitMethod} is one of "Boot632", or "Boot632plus".
-  } \item{call}{The call that produced the object}
-  \item{time}{The time points at which the prediction error
-  curves change.} \item{ipcw.fit}{The fitted censoring
-  model that was used for re-weighting the Brier score
-  residuals. See Gerds \& Schumacher (2006, Biometrical
-  Journal)} \item{n.risk}{The number of subjects at risk
-  for all time points.} \item{models}{The prediction models
-  fitted in their own data.} \item{cens.model}{The
-  censoring models.} \item{maxtime}{The latest timepoint
-  where the prediction error curves are estimated.}
-  \item{start}{The earliest timepoint where the prediction
-  error curves are estimated.} \item{exact}{\code{TRUE} if
-  the prediction error curves are estimated at all unique
-  values of the response in the full data.}
-  \item{splitMethod}{The splitMethod used for estimation of
-  the overfitting bias.}
+A \code{pec} object. See also the help pages of the
+corresponding \code{print}, \code{summary}, and \code{plot}
+methods.  The object includes the following components:
+\item{PredErr}{ The estimated prediction error according to
+the \code{splitMethod}. A matrix where each column
+represents the estimated prediction error of a fit at the
+time points in time.  } \item{AppErr}{ The training error
+or apparent error obtained when the model(s) are evaluated
+in the same data where they were trained. Only if
+\code{splitMethod} is one of "NoInf", "cvK", "BootCv",
+"Boot632" or "Boot632plus".  } \item{BootCvErr}{ The
+prediction error when the model(s) are trained in the
+bootstrap sample and evaluated in the data that are not in
+the bootstrap sample.  Only if \code{splitMethod} is one of
+"Boot632" or "Boot632plus". When
+\code{splitMethod="BootCv"} then the \code{BootCvErr} is
+stored in the component \code{PredErr}.  } \item{NoInfErr}{
+The prediction error when the model(s) are evaluated in the
+permuted data.  Only if \code{splitMethod} is one of
+"BootCv", "Boot632", or "Boot632plus".  For
+\code{splitMethod="NoInf"} the \code{NoInfErr} is stored in
+the component \code{PredErr}.  } \item{weight}{ The weight
+used to linear combine the \code{AppErr} and the
+\code{BootCvErr} Only if \code{splitMethod} is one of
+"Boot632", or "Boot632plus".  } \item{overfit}{ Estimated
+\code{overfit} of the model(s).  See Efron \& Tibshirani
+(1997, Journal of the American Statistical Association) and
+Gerds \& Schumacher (2007, Biometrics).  Only if
+\code{splitMethod} is one of "Boot632", or "Boot632plus".
+} \item{call}{The call that produced the object}
+\item{time}{The time points at which the prediction error
+curves change.} \item{ipcw.fit}{The fitted censoring model
+that was used for re-weighting the Brier score residuals.
+See Gerds \& Schumacher (2006, Biometrical Journal)}
+\item{n.risk}{The number of subjects at risk for all time
+points.} \item{models}{The prediction models fitted in
+their own data.} \item{cens.model}{The censoring models.}
+\item{maxtime}{The latest timepoint where the prediction
+error curves are estimated.} \item{start}{The earliest
+timepoint where the prediction error curves are estimated.}
+\item{exact}{\code{TRUE} if the prediction error curves are
+estimated at all unique values of the response in the full
+data.} \item{splitMethod}{The splitMethod used for
+estimation of the overfitting bias.}
 }
 \description{
-  Evaluating the performance of risk prediction models in
-  survival analysis. The Brier score is a weighted average
-  of the squared distances between the observed survival
-  status and the predicted survival probability of a model.
-  Roughly the weights correspond to the probabilities of
-  not being censored. The weights can be estimated depend
-  on covariates. Prediction error curves are obtained when
-  the Brier score is followed over time.  Cross-validation
-  based on bootstrap resampling or bootstrap subsampling
-  can be applied to assess and compare the predictive power
-  of various regression modelling strategies on the same
-  set of data.
+Evaluating the performance of risk prediction models in
+survival analysis. The Brier score is a weighted average of
+the squared distances between the observed survival status
+and the predicted survival probability of a model. Roughly
+the weights correspond to the probabilities of not being
+censored. The weights can be estimated depend on
+covariates. Prediction error curves are obtained when the
+Brier score is followed over time.  Cross-validation based
+on bootstrap resampling or bootstrap subsampling can be
+applied to assess and compare the predictive power of
+various regression modelling strategies on the same set of
+data.
 }
 \details{
-  Missing data in the response or in the input matrix cause
-  a failure.
+Missing data in the response or in the input matrix cause a
+failure.
 
-  The status of the continuous response variable at
-  cutpoints (\code{times}), ie status=1 if the response
-  value exceeds the cutpoint and status=0 otherwise, is
-  compared to predicted event status probabilities which
-  are provided by the prediction models on the basis of
-  covariates.  The comparison is done with the Brier score:
-  the quadratic difference between 0-1 response status and
-  predicted probability.
+The status of the continuous response variable at cutpoints
+(\code{times}), ie status=1 if the response value exceeds
+the cutpoint and status=0 otherwise, is compared to
+predicted event status probabilities which are provided by
+the prediction models on the basis of covariates.  The
+comparison is done with the Brier score: the quadratic
+difference between 0-1 response status and predicted
+probability.
 
-  There are two different sources for bias when estimating
-  prediction error in right censored survival problems:
-  censoring and high flexibility of the prediction model.
-  The first is controlled by inverse probability of
-  censoring weighting, the second can be controlled by
-  special Monte Carlo simulation. In each step, the
-  resampling procedures reevaluate the prediction model.
-  Technically this is done by replacing the argument
-  \code{object$call$data} by the current subset or
-  bootstrap sample of the full data.
+There are two different sources for bias when estimating
+prediction error in right censored survival problems:
+censoring and high flexibility of the prediction model. The
+first is controlled by inverse probability of censoring
+weighting, the second can be controlled by special Monte
+Carlo simulation. In each step, the resampling procedures
+reevaluate the prediction model.  Technically this is done
+by replacing the argument \code{object$call$data} by the
+current subset or bootstrap sample of the full data.
 
-  For each prediction model there must be a
-  \code{predictSurvProb} method: for example, to assess a
-  prediction model which evaluates to a \code{myclass}
-  object one defines a function called
-  \code{predictSurvProb.myclass} with arguments
-  \code{object,newdata,cutpoints,train.data,...}
+For each prediction model there must be a
+\code{predictSurvProb} method: for example, to assess a
+prediction model which evaluates to a \code{myclass} object
+one defines a function called
+\code{predictSurvProb.myclass} with arguments
+\code{object,newdata,cutpoints,train.data,...}
 
-  Such a function takes the object which was fitted with
-  train.data and derives a matrix with predicted event
-  status probabilities for each subject in newdata (rows)
-  and each cutpoint (column) of the response variable that
-  defines an event status.
+Such a function takes the object which was fitted with
+train.data and derives a matrix with predicted event status
+probabilities for each subject in newdata (rows) and each
+cutpoint (column) of the response variable that defines an
+event status.
 
-  Currently, \code{predictSurvProb} methods are available
-  for the following R-objects: \describe{
-  \item{}{\code{matrix}} \item{}{\code{aalen},
-  \code{cox.aalen} from \code{library(timereg)}}
-  \item{}{\code{mfp} from \code{library(mfp)}}
-  \item{}{\code{phnnet}, \code{survnnet} from
-  \code{library(survnnet)}} \item{}{\code{rpart} (from
-  \code{library(rpart)})} \item{}{\code{coxph},
-  \code{survfit} from \code{library(survival)}}
-  \item{}{\code{cph}, \code{psm} from \code{library(rms)}}
-  \item{}{\code{prodlim} from \code{library(prodlim)}}
-  \item{}{\code{glm} from \code{library(stats)}} }
+Currently, \code{predictSurvProb} methods are available for
+the following R-objects: \describe{ \item{}{\code{matrix}}
+\item{}{\code{aalen}, \code{cox.aalen} from
+\code{library(timereg)}} \item{}{\code{mfp} from
+\code{library(mfp)}} \item{}{\code{phnnet}, \code{survnnet}
+from \code{library(survnnet)}} \item{}{\code{rpart} (from
+\code{library(rpart)})} \item{}{\code{coxph},
+\code{survfit} from \code{library(survival)}}
+\item{}{\code{cph}, \code{psm} from \code{library(rms)}}
+\item{}{\code{prodlim} from \code{library(prodlim)}}
+\item{}{\code{glm} from \code{library(stats)}} }
 }
 \examples{
 # simulate an artificial data frame
@@ -353,7 +346,7 @@
 set.seed(130971)
 library(prodlim)
 library(survival)
-dat <- SimSurv(300)
+dat <- SimSurv(100)
 
 # fit some candidate Cox models and compute the Kaplan-Meier estimate
 
@@ -380,6 +373,7 @@ library(survival)
 library(rms)
 library(pec)
 data(pbc)
+pbc <- pbc[sample(1:NROW(pbc),size=100),]
 f1 <- psm(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
 f2 <- coxph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
 f3 <- cph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc,surv=TRUE)
@@ -388,6 +382,10 @@ print(brier)
 plot(brier)
 
 # compute the .632+ estimate of the generalization error
+set.seed(130971)
+library(prodlim)
+library(survival)
+dat <- SimSurv(100)
 set.seed(17100)
 PredError.632plus <- pec(object=Models,
                   formula=Surv(time,status)~X1+X2,
@@ -398,11 +396,11 @@ PredError.632plus <- pec(object=Models,
                   B=3,
                   verbose=TRUE)
 
-print(PredError.632plus,times=seq(5,30,5))
+print(PredError.632plus,times=seq(4,12,4))
 summary(PredError.632plus)
 plot(PredError.632plus,xlim=c(0,30))
 # do the same again but now in parallel
-set.seed(17100)
+\dontrun{set.seed(17100)
 library(doMC)
 registerDoMC()
 PredError.632plus <- pec(object=Models,
@@ -413,7 +411,7 @@ PredError.632plus <- pec(object=Models,
                   splitMethod="Boot632plus",
                   B=3,
                   verbose=TRUE)
-
+}
 # assessing parametric survival models in learn/validation setting
 learndat <- SimSurv(50)
 testdat <- SimSurv(30)
@@ -424,64 +422,62 @@ pf <- pec(list(f1,f2),formula=Surv(time,status)~1,data=testdat,maxtime=200)
 plot(pf)
 summary(pf)
 
-
-
 # ---------------- competing risks -----------------
 
 library(survival)
 library(riskRegression)
 library(cmprsk)
 library(pec)
-data(pbc)
-f1  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc)
-f1a  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc,survtype="surv")
-f2  <- CSC(Hist(time,status)~sex,data=pbc,cause=2)
+cdat <- SimCompRisk(100)
+data(cdat)
+f1  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat)
+f1a  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat,survtype="surv")
+f2  <- CSC(Hist(time,event)~X1,data=cdat,cause=2)
 require(cmprsk)
-predict.crr <- cmprsk:::predict.crr
-f3  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
-f4  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
-p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,status)~1,data=pbc,cause=2)
+## predict.crr <- cmprsk:::predict.crr
+f3  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
+f4  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
+p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
 }
 \author{
-  Thomas Alexander Gerds \email{tag@biostat.ku.dk}
+Thomas Alexander Gerds \email{tag@biostat.ku.dk}
 }
 \references{
-  Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds
-  (2012). Evaluating Random Forests for Survival Analysis
-  Using Prediction Error Curves. Journal of Statistical
-  Software, 50(11), 1-23. URL
-  http://www.jstatsoft.org/v50/i11/.
+Ulla B. Mogensen, Hemant Ishwaran, Thomas A. Gerds (2012).
+Evaluating Random Forests for Survival Analysis Using
+Prediction Error Curves. Journal of Statistical Software,
+50(11), 1-23. URL http://www.jstatsoft.org/v50/i11/.
 
-  E. Graf et al.  (1999), Assessment and comparison of
-  prognostic classification schemes for survival data.
-  Statistics in Medicine, vol 18, pp= 2529--2545.
+E. Graf et al.  (1999), Assessment and comparison of
+prognostic classification schemes for survival data.
+Statistics in Medicine, vol 18, pp= 2529--2545.
 
-  Efron, Tibshirani (1997) Journal of the American
-  Statistical Association 92, 548--560 Improvement On
-  Cross-Validation: The .632+ Bootstrap Method.
+Efron, Tibshirani (1997) Journal of the American
+Statistical Association 92, 548--560 Improvement On
+Cross-Validation: The .632+ Bootstrap Method.
 
-  Gerds, Schumacher (2006), Consistent estimation of the
-  expected Brier score in general survival models with
-  right-censored event times. Biometrical Journal, vol 48,
-  1029--1040.
+Gerds, Schumacher (2006), Consistent estimation of the
+expected Brier score in general survival models with
+right-censored event times. Biometrical Journal, vol 48,
+1029--1040.
 
-  Thomas A. Gerds, Martin Schumacher (2007) Efron-Type
-  Measures of Prediction Error for Survival Analysis
-  Biometrics, 63(4), 1283--1287
-  doi:10.1111/j.1541-0420.2007.00832.x
+Thomas A. Gerds, Martin Schumacher (2007) Efron-Type
+Measures of Prediction Error for Survival Analysis
+Biometrics, 63(4), 1283--1287
+doi:10.1111/j.1541-0420.2007.00832.x
 
-  Martin Schumacher, Harald Binder, and Thomas Gerds.
-  Assessment of survival prediction models based on
-  microarray data. Bioinformatics, 23(14):1768-74, 2007.
+Martin Schumacher, Harald Binder, and Thomas Gerds.
+Assessment of survival prediction models based on
+microarray data. Bioinformatics, 23(14):1768-74, 2007.
 
-  Mark A. van de Wiel, Johannes Berkhof, and Wessel N. van
-  Wieringen Testing the prediction error difference between
-  2 predictors Biostatistics (2009) 10(3): 550-560
-  doi:10.1093/biostatistics/kxp011
+Mark A. van de Wiel, Johannes Berkhof, and Wessel N. van
+Wieringen Testing the prediction error difference between 2
+predictors Biostatistics (2009) 10(3): 550-560
+doi:10.1093/biostatistics/kxp011
 }
 \seealso{
-  \code{\link{plot.pec}}, \code{\link{summary.pec}},
-  \code{\link{R2}}, \code{\link{crps}}
+\code{\link{plot.pec}}, \code{\link{summary.pec}},
+\code{\link{R2}}, \code{\link{crps}}
 }
 \keyword{survival}
 

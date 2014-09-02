@@ -266,7 +266,7 @@
 #' set.seed(130971)
 #' library(prodlim)
 #' library(survival)
-#' dat <- SimSurv(300)
+#' dat <- SimSurv(100)
 #' 
 #' # fit some candidate Cox models and compute the Kaplan-Meier estimate 
 #' 
@@ -293,6 +293,7 @@
 #' library(rms)
 #' library(pec)
 #' data(pbc)
+#' pbc <- pbc[sample(1:NROW(pbc),size=100),]
 #' f1 <- psm(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
 #' f2 <- coxph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc)
 #' f3 <- cph(Surv(time,status!=0)~edema+log(bili)+age+sex+albumin,data=pbc,surv=TRUE)
@@ -300,7 +301,11 @@
 #' print(brier)
 #' plot(brier)
 #' 
-#' # compute the .632+ estimate of the generalization error 
+#' # compute the .632+ estimate of the generalization error
+#' set.seed(130971)
+#' library(prodlim)
+#' library(survival)
+#' dat <- SimSurv(100)
 #' set.seed(17100)
 #' PredError.632plus <- pec(object=Models,
 #'                   formula=Surv(time,status)~X1+X2,
@@ -311,11 +316,11 @@
 #'                   B=3,
 #'                   verbose=TRUE)
 #' 
-#' print(PredError.632plus,times=seq(5,30,5))
+#' print(PredError.632plus,times=seq(4,12,4))
 #' summary(PredError.632plus)
 #' plot(PredError.632plus,xlim=c(0,30))
 #' # do the same again but now in parallel
-#' set.seed(17100)
+#' \dontrun{set.seed(17100)
 #' library(doMC)
 #' registerDoMC()
 #' PredError.632plus <- pec(object=Models,
@@ -326,7 +331,7 @@
 #'                   splitMethod="Boot632plus",
 #'                   B=3,
 #'                   verbose=TRUE)
-#' 
+#' }
 #' # assessing parametric survival models in learn/validation setting
 #' learndat <- SimSurv(50)
 #' testdat <- SimSurv(30)
@@ -337,24 +342,23 @@
 #' plot(pf)
 #' summary(pf)
 #' 
-#' 
-#' 
 #' # ---------------- competing risks -----------------
 #' 
 #' library(survival)
 #' library(riskRegression)
 #' library(cmprsk)
 #' library(pec)
-#' data(pbc)
-#' f1  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc)
-#' f1a  <- CSC(Hist(time,status)~sex+edema,cause=2,data=pbc,survtype="surv")
-#' f2  <- CSC(Hist(time,status)~sex,data=pbc,cause=2)
+#' cdat <- SimCompRisk(100)
+#' data(cdat)
+#' f1  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat)
+#' f1a  <- CSC(Hist(time,event)~X1+X2,cause=2,data=cdat,survtype="surv")
+#' f2  <- CSC(Hist(time,event)~X1,data=cdat,cause=2)
 #' require(cmprsk)
-#' predict.crr <- cmprsk:::predict.crr
-#' f3  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
-#' f4  <- FGR(Hist(time,status)~sex+edema,cause=2,data=pbc)
-#' p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,status)~1,data=pbc,cause=2)
-#'
+#' ## predict.crr <- cmprsk:::predict.crr
+#' f3  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
+#' f4  <- FGR(Hist(time,event)~X1+X2,cause=2,data=cdat)
+#' p1 <- pec(list(f1,f1a,f2,f3,f4),formula=Hist(time,event)~1,data=cdat,cause=2)
+#' 
 #' @export 
 # {{{ header pec.list
 pec <- function(object,
@@ -497,7 +501,7 @@ pec <- function(object,
       ## object <- c(list(Reference=ProdLimfit),object)
       ## else
       ## browser()
-      object <- c(list(Reference=ProdLimfit),object)
+      object <- c(list(NullModel=ProdLimfit),object)
       }
       if (is.null(names(object))){
           names(object) <- sapply(object,function(o)class(o)[1])

@@ -39,6 +39,7 @@
 #' library(pec)
 #' library(riskRegression)
 #' library(survival)
+#' library(prodlim)
 #' train <- SimCompRisk(100)
 #' test <- SimCompRisk(10)
 #' fit <- CSC(Hist(time,cause)~X1+X2,data=train,cause=1)

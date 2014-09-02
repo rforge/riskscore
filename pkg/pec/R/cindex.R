@@ -224,6 +224,7 @@
 #'  # competing risks 
 #'  #
 #' library(riskRegression)
+#' library(prodlim)
 #' set.seed(30)
 #' dcr.learn <- SimCompRisk(30)
 #' dcr.val <- SimCompRisk(30)
@@ -652,7 +653,7 @@ cindex <- function(object,
                   ## "Pairs"=AppPairs,
                   ## "Concordant"=AppConcordant,
                   "BootCvCindex"= BootstrapCrossValCindex,
-                  "B632Cindex"=B632Cindex),
+                  "Boot632Cindex"=B632Cindex),
                 "BootCv"=list("AppCindex"=AppCindex,
                   ## "Pairs"=AppPairs,
                   ## "Concordant"=AppConcordant,
