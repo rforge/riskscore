@@ -94,7 +94,7 @@ predictEventProb.FGR <- function(object,newdata,times,cause,...){
     ## predict.crr <- cmprsk:::predict.crr
     p <- predict(object=object,newdata=newdata,times=times)
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-        stop("Prediction failed")
+                stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     p
 }
 
@@ -105,7 +105,7 @@ predictEventProb.riskRegression <- function(object,newdata,times,cause,...){
   pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
   p <- cbind(0,temp$risk)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
+            stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   p
 }
 
@@ -116,7 +116,7 @@ predictEventProb.ARR <- function(object,newdata,times,cause,...){
   pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
   p <- cbind(0,temp$P1)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
+            stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   p
 }
 
@@ -169,7 +169,7 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
     pos <- prodlim::sindex(jump.times=eTimes, eval.times=times)
     p <- cbind(0,cuminc1)[,pos+1,drop=FALSE]
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-        stop("Prediction failed")
+                stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     p
 }
 
@@ -181,7 +181,7 @@ predictEventProb.rfsrc <- function(object, newdata, times, cause, ...){
   pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
   p <- cbind(0,cif)[,pos+1,drop=FALSE]
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
+            stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   p
 }
 

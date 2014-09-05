@@ -108,7 +108,7 @@
 #' 
 #' @export predictSurvProb
 predictSurvProb <- function(object,newdata,times,...){
-  UseMethod("predictSurvProb",object)
+    UseMethod("predictSurvProb",object)
 }
 
 ##' @S3method predictSurvProb default
@@ -120,50 +120,50 @@ predictSurvProb.default <- function(object,newdata,times,...){
 ##' @S3method predictSurvProb numeric
 predictSurvProb.numeric <- function(object,newdata,times,...){
   if (NROW(object) != NROW(newdata) || NCOL(object) != length(times))
-    stop("Prediction failed")
+      stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(object)," x ",NCOL(object),"\n\n",sep=""))
   object
 }
 
 ##' @S3method predictSurvProb matrix
 predictSurvProb.matrix <- function(object,newdata,times,...){
-  if (NROW(object) != NROW(newdata) || NCOL(object) != length(times)){
-    stop(paste("Prediction matrix has wrong dimensions: ",NROW(object)," rows and ",NCOL(object)," columns.\n But requested are predicted probabilities for ",NROW(newdata), " subjects (rows) in newdata and ",NCOL(newdata)," time points (columns)",sep=""))
-  }
-  object
+    if (NROW(object) != NROW(newdata) || NCOL(object) != length(times)){
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(object)," x ",NCOL(object),"\n\n",sep=""))
+        ## stop(paste("Prediction matrix has wrong dimensionss: ",NROW(object)," rows and ",NCOL(object)," columns.\n But requested are predicted probabilities for ",NROW(newdata), " subjects (rows) in newdata and ",NCOL(newdata)," time points (columns)",sep=""))
+    }
+    object
 }
 
 ##' @S3method predictSurvProb aalen
 predictSurvProb.aalen <- function(object,newdata,times,...){
-  ## require(timereg)
-  time.coef <- data.frame(object$cum)
-  ntime <- nrow(time.coef)
-  objecttime <- time.coef[,1,drop=TRUE]
-  ntimevars <- ncol(time.coef)-2
-  covanames <- names(time.coef)[-(1:2)]
-  notfound <- match(covanames,names(newdata),nomatch=0)==0
-  if (any(notfound))
-    stop("\nThe following predictor variables:\n\n",
-         paste(covanames[notfound],collapse=","),
-         "\n\nwere not found in newdata, which only provides the following variables:\n\n",
-         paste(names(newdata),collapse=","),
-         "\n\n")
-  time.vars <- cbind(1,newdata[,names(time.coef)[-(1:2)],drop=FALSE])
-  nobs <- nrow(newdata)
-  hazard <- .C("survest_cox_aalen",
-               timehazard=double(ntime*nobs),
-               as.double(unlist(time.coef[,-1])),
-               as.double(unlist(time.vars)),
-               as.integer(ntimevars+1),
-               as.integer(nobs),
-               as.integer(ntime),PACKAGE="pec")$timehazard
-  hazard <- matrix(hazard,ncol=ntime,nrow=nobs,dimnames=list(1:nobs,paste("TP",1:ntime,sep="")))
-  surv <- pmin(exp(-hazard),1)
-  if (missing(times)) times <- sort(unique(objecttime))
-  pred <- surv[,prodlim::sindex(jump.times=objecttime,eval.times=times)]
-  pred
-  if (NROW(pred) != NROW(newdata) || NCOL(pred) != length(times))
-    stop("Prediction failed")
-  pred
+    ## require(timereg)
+    time.coef <- data.frame(object$cum)
+    ntime <- nrow(time.coef)
+    objecttime <- time.coef[,1,drop=TRUE]
+    ntimevars <- ncol(time.coef)-2
+    covanames <- names(time.coef)[-(1:2)]
+    notfound <- match(covanames,names(newdata),nomatch=0)==0
+    if (any(notfound))
+        stop("\nThe following predictor variables:\n\n",
+             paste(covanames[notfound],collapse=","),
+             "\n\nwere not found in newdata, which only provides the following variables:\n\n",
+             paste(names(newdata),collapse=","),
+             "\n\n")
+    time.vars <- cbind(1,newdata[,names(time.coef)[-(1:2)],drop=FALSE])
+    nobs <- nrow(newdata)
+    hazard <- .C("survest_cox_aalen",
+                 timehazard=double(ntime*nobs),
+                 as.double(unlist(time.coef[,-1])),
+                 as.double(unlist(time.vars)),
+                 as.integer(ntimevars+1),
+                 as.integer(nobs),
+                 as.integer(ntime),PACKAGE="pec")$timehazard
+    hazard <- matrix(hazard,ncol=ntime,nrow=nobs,dimnames=list(1:nobs,paste("TP",1:ntime,sep="")))
+    surv <- pmin(exp(-hazard),1)
+    if (missing(times)) times <- sort(unique(objecttime))
+    p <- surv[,prodlim::sindex(jump.times=objecttime,eval.times=times)]
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
+    p
 }
 
 ##' @S3method predictSurvProb cox.aalen
@@ -195,7 +195,7 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
   }
   p <- survest.cox.aalen(object,times=times,newdata=newdata)
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
+      stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   p
 }
 
@@ -250,7 +250,7 @@ predictSurvProbFast.coxph <- function(object,newdata,times,...){
     if ((miss.time <- (length(times) - NCOL(p)))>0)
         p <- cbind(p,matrix(rep(NA,miss.time*NROW(p)),nrow=NROW(p)))
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-        stop(paste("Prediction matrix has wrong dimensions:\n",NROW(p)," rows and ",NCOL(p)," columns.\n But requested are predicted probabilities for\n ",NROW(newdata), " subjects (rows) in newdata and ",NCOL(newdata)," time points (columns)\nThis may happen when some covariate values are missing in newdata!?",sep=""))
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     ## stop("Prediction failed")
     p
 }
@@ -271,8 +271,7 @@ predictSurvProb.coxph <- function(object,newdata,times,...){
     if ((miss.time <- (length(times) - NCOL(p)))>0)
         p <- cbind(p,matrix(rep(NA,miss.time*NROW(p)),nrow=NROW(p)))
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-        stop(paste("Prediction matrix has wrong dimensions:\n",NROW(p)," rows and ",NCOL(p)," columns.\n But requested are predicted probabilities for\n ",NROW(newdata), " subjects (rows) in newdata and ",NCOL(newdata)," time points (columns)\nThis may happen when some covariate values are missing in newdata!?",sep=""))
-    ## stop("Prediction failed")
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     p
 }
 
@@ -294,7 +293,7 @@ predictSurvProb.coxph.penal <- function(object,newdata,times,...){
   if ((miss.time <- (length(times) - NCOL(p)))>0)
     p <- cbind(p,matrix(rep(NA,miss.time*NROW(p)),nrow=NROW(p)))
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
+      stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   p
 }
 
@@ -306,7 +305,7 @@ predictSurvProb.cph <- function(object,newdata,times,...){
   p <- rms::survest(object,times=times,newdata=newdata,se.fit=FALSE,what="survival")$surv
   if (is.null(dim(p))) p <- matrix(p,nrow=NROW(newdata))
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
+      stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   p
 }
 
@@ -411,7 +410,7 @@ predict.survfit <- function(object,newdata,times,bytimes=TRUE,fill="last",...){
 predictSurvProb.survfit <- function(object,newdata,times,...){
     p <- predict.survfit(object,newdata=newdata,times=times,bytimes=TRUE,fill="last")
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-        stop("Prediction failed")
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     p
 }
 
@@ -427,60 +426,65 @@ predictSurvProb.survfit <- function(object,newdata,times,...){
 
 ##' @S3method predictSurvProb psm
 predictSurvProb.psm <- function(object,newdata,times,...){
-    p <- rms::survest(object,times=times,newdata=newdata,what="survival",conf.int=FALSE)
+    if (length(times)==1){
+        p <- rms::survest(object,times=c(0,times),newdata=newdata,what="survival",conf.int=FALSE)[,2]
+    }else{
+        p <- rms::survest(object,times=times,newdata=newdata,what="survival",conf.int=FALSE)
+    }
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-        stop("Prediction failed")
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     p
 }
 
 ##' @S3method predictSurvProb phnnet
 predictSurvProb.phnnet <- function(object,newdata,times,train.data,...){
-#  require(survnnet)
-  learndat <- train.data
-  seeds <- sample(1:1000,size=10)
-  object$call$data <- learndat
-  re.fitter <- lapply(seeds,function(s){
-    set.seed(s)
-    refit <- eval(object$call)
-    list(learn=predict(refit,learndat),
-         val=predict(refit,newdata))
-  })
-  learndat$nnetFactor <- rowMeans(do.call("cbind",lapply(re.fitter,function(x)x[["learn"]])))
-  newdata$nnetFactor <- rowMeans(do.call("cbind",lapply(re.fitter,function(x)x[["val"]])))
-  #  a <- predict(object,train.data,...)
-  #  b <- predict(object,newdata)
-  #  print(cbind(do.call("cbind",lapply(re.fitter,function(x)x[["learn"]]))[1:10,],learndat$nnetFactor[1:10]))
-  #  stop()
-  #  learndat$nnetFactor <- predict(object,train.data,...)
-  #  newdata$nnetFactor <- predict(object,newdata)
-  nnet.form <- reformulate("nnetFactor",object$call$formula[[2]])
-  ## require(rms)
-  fit.nnet <- rms::cph(nnet.form,data=learndat,se.fit=FALSE,surv=TRUE,x=TRUE,y=TRUE)
-  p <- predictSurvProb.cph(fit.nnet,newdata=newdata,times=times)
-  predictSurvProb.cph(fit.nnet,newdata=newdata,times=times)
-  p
+    #  require(survnnet)
+    learndat <- train.data
+    seeds <- sample(1:1000,size=10)
+    object$call$data <- learndat
+    re.fitter <- lapply(seeds,function(s){
+        set.seed(s)
+        refit <- eval(object$call)
+        list(learn=predict(refit,learndat),
+             val=predict(refit,newdata))
+    })
+    learndat$nnetFactor <- rowMeans(do.call("cbind",lapply(re.fitter,function(x)x[["learn"]])))
+    newdata$nnetFactor <- rowMeans(do.call("cbind",lapply(re.fitter,function(x)x[["val"]])))
+    #  a <- predict(object,train.data,...)
+    #  b <- predict(object,newdata)
+    #  print(cbind(do.call("cbind",lapply(re.fitter,function(x)x[["learn"]]))[1:10,],learndat$nnetFactor[1:10]))
+    #  stop()
+    #  learndat$nnetFactor <- predict(object,train.data,...)
+    #  newdata$nnetFactor <- predict(object,newdata)
+    nnet.form <- reformulate("nnetFactor",object$call$formula[[2]])
+    ## require(rms)
+    fit.nnet <- rms::cph(nnet.form,data=learndat,se.fit=FALSE,surv=TRUE,x=TRUE,y=TRUE)
+    p <- predictSurvProb.cph(fit.nnet,newdata=newdata,times=times)
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
+    p
 }
 
 
 ##' @S3method predictSurvProb riskRegression
 predictSurvProb.riskRegression <- function(object,newdata,times,...){
-  if (missing(times))stop("Argument times is missing")
-  temp <- predict(object,newdata=newdata)
-  pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
-  p <- cbind(1,1-temp$cuminc)[,pos+1,drop=FALSE]
-  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
-  p
+    if (missing(times))stop("Argument times is missing")
+    temp <- predict(object,newdata=newdata)
+    pos <- prodlim::sindex(jump.times=temp$time,eval.times=times)
+    p <- cbind(1,1-temp$cuminc)[,pos+1,drop=FALSE]
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
+    p
 }
 
 ##' @S3method predictSurvProb rfsrc
 predictSurvProb.rfsrc <- function(object, newdata, times, ...){
-  ptemp <- predict(object,newdata=newdata,importance="none",...)$survival
-  pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
-  p <- cbind(1,ptemp)[,pos+1,drop=FALSE]
-  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed.")
-  p
+    ptemp <- predict(object,newdata=newdata,importance="none",...)$survival
+    pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
+    p <- cbind(1,ptemp)[,pos+1,drop=FALSE]
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
+    p
 }
 
 
@@ -503,25 +507,25 @@ predictProb.glm <- function(object,newdata,times,...){
   pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
   p <- 1-pnorm(pred.matrix - betax,mean=0,sd=sqrt(var(object$y)))
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
+      stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   p
 }
 
 
 ##' @S3method predictProb ols
 predictProb.ols <- function(object,newdata,times,...){
-  ## no censoring -- only normal family with mu=0 and sd=sd(y)
-  N <- NROW(newdata)
-  NT <- length(times)
-  if (!(unclass(family(object))$family=="gaussian"))
-    stop("Currently only gaussian family implemented.")
-  betax <- predict(object,newdata=newdata,type="lp",se.fit=FALSE)
-  ##   print(betax[1:10])
-  pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
-  p <- 1-pnorm(pred.matrix - betax,mean=0,sd=sqrt(var(object$y)))
-  if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
-  p
+    ## no censoring -- only normal family with mu=0 and sd=sd(y)
+    N <- NROW(newdata)
+    NT <- length(times)
+    if (!(unclass(family(object))$family=="gaussian"))
+        stop("Currently only gaussian family implemented.")
+    betax <- predict(object,newdata=newdata,type="lp",se.fit=FALSE)
+    ##   print(betax[1:10])
+    pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
+    p <- 1-pnorm(pred.matrix - betax,mean=0,sd=sqrt(var(object$y)))
+    if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
+        stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
+    p
 }
 
 ##' @S3method predictProb randomForest
@@ -533,7 +537,7 @@ predictProb.randomForest <- function(object,newdata,times,...){
   pred.matrix <- matrix(rep(times,N),byrow=TRUE,ncol=NT,nrow=N)
   p <- 1-pnorm(pred.matrix - predMean,mean=0,sd=sqrt(var(object$y)))
   if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-    stop("Prediction failed")
+      stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   p
 }
 

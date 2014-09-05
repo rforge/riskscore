@@ -12,7 +12,7 @@
 #' 
 #' These arguments are processed via \code{\dots{}} of
 #' \code{plotPredictSurvProb} and inside by using the function
-#' \code{SmartControl}.
+#' \code{prodlim::SmartControl}.
 #' 
 #' @param x A survival prediction model including \code{call} and
 #' \code{formula} object.
@@ -36,7 +36,7 @@
 #' the form \code{legend.x=val} where x is the name of the argument and val the
 #' desired value. See also Details.
 #' @param percent Logical. If \code{TRUE} the y-axis is labeled in percent.
-#' @param \dots Parameters that are filtered by \code{\link{SmartControl}} and
+#' @param \dots Parameters that are filtered by \code{\link{prodlim::SmartControl}} and
 #' then passed to the functions: \code{\link{plot}}, \code{\link{axis}},
 #' \code{\link{legend}}.
 #' @return The (invisible) object.
@@ -188,7 +188,7 @@ plotPredictSurvProb <- function(x,
     legend.DefaultArgs <- c(args[[match("legend.args",names(args),nomatch=FALSE)]],legend.DefaultArgs)
     legend.DefaultArgs <- legend.DefaultArgs[!duplicated(names(legend.DefaultArgs))]
   }
-  smartA <- SmartControl(call=list(...),
+  smartA <- prodlim::SmartControl(call=list(...),
                                    keys=c("plot","legend","axis1","axis2"),
                                    ignore=c("x", "newdata", "times", "xlim","ylim","xlab","ylab","col","lty","lwd","add","legend","percent","axes","legend.args"),
                                    defaults=list("plot"=plot.DefaultArgs,

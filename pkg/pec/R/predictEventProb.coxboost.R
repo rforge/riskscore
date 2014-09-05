@@ -52,7 +52,7 @@ coxboost <- function(formula,data,cv=TRUE,cause=1,penalty,...){
   if (missing(penalty)) penalty <- sum(Event==1)*(9)
   cv.defaults=list(maxstepno=200,K=10,penalty=penalty)
   CoxBoost.defaults=list(stepno=100,penalty=penalty)
-  args <- SmartControl(call= list(...),
+  args <- prodlim::SmartControl(call= list(...),
                        keys=c("cv","CoxBoost"),
                        ignore=c("formula","data","cv","cause"),
                        forced=list("cv"=list(time=Time,status=Event,x=X),"CoxBoost"=list(time=Time,status=Event,x=X)),
@@ -99,29 +99,29 @@ predictEventProb.coxboost <- function(object,newdata,times,cause,...){
   }
   else{
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-      stop("Prediction failed")
+        stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
   }
   p
 }
 
 ##' @S3method predictLifeYearsLost coxboost
 predictLifeYearsLost.coxboost <- function(object,newdata,times,cause,...){
-  if (missing(cause)) stop("missing cause")
-  ## if (cause!=1) stop("CoxBoost can only predict cause 1")
-  if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
-  newcova <- model.matrix(terms(object$formula,data=newdata),
-                          data=model.frame(object$formula,data=newdata))[,-c(1)]
-  time.interest <- sort(unique(object$coxboost$time))
-  cif <- predict(object$coxboost,newdata=newcova,type="CIF",times=time.interest)
-  pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
-  lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
-    pos.j <- 1:(pos[j]+1)
-    p <- cbind(0,cif)[,pos.j,drop=FALSE]
-    time.diff <- diff(c(0, object$time.interest)[pos.j])
-    apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
-  })), ncol = length(pos))
-  if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
-    stop("Prediction of life-years-lost failed")
-  lyl
+    if (missing(cause)) stop("missing cause")
+    ## if (cause!=1) stop("CoxBoost can only predict cause 1")
+    if (attr(object$response,"model")!="competing.risks") stop("Not a competing risk object")
+    newcova <- model.matrix(terms(object$formula,data=newdata),
+                            data=model.frame(object$formula,data=newdata))[,-c(1)]
+    time.interest <- sort(unique(object$coxboost$time))
+    cif <- predict(object$coxboost,newdata=newcova,type="CIF",times=time.interest)
+    pos <- prodlim::sindex(jump.times=time.interest,eval.times=times)
+    lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
+        pos.j <- 1:(pos[j]+1)
+        p <- cbind(0,cif)[,pos.j,drop=FALSE]
+        time.diff <- diff(c(0, object$time.interest)[pos.j])
+        apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
+    })), ncol = length(pos))
+    if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
+        stop(paste("\nLYL matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(lyl)," x ",NCOL(lyl),"\n\n",sep=""))
+    lyl
 }
 

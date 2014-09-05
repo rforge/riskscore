@@ -120,7 +120,7 @@ selectFGR <- function(formula,
     else{
         newform <- as.formula(update(formula,paste(".~",paste(rownames(crrstep.fit$coefficients),collapse="+"))),env=NULL)
         ## newfit <- riskRegression::FGR(newform,data=data,cause=cause)
-        newfit <- FGR(newform,data=data,cause=cause)
+        newfit <- riskRegression::FGR(newform,data=data,cause=cause)
         newfit$call$formula <- newform
     }
     out <- list(fit=newfit,In=rownames(crrstep.fit$coefficients))

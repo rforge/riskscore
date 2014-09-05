@@ -85,7 +85,7 @@ predictLifeYearsLost.prodlim <- function(object,newdata,times,cause,...){
     apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
   })), ncol = length(pos))
   if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
-    stop("Prediction of life-years-lost failed")
+            stop(paste("\nLYL matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(lyl)," x ",NCOL(lyl),"\n\n",sep=""))
   lyl
 }
 
@@ -102,7 +102,7 @@ predictLifeYearsLost.FGR <- function(object,newdata,times,cause,...){
     apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
   })), ncol = length(pos))
   if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
-    stop("Prediction of life-years-lost failed")
+            stop(paste("\nLYL matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(lyl)," x ",NCOL(lyl),"\n\n",sep=""))
   lyl
 }
 
@@ -119,7 +119,7 @@ predictLifeYearsLost.riskRegression <- function(object,newdata,times,cause,...){
     apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
   })), ncol = length(pos))
   if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
-    stop("Prediction of life-years-lost failed")
+            stop(paste("\nLYL matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(lyl)," x ",NCOL(lyl),"\n\n",sep=""))
   lyl
 }
 
@@ -136,7 +136,7 @@ predictLifeYearsLost.ARR <- function(object,newdata,times,cause,...){
     apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
   })), ncol = length(pos))
   if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
-    stop("Prediction of life-years-lost failed")
+            stop(paste("\nLYL matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(lyl)," x ",NCOL(lyl),"\n\n",sep=""))
   lyl
 }
 
@@ -181,24 +181,24 @@ predictLifeYearsLost.CauseSpecificCox <- function (object, newdata, times, cause
     apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
   })), ncol = length(pos))
   if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
-    stop("Prediction of life-years-lost failed")
+            stop(paste("\nLYL matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(lyl)," x ",NCOL(lyl),"\n\n",sep=""))
   lyl
 }
 
 
 ##' @S3method predictLifeYearsLost rfsrc
 predictLifeYearsLost.rfsrc <- function(object, newdata, times, cause, ...){
-  if (missing(cause)) stop("missing cause")
-  cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
-  pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
-  lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
-    pos.j <- 1:(pos[j]+1)
-    p <- cbind(0,cif)[,pos.j,drop=FALSE]
-    time.diff <- diff(c(0, object$time.interest)[pos.j])
-    apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
-  })), ncol = length(pos))
-  if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
-    stop("Prediction of life-years-lost failed")
-  lyl
+    if (missing(cause)) stop("missing cause")
+    cif <- predict(object,newdata=newdata,importance="none",...)$cif[,,cause,drop=TRUE]
+    pos <- prodlim::sindex(jump.times=object$time.interest,eval.times=times)
+    lyl <- matrix(unlist(lapply(1:length(pos), function(j) {
+        pos.j <- 1:(pos[j]+1)
+        p <- cbind(0,cif)[,pos.j,drop=FALSE]
+        time.diff <- diff(c(0, object$time.interest)[pos.j])
+        apply(p, 1, function(x) {sum(x[-length(x)] * time.diff)})
+    })), ncol = length(pos))
+    if (NROW(lyl) != NROW(newdata) || NCOL(lyl) != length(times))
+        stop(paste("\nLYL matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(lyl)," x ",NCOL(lyl),"\n\n",sep=""))
+    lyl
 }
 

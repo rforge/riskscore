@@ -409,6 +409,7 @@ cindex <- function(object,
   # }}}
   # {{{  splitMethod
   splitMethod <- resolvesplitMethod(splitMethod=splitMethod,B=B,N=N,M=M)
+  if (splitMethod$internal.name %in% c("Boot632plus")) stop(".632+ method not implemented for c-index.")
   B <- splitMethod$B
   ResampleIndex <- splitMethod$index
   k <- splitMethod$k
@@ -636,35 +637,35 @@ cindex <- function(object,
   }
 
   # }}}
-# {{{ Bootstrap .632
+  # {{{ Bootstrap .632
   if (splitMethod$internal.name=="Boot632"){
-    B632Cindex <- lapply(1:NF,function(f){
-      .368 * AppCindex[[f]] + .632 * BootstrapCrossValCindex[[f]]
-    })
-    names(B632Cindex) <- names(object)
+      B632Cindex <- lapply(1:NF,function(f){
+          .368 * AppCindex[[f]] + .632 * BootstrapCrossValCindex[[f]]
+      })
+      names(B632Cindex) <- names(object)
   }
   # }}}    
   # {{{ prepare output
   out <- switch(splitMethod$internal.name,
-                  "noPlan"=list("AppCindex"=AppCindex,
+                "noPlan"=list("AppCindex"=AppCindex,
                     "Pairs"=AppPairs,
                     "Concordant"=AppConcordant),
                 "Boot632"=list("AppCindex"=AppCindex,
-                  ## "Pairs"=AppPairs,
-                  ## "Concordant"=AppConcordant,
-                  "BootCvCindex"= BootstrapCrossValCindex,
-                  "Boot632Cindex"=B632Cindex),
+                    ## "Pairs"=AppPairs,
+                    ## "Concordant"=AppConcordant,
+                    "BootCvCindex"= BootstrapCrossValCindex,
+                    "Boot632Cindex"=B632Cindex),
                 "BootCv"=list("AppCindex"=AppCindex,
-                  ## "Pairs"=AppPairs,
-                  ## "Concordant"=AppConcordant,
-                  "BootCvCindex"=BootstrapCrossValCindex
-                  ## "BootCvConcordant"=BootCvConcordant,
-                  ## "BootCvPairs"=BootCvPairs
-                  ))
+                    ## "Pairs"=AppPairs,
+                    ## "Concordant"=AppConcordant,
+                    "BootCvCindex"=BootstrapCrossValCindex
+                    ## "BootCvConcordant"=BootCvConcordant,
+                    ## "BootCvPairs"=BootCvPairs
+                    ))
   observed.maxtime <- sapply(out,function(x){
-    lapply(x,function(y){
-      eval.times[length(y)-sum(is.na(y))]
-    })
+      lapply(x,function(y){
+          eval.times[length(y)-sum(is.na(y))]
+      })
   })
   minmaxtime <- min(unlist(observed.maxtime))
   

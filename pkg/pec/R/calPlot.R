@@ -87,7 +87,7 @@
 #' @param verbose if \code{TRUE} report details of the progress,
 #' e.g. count the steps in cross-validation.
 #' @param ... Used to control the subroutines: plot, axis, lines,
-#' legend. See \code{\link{SmartControl}}.
+#' legend. See \code{\link{prodlim::SmartControl}}.
 #' @return list with elements: time, pseudoFrame and bandwidth (NULL for method
 #' quantile).
 #' @keywords survival 

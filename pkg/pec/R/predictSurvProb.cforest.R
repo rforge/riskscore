@@ -34,6 +34,6 @@ predictSurvProb.pecCforest <- function (object, newdata, times, ...) {
         predictSurvProb(x,newdata=newdata[1,,drop=FALSE],times=times)
     }))
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times)) 
-        stop("Prediction failed")
+        stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     p
 }
