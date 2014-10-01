@@ -11,7 +11,7 @@
 #' 
 #' These arguments are processed via \code{\dots{}} of
 #' \code{plotPredictEventProb} and inside by using the function
-#' \code{prodlim::SmartControl}.
+#' \code{SmartControl}.
 #' 
 #' @param x Object specifying an event risk prediction model.
 #' @param newdata A data frame with the same variable names as those that were
@@ -35,7 +35,7 @@
 #' the form \code{legend.x=val} where x is the name of the argument and val the
 #' desired value. See also Details.
 #' @param percent Logical. If \code{TRUE} the y-axis is labeled in percent.
-#' @param \dots Parameters that are filtered by \code{\link{prodlim::SmartControl}} and
+#' @param \dots Parameters that are filtered by \code{\link{SmartControl}} and
 #' then passed to the functions: \code{\link{plot}}, \code{\link{axis}},
 #' \code{\link{legend}}.
 #' @return The (invisible) object.

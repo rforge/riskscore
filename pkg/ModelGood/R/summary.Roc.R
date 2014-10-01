@@ -17,6 +17,13 @@ summary.Roc <- function(object,digits=2,print.it=TRUE,...){
         names(xxx) <- xxx
         xxx[xxx=="Auc"] <- object$method$name
         colnames(modelsAuc) <- xxx
+        if (!is.null(object$BootcvRocList)){
+            modelsAuc.ci <- lapply(object$BootcvRocList, function(y)quantile(sapply(y,function(z)Auc.default(z$Sensitivity,z$Specificity)), c(0.025,0.975)))
+            ci <- round(100*do.call("rbind",modelsAuc.ci),digits)
+            colnames(ci) <- paste("bootcv.",colnames(ci),sep="")
+            modelsAuc <- cbind(modelsAuc,ci)
+        }
+
         # ----------------------------Brier score----------------------------
         modelsBS <- do.call("rbind",lapply(object$Brier,function(m){round(100*unlist(m),digits=digits)}))
         rownames(modelsBS) <- names(object$models)
@@ -25,7 +32,7 @@ summary.Roc <- function(object,digits=2,print.it=TRUE,...){
         xxx[xxx=="BS"] <- object$method$name
         colnames(modelsBS) <- xxx
         if (print.it) {
-            if (object$method$name=="full data"){
+            if (object$method$name=="noPlan"){
                 cat("Area under the ROC curve (AUC, higher better)\nBrier score (Brier, lower better)\n\n")
                 if (NROW(modelsAuc)==1)
                     tab <- cbind(modelsAuc[order(-modelsAuc[,1,drop=TRUE]),,drop=FALSE],
@@ -49,7 +56,7 @@ summary.Roc <- function(object,digits=2,print.it=TRUE,...){
                 if (is.null(dim(tab.auc)))
                     names(tab.brier) <- gsub("AppBS","apparent",names(tab.brier))
                 else
-                colnames(tab.brier) <- gsub("AppBS","apparent",colnames(tab.brier))
+                    colnames(tab.brier) <- gsub("AppBS","apparent",colnames(tab.brier))
                 print(tab.brier, quote=FALSE)
             }
         }

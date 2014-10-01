@@ -32,6 +32,7 @@ the \code{crrstep} package and then returns a fitted Fine &
 Gray regression model with the selected variables.
 }
 \examples{
+\dontrun{
 library(riskRegression)
 library(prodlim)
 library(lava)
@@ -68,7 +69,7 @@ pec(list(full.model=fg,selectedAIC=sfgAIC,selectedBIC=sfgBIC),
     formula=Hist(time, event)~1,
     data=d)
 
-\dontrun{
+
 ## bootstrap cross-validation performance
 set.seed(7)
 pec(list(full.model=fg,selectedAIC=sfgAIC,selectedBIC=sfgBIC),

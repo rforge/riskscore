@@ -372,7 +372,7 @@ cindex <- function(object,
   if (survp){
     neworder <- order(response[,"time"],-response[,"status"])
     if (model.type=="competing.risks"){
-      event <- getEvent(response,mode="character")
+      event <- prodlim::getEvent(response,mode="character")
       event <- event[neworder]
     }
     response <- response[neworder,,drop=FALSE]

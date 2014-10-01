@@ -108,7 +108,7 @@ pseudoPec <- function(object,
   # {{{ prediction models
   if (reference==TRUE) {
     ProdLimform <- reformulate("1",response=formula[[2]])
-    ProdLimfit <- prodlim(ProdLimform,data)
+    ProdLimfit <- prodlim::prodlim(ProdLimform,data)
     ProdLimfit$call$data <- NULL
     ProdLimfit$formula <- NULL
     ProdLimfit$call$formula=ProdLimform
@@ -132,7 +132,7 @@ pseudoPec <- function(object,
   if (survp){
     neworder <- order(response[,"time"],-response[,"status"])
     if (predictHandlerFun=="predictEventProb"){    
-      event <- getEvent(response,mode="character")
+      event <- prodlim::getEvent(response,mode="character")
       event <- event[neworder]
     }
     response <- response[neworder,,drop=FALSE]
@@ -203,12 +203,12 @@ pseudoPec <- function(object,
   # {{{ compute jackknife pseudo values
   if (predictHandlerFun=="predictEventProb"){
     ## aj <- prodlim(Hist(time,event)~1,data=data.frame(time=response[,"time"],status=response[,"event"]))
-    YY <- jackknife.competing.risks(ProdLimfit,times=times,cause=cause)
+    YY <- prodlim::jackknife.competing.risks(ProdLimfit,times=times,cause=cause)
     ## FIXME:
     YY[,1] <- 0
   }else{
     ## km <- prodlim(Hist(time,status)~1,data=data.frame(time=response[,"time"],status=response[,"status"]))
-    YY <- jackknife.survival(ProdLimfit,times=times)
+    YY <- prodlim::jackknife.survival(ProdLimfit,times=times)
   }
   # }}}
   # {{{ checking the models for compatibility with resampling

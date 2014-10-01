@@ -1,6 +1,6 @@
 # CTREE
 pecCtree <- function(...){
- out <- list(ctree=ctree(...))
+ out <- list(ctree=party::ctree(...))
  class(out) <- "pecCtree"
  out$call <- match.call()
  out  
@@ -11,7 +11,7 @@ predictSurvProb.pecCtree <- function (object, newdata, times, ...) {
     require(party)
     N <- NROW(newdata)
     NT <- length(times)
-    survObj <- treeresponse(object$ctree, newdata=newdata)
+    survObj <- party::treeresponse(object$ctree, newdata=newdata)
     p <- do.call("rbind", lapply(survObj,function(x){
         predictSurvProb(x, newdata=newdata[1,,drop=FALSE], times=times)
     }))

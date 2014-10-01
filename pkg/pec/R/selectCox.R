@@ -30,7 +30,7 @@ selectCox <- function(formula,data,rule="aic"){
     bwfit <- rms::fastbw(fit,rule=rule)
     if (length(bwfit$names.kept)==0){
         newform <- reformulate("1",formula[[2]])
-        newfit <- prodlim(newform,data=data)
+        newfit <- prodlim::prodlim(newform,data=data)
     }
     else{
         newform <- reformulate(bwfit$names.kept, formula[[2]])

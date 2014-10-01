@@ -512,7 +512,7 @@ pec <- function(object,
       names(object) <- make.names(names(object),unique=TRUE)
       NF <- length(object)
       # }}}  
-      # {{{ sort the data 
+  # {{{ sort the data 
 
   if (survp){
     neworder <- order(response[,"time"],-response[,"status"])
@@ -559,7 +559,7 @@ pec <- function(object,
 
   # }}}      
   # {{{ find maxtime, start, and jumptimes in the range of the response 
-  if (missing(maxtime) || is.null(maxtime))
+if (missing(maxtime) || is.null(maxtime))
     maxtime <- unique.Y[NU]
   if (missing(start))
     if (survp==TRUE)
@@ -583,6 +583,7 @@ pec <- function(object,
 
   # }}}
   # {{{ IPCW (all equal to 1 without censoring) 
+
   if((cens.model %in% c("aalen","cox","nonpar"))){
       if (all(as.numeric(status)==1) || sum(status)==N){
           if (verbose)
@@ -602,7 +603,13 @@ pec <- function(object,
       if (ipcw.refit==TRUE)
           stop("pec: internal refitting of censoring distribution not (not yet) supported for competing risks")
       ipcw.call <- NULL
-      ipcw <- ipcw(formula=iFormula,data=iData,method=cens.model,args=ipcw.args,times=times,subjectTimes=Y,subjectTimesLag=1)
+      ipcw <- ipcw(formula=iFormula,
+                   data=iData,
+                   method=cens.model,
+                   args=ipcw.args,
+                   times=times,
+                   subjectTimes=Y,
+                   subjectTimesLag=1)
       ipcw$dim <- if (cens.model %in% c("marginal","none")) 0 else 1
   }
   else{
@@ -744,10 +751,10 @@ pec <- function(object,
   # {{{--------------k-fold and leave-one-out CrossValidation-----------------------
 
   if (splitMethod$internal.name %in% c("crossval","loocv")){
-    kCV <- kFoldCrossValidation(object=object,data=data,Y=Y,status=status,event=event,times=times,cause=cause,ipcw=ipcw,splitMethod=splitMethod,giveToModel=model.args,predictHandlerFun=predictHandlerFun,keep=keep.matrix,verbose=verbose)
-    CrossValErr <- kCV$CrossValErr
-    if (keep.matrix && B>1)
-      CrossValErrMat <- kCV$CrossValErrMat
+      kCV <- kFoldCrossValidation(object=object,data=data,Y=Y,status=status,event=event,times=times,cause=cause,ipcw=ipcw,splitMethod=splitMethod,giveToModel=model.args,predictHandlerFun=predictHandlerFun,keep=keep.matrix,verbose=verbose)
+      CrossValErr <- kCV$CrossValErr
+      if (keep.matrix && B>1)
+          CrossValErrMat <- kCV$CrossValErrMat
   }
 
   # }}}

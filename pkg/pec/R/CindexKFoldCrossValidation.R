@@ -29,7 +29,7 @@ CindexKFoldCrossValidation <- function(object,
   B <- splitMethod$B
   N <- splitMethod$N
   k <- splitMethod$k
-  NT <- length(times)
+  NT <- length(eval.times)
   NF <- length(object) 
   ResampleIndex <- splitMethod$index
   if (missing(giveToModel)) extraArgs=NULL
@@ -67,10 +67,10 @@ CindexKFoldCrossValidation <- function(object,
         fit.k <- trainModels[[f]]
         extraArgs <- giveToModel[[f]]
         if (predictHandlerFun == "predictEventProb"){      
-          p.group <- do.call(predictHandlerFun,c(list(object=fit.k,newdata=val.k,times=times,cause=cause,train.data=train.k),extraArgs))
+          p.group <- do.call(predictHandlerFun,c(list(object=fit.k,newdata=val.k,times=eval.times,cause=cause,train.data=train.k),extraArgs))
         }
         else{
-          p.group <- do.call(predictHandlerFun,c(list(object=fit.k,newdata=val.k,times=times,train.data=train.k),extraArgs))
+          p.group <- do.call(predictHandlerFun,c(list(object=fit.k,newdata=val.k,times=eval.times,train.data=train.k),extraArgs))
         }
         if(is.null(dim(p.group))) {
           p.group <- do.call("rbind",lapply(1:NROW(val.k),function(x){p.group}))

@@ -19,7 +19,7 @@
 #' @export pecCforest
 pecCforest <- function(formula,data,...){
     require(party)
-    out <- list(forest=cforest(formula,data,...))
+    out <- list(forest=party::cforest(formula,data,...))
     class(out) <- "pecCforest"
     out$call <- match.call()
     out  
@@ -29,7 +29,7 @@ pecCforest <- function(formula,data,...){
 ##' @S3method predictSurvProb pecCforest
 predictSurvProb.pecCforest <- function (object, newdata, times, ...) {
     require(party)
-    survObj <- treeresponse(object$forest,newdata=newdata)
+    survObj <- party::treeresponse(object$forest,newdata=newdata)
     p <- do.call("rbind",lapply(survObj,function(x){
         predictSurvProb(x,newdata=newdata[1,,drop=FALSE],times=times)
     }))

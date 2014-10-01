@@ -32,7 +32,7 @@
 #' Thomas Alexander Gerds \email{tag@@biostat.ku.dk}
 #' @keywords survival
 ##' @examples
-##' 
+##' \dontrun{
 ##' library(riskRegression)
 ##' library(prodlim)
 ##' library(lava)
@@ -69,7 +69,7 @@
 ##'     formula=Hist(time, event)~1,
 ##'     data=d)
 ##' 
-##' \dontrun{
+##' 
 ##' ## bootstrap cross-validation performance
 ##' set.seed(7)
 ##' pec(list(full.model=fg,selectedAIC=sfgAIC,selectedBIC=sfgBIC),

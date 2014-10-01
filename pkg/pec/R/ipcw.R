@@ -222,7 +222,7 @@ ipcw.forest <- function(formula,data,method,args,times,subjectTimes,subjectTimes
     if (match("IPCW.times",what,nomatch=FALSE)){
         # reverse Kaplan-Meier with forest weigths
         IPCW.times <- apply(data,1,function(i){
-            predict(prodlim(Hist(time,status)~1,data=wdata,reverse=TRUE,caseweights=FW[i,]),times=times)
+            predict(prodlim::prodlim(Hist(time,status)~1,data=wdata,reverse=TRUE,caseweights=FW[i,]),times=times)
         })
     }
     else
@@ -231,7 +231,7 @@ ipcw.forest <- function(formula,data,method,args,times,subjectTimes,subjectTimes
     if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
         IPCW.subjectTimes <- sapply(1:length(subjectTimes),function(i){
             ## browser()
-            predictSurvIndividual(prodlim(Hist(time,status)~1,data=wdata,reverse=TRUE,caseweights=FW[i,]),lag=1)[i]
+            prodlim::predictSurvIndividual(prodlim::prodlim(Hist(time,status)~1,data=wdata,reverse=TRUE,caseweights=FW[i,]),lag=1)[i]
         })
     }
     else
@@ -253,7 +253,7 @@ ipcw.marginal <- function(formula,data,method,args,times,subjectTimes,subjectTim
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
     formula <- update.formula(formula,"~1")
-    fit <- prodlim(formula,data=data,reverse=TRUE)
+    fit <- prodlim::prodlim(formula,data=data,reverse=TRUE)
     #  weigths at requested times
     if (match("IPCW.times",what,nomatch=FALSE)){
         IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
@@ -262,7 +262,7 @@ ipcw.marginal <- function(formula,data,method,args,times,subjectTimes,subjectTim
         IPCW.times <- NULL
     #  weigths at subject specific event times
     if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
-        IPCW.subjectTimes <- predictSurvIndividual(fit,lag=subjectTimesLag)
+        IPCW.subjectTimes <- prodlim::predictSurvIndividual(fit,lag=subjectTimesLag)
     }
     else
         IPCW.subjectTimes <- NULL
@@ -286,7 +286,7 @@ ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimes
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
-    fit <- prodlim(formula,data=data,reverse=TRUE,bandwidth="smooth")
+    fit <- prodlim::prodlim(formula,data=data,reverse=TRUE,bandwidth="smooth")
     #  weigths at requested times
     if (match("IPCW.times",what,nomatch=FALSE)){
         IPCW.times <- predict(fit,newdata=data,times=times,level.chaos=1,mode="matrix",type="surv")
@@ -295,7 +295,7 @@ ipcw.nonpar <- function(formula,data,method,args,times,subjectTimes,subjectTimes
         IPCW.times <- NULL
     #  weigths at subject specific event times
     if (match("IPCW.subjectTimes",what,nomatch=FALSE)){
-        IPCW.subjectTimes <- predictSurvIndividual(fit,lag=subjectTimesLag)
+        IPCW.subjectTimes <- prodlim::predictSurvIndividual(fit,lag=subjectTimesLag)
     }
     else
         IPCW.subjectTimes <- NULL
