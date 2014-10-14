@@ -234,11 +234,19 @@ predictSurvProb.coxph <- function(object,newdata,times,...){
     ## b <- function(x){browser()}
     ## b()
     survfit.object <- survival::survfit(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
-    inflated.pred <- summary(survfit.object,times=times)$surv
-    if (is.null(dim(inflated.pred))){
-        p <- matrix(inflated.pred,ncol=length(times),byrow=TRUE)
+    if (is.null(attr(object$terms,"specials")$strata)){
+        ## case without strata 
+        inflated.pred <- summary(survfit.object,times=times)$surv
+        p <- t(inflated.pred)        
     } else{
-        p <- t(inflated.pred)
+        ## case with strata 
+        inflated.pred <- summary(survfit.object,times=times)
+        plist <- split(inflated.pred$surv,inflated.pred$strata)
+        p <- do.call("rbind",lapply(plist,function(x){
+            beyond <- length(times)-length(x)
+            c(x,rep(NA,beyond))
+        }))
+        ## p <- matrix(inflated.pred,ncol=length(times),byrow=TRUE)
     }
     if ((miss.time <- (length(times) - NCOL(p)))>0)
         p <- cbind(p,matrix(rep(NA,miss.time*NROW(p)),nrow=NROW(p)))
