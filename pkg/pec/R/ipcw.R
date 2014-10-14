@@ -151,8 +151,8 @@ ipcw.rfsrc <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call() ## needed for refit in crossvalidation loop
-    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
-    wdata <- data.frame(cbind(unclass(EHF$event.history),do.call("cbind",EHF[-1])))
+    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL,unspecialsDesign=FALSE)
+    wdata <- data.frame(cbind(unclass(EHF$event.history),EHF$design))
     ## wdata <- as.data.frame(EHF)
     wdata$status <- 1-wdata$status
     wform <- update(formula,"Surv(time,status)~.")
@@ -203,7 +203,7 @@ ipcw.forest <- function(formula,data,method,args,times,subjectTimes,subjectTimes
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call() ## needed for refit in crossvalidation loop
     EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
-    wdata <- data.frame(cbind(unclass(EHF$event.history),do.call("cbind",EHF[-1])))
+    wdata <- data.frame(cbind(unclass(EHF$event.history),EHF$design))
     ## wdata$status <- 1-wdata$status
     wform <- update(formula,"Surv(time,status)~.")
     ## require(randomForestSRC)
@@ -316,8 +316,11 @@ ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
-    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
-    wdata <- data.frame(cbind(unclass(EHF$event.history),do.call("cbind",EHF[-1])))
+    EHF <- prodlim::EventHistory.frame(formula,
+                                       data,
+                                       specials=NULL,
+                                       unspecialsDesign=FALSE)
+    wdata <- data.frame(cbind(unclass(EHF$event.history),EHF$design))
     ## wdata <- prodlim::as.data.frame.EventHistory.frame(EHF)
     ## 
     wdata$status <- 1-wdata$status
@@ -357,8 +360,8 @@ ipcw.aalen <- function(formula,data,method,args,times,subjectTimes,subjectTimesL
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
-    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL)
-    wdata <- data.frame(cbind(unclass(EHF$event.history),do.call("cbind",EHF[-1])))
+    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL,unspecialsDesign=FALSE)
+    wdata <- data.frame(cbind(unclass(EHF$event.history),EHF$design))
     ## wdata <- as.data.frame(EHF)
     wdata$status <- 1-wdata$status
     wform <- update(formula,"Surv(time,status)~.")

@@ -197,17 +197,41 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
     p
 }
 
-##' @export 
-survestCoxAalen <- function(fit,newdata,times,...){
-
-}
-
-
 
 ##' @S3method predictSurvProb mfp
 predictSurvProb.mfp <- function(object,newdata,times,...){
     predictSurvProb.coxph(object$fit,newdata=newdata,times=times)
 }
+
+pecRpart <- function(formula,data,...){
+    robj <- rpart::rpart(formula=formula,data=data,...)
+    nclass <- length(unique(robj$where))
+    data$rpartFactor <- factor(predict(robj,newdata=data,...))
+    form <- update(formula,paste(".~","rpartFactor",sep=""))
+    survfit <- prodlim::prodlim(form,data=data)
+    out <- list(rpart=robj,survfit=survfit,levels=levels(data$rpartFactor))
+    class(out) <- "pecRpart"
+    out
+}
+
+predictSurvProb.pecRpart <- function(object,newdata,times,...){
+  newdata$rpartFactor <- factor(predict(object$rpart,newdata=newdata),
+                                levels=object$levels)
+  p <- predictSurvProb(object$survfit,newdata=newdata,times=times)
+  p
+}
+    
+predictSurvProb.rpart <- function(object,newdata,times,train.data,...){
+  learndat <- train.data
+  nclass <- length(unique(object$where))
+  learndat$rpartFactor <- factor(predict(object,newdata=train.data,...))
+  newdata$rpartFactor <- factor(predict(object,newdata=newdata))
+  rpart.form <- reformulate("rpartFactor",eval(object$call$formula)[[2]])  
+  fit.rpart <- prodlim::prodlim(rpart.form,data=learndat)
+  p <- predictSurvProb(fit.rpart,newdata=newdata,times=times)
+  p
+}
+
 
 
 ##' @S3method predictSurvProb rpart

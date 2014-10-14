@@ -70,6 +70,9 @@
 #' @param data A data frame in which to validate the prediction models and to
 #' fit the censoring model.  If \code{data} is missing, try to extract a data
 #' set from the first element in object.
+#' @param traindata A data frame in which the models are trained. This argument
+#' is used only in the absence of crossvalidation, in which case it is
+#' passed to the predictHandler function predictSurvProb 
 #' @param times A vector of time points. At each time point the prediction
 #' error curves are estimated. If \code{exact==TRUE} the \code{times} are
 #' merged with all the unique values of the response variable.  If \code{times}
@@ -362,47 +365,48 @@
 #' @export 
 # {{{ header pec.list
 pec <- function(object,
-                     formula,
-                     data,
-                     times,
-                     cause,
-                     ## time points
-                     start,
-                     maxtime,
-                     exact=TRUE,
-                     exactness=100,
-                     fillChar=NA,
-                     ## censoring weighting 
-                     cens.model="cox",
-                     ipcw.refit=FALSE,
-                     ipcw.args=NULL,
-                     ## data splitting
-                     splitMethod="none",
-                     B,
-                     M,
-                     ## misc parameters
-                     reference=TRUE,
-                     model.args=NULL,
-                     model.parms=NULL,
-                     keep.index=FALSE,
-                     keep.matrix=FALSE,
-                     keep.models="Call",
-                     keep.residuals=FALSE,
-                     keep.pvalues=FALSE,
-                     noinf.permute=FALSE,
-                     multiSplitTest=FALSE,
-                     testIBS,
-                     testTimes,
-                     confInt=FALSE,
-                     confLevel=0.95,
-                     verbose=TRUE,
-                     savePath=NULL,
-                     slaveseed=NULL,
-                     na.action=na.fail,
-                     ...)
+                formula,
+                data,
+                traindata,
+                times,
+                cause,
+                ## time points
+                start,
+                maxtime,
+                exact=TRUE,
+                exactness=100,
+                fillChar=NA,
+                ## censoring weighting 
+                cens.model="cox",
+                ipcw.refit=FALSE,
+                ipcw.args=NULL,
+                ## data splitting
+                splitMethod="none",
+                B,
+                M,
+                ## misc parameters
+                reference=TRUE,
+                model.args=NULL,
+                model.parms=NULL,
+                keep.index=FALSE,
+                keep.matrix=FALSE,
+                keep.models="Call",
+                keep.residuals=FALSE,
+                keep.pvalues=FALSE,
+                noinf.permute=FALSE,
+                multiSplitTest=FALSE,
+                testIBS,
+                testTimes,
+                confInt=FALSE,
+                confLevel=0.95,
+                verbose=TRUE,
+                savePath=NULL,
+                slaveseed=NULL,
+                na.action=na.fail,
+                ...)
 {
-  # }}}
-  # {{{ checking integrity some arguments
+    # }}}
+    # {{{ checking integrity some arguments
 
   theCall=match.call()
   if (match("replan",names(theCall),nomatch=FALSE))
@@ -623,7 +627,13 @@ if (missing(maxtime) || is.null(maxtime))
           ipcw.call <- list(formula=formula,data=NULL,method=cens.model,times=times,subjectTimes=NULL,subjectTimesLag=1)
       else
           ipcw.call <- NULL
-      ipcw <- ipcw(formula=formula,data=data,method=cens.model,args=ipcw.args,times=times,subjectTimes=Y,subjectTimesLag=1)
+      ipcw <- ipcw(formula=formula,
+                   data=data,
+                   method=cens.model,
+                   args=ipcw.args,
+                   times=times,
+                   subjectTimes=Y,
+                   subjectTimesLag=1)
       ipcw$dim <- if (cens.model %in% c("marginal","none")) 0 else 1
   }
   ## force ipc weights not to exaggerate
