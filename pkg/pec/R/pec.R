@@ -465,26 +465,26 @@ pec <- function(object,
 
   histformula <- formula
   if (histformula[[2]][[1]]==as.name("Surv")){
-    histformula[[2]][[1]] <- as.name("Hist")
+      histformula[[2]][[1]] <- as.name("Hist")
   }
   ## m <- model.frame(histformula,data,na.action=na.fail)
   m <- model.frame(histformula,data,na.action=na.action)
   response <- model.response(m)
   if (match("Surv",class(response),nomatch=0)!=0){
-    attr(response,"model") <- "survival"
-    attr(response,"cens.type") <- "rightCensored"
-    model.type <- "survival"
+      attr(response,"model") <- "survival"
+      attr(response,"cens.type") <- "rightCensored"
+      model.type <- "survival"
   }
   model.type <- attr(response,"model")
   if (model.type=="competing.risks"){
-    predictHandlerFun <- "predictEventProb"
-    if (missing(cause))
-      cause <- attr(response,"state")[1]
+      predictHandlerFun <- "predictEventProb"
+      if (missing(cause))
+          cause <- attr(response,"state")[1]
   }
   else{
-    if (survp==FALSE && NCOL(response)!=1) stop("Response must be one-dimensional.")
-    if (survp==TRUE && NCOL(response)!=2) stop("Survival response must have two columns: time and status.")
-    predictHandlerFun <- "predictSurvProb"
+      if (survp==FALSE && NCOL(response)!=1) stop("Response must be one-dimensional.")
+      if (survp==TRUE && NCOL(response)!=2) stop("Survival response must have two columns: time and status.")
+      predictHandlerFun <- "predictSurvProb"
   }
   
   # }}}
@@ -501,17 +501,23 @@ pec <- function(object,
       ## object <- c(list(Reference=ProdLimfit),object)
       ## else
       ## browser()
-      object <- c(list(NullModel=ProdLimfit),object)
-      }
-      if (is.null(names(object))){
-          names(object) <- sapply(object,function(o)class(o)[1])
-      }
-      else{
-          names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])
-      }
+      object <- c(list("Reference"=ProdLimfit),object)
+  }
+  if (is.null(names(object))){
+      names(object) <- sapply(object,function(o)class(o)[1])
       names(object) <- make.names(names(object),unique=TRUE)
-      NF <- length(object)
-      # }}}  
+  }
+  else{ # fix missing names
+      if (any(names(object)=="")){
+          names(object)[(names(object)=="")] <- sapply(object[(names(object)=="")],function(o)class(o)[1])
+          names(object) <- make.names(names(object),unique=TRUE)
+      }else{
+          # leave names as they were given
+      }
+  }
+  ## names(object) <- make.names(names(object),unique=TRUE)
+  NF <- length(object)
+  # }}}  
   # {{{ sort the data 
 
   if (survp){
@@ -581,8 +587,8 @@ if (missing(maxtime) || is.null(maxtime))
   times <- times[times<=maxtime]
   NT <-  length(times)
 
-  # }}}
-  # {{{ IPCW (all equal to 1 without censoring) 
+# }}}
+# {{{ IPCW (all equal to 1 without censoring) 
 
   if((cens.model %in% c("aalen","cox","nonpar"))){
       if (all(as.numeric(status)==1) || sum(status)==N){
@@ -636,14 +642,14 @@ if (missing(maxtime) || is.null(maxtime))
   #  if (NCOL(wt)>1) {stopifnot(length(wt)==(N*NT))}  else{stopifnot(length(wt)==NT)}
 
   # }}}
-  # {{{ checking the models for compatibility with resampling
+# {{{ checking the models for compatibility with resampling
   if (do.resample){
     cm <- checkModels(object=object,model.args=model.args,model.parms=model.parms,splitMethod=splitMethod$internal.name)
     model.args <- cm$model.args
     model.parms <- cm$model.parms
   }
   # }}}
-  # {{{ ---------------------------Apparent error---------------------------
+# {{{ ---------------------------Apparent error---------------------------
 
   AppErr <- lapply(1:NF,function(f){
     ## message(f)
@@ -690,7 +696,7 @@ if (missing(maxtime) || is.null(maxtime))
 
 
   # }}}
-  # {{{------------------------No information error------------------------
+# {{{------------------------No information error------------------------
 
   if (splitMethod$internal.name %in% c("Boot632plus")){
     if (verbose==TRUE){
@@ -748,7 +754,7 @@ if (missing(maxtime) || is.null(maxtime))
   }
 
   # }}}
-  # {{{--------------k-fold and leave-one-out CrossValidation-----------------------
+# {{{--------------k-fold and leave-one-out CrossValidation-----------------------
 
   if (splitMethod$internal.name %in% c("crossval","loocv")){
       kCV <- kFoldCrossValidation(object=object,data=data,Y=Y,status=status,event=event,times=times,cause=cause,ipcw=ipcw,splitMethod=splitMethod,giveToModel=model.args,predictHandlerFun=predictHandlerFun,keep=keep.matrix,verbose=verbose)
@@ -758,7 +764,7 @@ if (missing(maxtime) || is.null(maxtime))
   }
 
   # }}}
-  # {{{ ----------------------BootstrapCrossValidation----------------------
+# {{{ ----------------------BootstrapCrossValidation----------------------
 
   if (splitMethod$internal.name %in% c("Boot632plus","BootCv","Boot632")){
     if (verbose==TRUE){
@@ -834,12 +840,12 @@ if (missing(maxtime) || is.null(maxtime))
   }
 
   # }}}
-# {{{ Bootstrap .632
+  # {{{ Bootstrap .632
   if (splitMethod$internal.name=="Boot632"){
-    B632Err <- lapply(1:NF,function(f){
-      .368 * AppErr[[f]] + .632 * BootstrapCrossValErr[[f]]
-    })
-    names(B632Err) <- names(object)
+      B632Err <- lapply(1:NF,function(f){
+          .368 * AppErr[[f]] + .632 * BootstrapCrossValErr[[f]]
+      })
+      names(B632Err) <- names(object)
   }
   # }}}    
   # {{{ Bootstrap .632+
@@ -859,43 +865,43 @@ if (missing(maxtime) || is.null(maxtime))
   }
 
   # }}}
-  # {{{ prepare output
+# {{{ prepare output
 
-  out <- switch(splitMethod$internal.name,
-                "noPlan"=list("AppErr"=AppErr),
-                "Boot632plus"=list("AppErr"=AppErr,"BootCvErr"=BootstrapCrossValErr,"NoInfErr"=NoInfErr,"Boot632plusErr"=B632plusErr),
-                "Boot632"=list("AppErr"=AppErr,"BootCvErr"=BootstrapCrossValErr,"Boot632Err"=B632Err),
-                "BootCv"=list("AppErr"=AppErr,"BootCvErr"=BootstrapCrossValErr),
-                "loocv"=list("AppErr"=AppErr,"loocvErr"=CrossValErr),
-                "crossval"=list("AppErr"=AppErr,"crossvalErr"=CrossValErr),
-                "noinf"=list("AppErr"=AppErr,"NoInfErr"=NoInfErr))
-  observed.maxtime <- sapply(out,function(x){
+out <- switch(splitMethod$internal.name,
+              "noPlan"=list("AppErr"=AppErr),
+              "Boot632plus"=list("AppErr"=AppErr,"BootCvErr"=BootstrapCrossValErr,"NoInfErr"=NoInfErr,"Boot632plusErr"=B632plusErr),
+              "Boot632"=list("AppErr"=AppErr,"BootCvErr"=BootstrapCrossValErr,"Boot632Err"=B632Err),
+              "BootCv"=list("AppErr"=AppErr,"BootCvErr"=BootstrapCrossValErr),
+              "loocv"=list("AppErr"=AppErr,"loocvErr"=CrossValErr),
+              "crossval"=list("AppErr"=AppErr,"crossvalErr"=CrossValErr),
+              "noinf"=list("AppErr"=AppErr,"NoInfErr"=NoInfErr))
+observed.maxtime <- sapply(out,function(x){
     ## lapply(x,function(y){times[length(y)-sum(is.na(y))-1]})
     lapply(x,function(y){times[length(y)-sum(is.na(y))]})
-  })
-  minmaxtime <- min(unlist(observed.maxtime))
-  if (multiSplitTest==TRUE){
+})
+minmaxtime <- min(unlist(observed.maxtime))
+if (multiSplitTest==TRUE){
     out <- c(out,list(multiSplitTest=multiSplitTestResults))
-  }
-  if (keep.residuals==TRUE){
+}
+if (keep.residuals==TRUE){
     out <- c(out,list(Residuals=Residuals))
-  }
-  if (keep.matrix==TRUE && splitMethod$internal.name!="noPlan"){
+}
+if (keep.matrix==TRUE && splitMethod$internal.name!="noPlan"){
     if (splitMethod$internal.name %in% c("crossval","loocv")){
-      if (B>1)
-        out <- c(out,list("CrossValErrMat"=CrossValErrMat))
+        if (B>1)
+            out <- c(out,list("CrossValErrMat"=CrossValErrMat))
     }
     else{
-      if (splitMethod$internal.name!="noinf")
-        out <- c(out,list("BootstrapCrossValErrMat"=BootstrapCrossValErrMat))
+        if (splitMethod$internal.name!="noinf")
+            out <- c(out,list("BootstrapCrossValErrMat"=BootstrapCrossValErrMat))
     }
-  }
-  if (!is.na(fillChar))
+}
+if (!is.na(fillChar))
     out <- lapply(out,function(o){
-      o[is.na(o)] <- fillChar
-      o
+        o[is.na(o)] <- fillChar
+        o
     })
-  if (!is.null(model.parms))
+if (!is.null(model.parms))
     out <- c(out,list("ModelParameters"=BootCv$ModelParameters))
   
   

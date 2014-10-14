@@ -100,6 +100,7 @@ the call to \code{cph}.
 \examples{
 # generate some survival data
 library(prodlim)
+set.seed(100)
 d <- SimSurv(100)
 # then fit a Cox model
 library(rms)
@@ -112,6 +113,10 @@ ttt <- quantile(d$time)
 ndat <- data.frame(X1=c(0.25,0.25,-0.05,0.05),X2=c(0,1,0,1))
 # as follows
 predictSurvProb(coxmodel,newdata=ndat,times=ttt)
+
+# stratified cox model
+sfit <- coxph(Surv(time,status)~strata(X1)+X2,data=d,y=TRUE)
+predictSurvProb(sfit,newdata=d[1:3,],times=c(1,3,5,10))
 
 ## simulate some learning and some validation data
 learndat <- SimSurv(100)

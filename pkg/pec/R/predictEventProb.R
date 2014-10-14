@@ -125,8 +125,7 @@ predictEventProb.ARR <- function(object,newdata,times,cause,...){
 predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ...) {
     survtype <- object$survtype
     N <- NROW(newdata)
-    ## f <- function(x) browser()
-    ## f()
+    ## suppressMessages(browser())
     NC <- length(object$model)
     eTimes <- object$eventTimes
     if (missing(cause))
