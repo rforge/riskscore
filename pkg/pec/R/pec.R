@@ -31,9 +31,9 @@
 #' For each prediction model there must be a \code{predictSurvProb} method: for
 #' example, to assess a prediction model which evaluates to a \code{myclass}
 #' object one defines a function called \code{predictSurvProb.myclass} with
-#' arguments \code{object,newdata,cutpoints,train.data,...}
+#' arguments \code{object,newdata,cutpoints,...}
 #' 
-#' Such a function takes the object which was fitted with train.data and
+#' Such a function takes the object and
 #' derives a matrix with predicted event status probabilities for each subject
 #' in newdata (rows) and each cutpoint (column) of the response variable that
 #' defines an event status.
@@ -666,12 +666,12 @@ if (missing(maxtime) || is.null(maxtime))
     fit <- object[[f]]
     extraArgs <- model.args[[f]]
     if (predictHandlerFun=="predictEventProb"){ # competing risks
-      pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data,cause=cause),extraArgs))
+      pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,cause=cause),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
       .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
     }
     else{  # survival
-      pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
+      pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
       .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
     }
@@ -683,7 +683,7 @@ if (missing(maxtime) || is.null(maxtime))
   ## fit <- object[[f]]
   ## extraArgs <- model.args[[f]]
   ## if (predictHandlerFun=="predictEventProb"){ # competing risks
-  ## pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data,cause=cause),extraArgs))
+  ## pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,cause=cause),extraArgs))
   ## if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
   ## Paulo(as.double(Y),
   ## as.double(status),
@@ -694,7 +694,7 @@ if (missing(maxtime) || is.null(maxtime))
   ## as.double(ipcw$IPCW.subjectTimes))
   ## }
   ## else{  # survival
-  ## pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
+  ## pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times),extraArgs))
   ## if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
   ## Paulo(as.double(Y),
   ## as.double(status),
@@ -716,7 +716,7 @@ if (missing(maxtime) || is.null(maxtime))
       NoInfErr <- lapply(1:NF,function(f){
         fit <- object[[f]]
         extraArgs <- model.args[[f]]
-        pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,train.data=data),extraArgs))
+        pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times),extraArgs))
         extraArgs <- model.args[[f]]
         if (predictHandlerFun=="predictEventProb")
           .C("pec_noinfCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
@@ -742,13 +742,13 @@ if (missing(maxtime) || is.null(maxtime))
           ## fit.b$call <- object[[f]]$call
           extraArgs <- model.args[[f]]
 
-          pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times,train.data=data),extraArgs))
+          pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times),extraArgs))
           if (predictHandlerFun=="predictEventProb"){
-            pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times,train.data=data,cause=cause),extraArgs))
+            pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times,cause=cause),extraArgs))
             .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred.b),as.double(ipcw.b$IPCW.times),as.double(ipcw.b$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred.b))),NAOK=TRUE,PACKAGE="pec")$pec
           }
           else{
-            pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times,train.data=data),extraArgs))
+            pred.b <- do.call(predictHandlerFun,c(list(object=fit.b,newdata=noinf.b,times=times),extraArgs))
             .C("pec",pec=double(NT),as.double(Y),as.double(status),as.double(times),as.double(pred.b),as.double(ipcw.b$IPCW.times),as.double(ipcw.b$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred.b))),NAOK=TRUE,PACKAGE="pec")$pec
           }
         })

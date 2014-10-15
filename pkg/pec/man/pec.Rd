@@ -324,13 +324,12 @@ For each prediction model there must be a
 prediction model which evaluates to a \code{myclass} object
 one defines a function called
 \code{predictSurvProb.myclass} with arguments
-\code{object,newdata,cutpoints,train.data,...}
+\code{object,newdata,cutpoints,...}
 
-Such a function takes the object which was fitted with
-train.data and derives a matrix with predicted event status
-probabilities for each subject in newdata (rows) and each
-cutpoint (column) of the response variable that defines an
-event status.
+Such a function takes the object and derives a matrix with
+predicted event status probabilities for each subject in
+newdata (rows) and each cutpoint (column) of the response
+variable that defines an event status.
 
 Currently, \code{predictSurvProb} methods are available for
 the following R-objects: \describe{ \item{}{\code{matrix}}

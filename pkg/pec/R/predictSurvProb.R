@@ -14,33 +14,31 @@
 #' 
 #' Currently there are \code{predictSurvProb} methods for objects of class cph
 #' (library rms), coxph (library survival), aalen (library timereg), cox.aalen
-#' (library timereg), mfp (library mfp), phnnet (library survnnet), survnnet
-#' (library survnnet), rpart (library rpart), product.limit (library prodlim),
+#' (library timereg), 
+#' rpart (library rpart), product.limit (library prodlim),
 #' survfit (library survival), psm (library rms)
 #' 
 #' @aliases predictSurvProb predictSurvProb.aalen
 #' predictSurvProb.riskRegression predictSurvProb.cox.aalen
 #' predictSurvProb.coxph predictSurvProb.cph predictSurvProb.default
-#' predictSurvProb.rfsrc predictSurvProb.matrix predictSurvProb.mfp
+#' predictSurvProb.rfsrc predictSurvProb.matrix predictSurvProb.pecCtree
 #' predictSurvProb.pecCforest predictSurvProb.prodlim predictSurvProb.psm
-#' predictSurvProb.selectCox predictSurvProb.survfit predictSurvProb.survnnet
-#' predictSurvProb.phnnet predictSurvProb.rpart
+#' predictSurvProb.selectCox predictSurvProb.survfit 
+#' predictSurvProb.pecRpart
 #' @usage
 #' \method{predictSurvProb}{aalen}(object,newdata,times,...)
 #' \method{predictSurvProb}{riskRegression}(object,newdata,times,...)
 #' \method{predictSurvProb}{cox.aalen}(object,newdata,times,...)
 #' \method{predictSurvProb}{cph}(object,newdata,times,...)
 #' \method{predictSurvProb}{coxph}(object,newdata,times,...)
-#' \method{predictSurvProb}{mfp}(object,newdata,times,...)
 #' \method{predictSurvProb}{matrix}(object,newdata,times,...)
 #' \method{predictSurvProb}{selectCox}(object,newdata,times,...)
 #' \method{predictSurvProb}{pecCforest}(object,newdata,times,...)
 #' \method{predictSurvProb}{prodlim}(object,newdata,times,...)
 #' \method{predictSurvProb}{psm}(object,newdata,times,...)
 #' \method{predictSurvProb}{survfit}(object,newdata,times,...)
-#' \method{predictSurvProb}{survnnet}(object,newdata,times,train.data,...)
-#' \method{predictSurvProb}{rpart}(object,newdata,times,train.data,...)
-#' \method{predictSurvProb}{phnnet}(object,newdata,times,train.data,...)
+#' \method{predictSurvProb}{pecRpart}(object,newdata,times,...)
+#' #' \method{predictSurvProb}{pecCtree}(object,newdata,times,...)
 #' @param object A fitted model from which to extract predicted survival
 #' probabilities
 #' @param newdata A data frame containing predictor variable combinations for
@@ -48,8 +46,6 @@
 #' @param times A vector of times in the range of the response variable, e.g.
 #' times when the response is a survival object, at which to return the
 #' survival probabilities.
-#' @param train.data An optional data frame which contains the response and
-#' predictor variable combinations in which the prediction model was trained
 #' @param \dots Additional arguments that are passed on to the current method.
 #' @return A matrix with as many rows as \code{NROW(newdata)} and as many
 #' columns as \code{length(times)}. Each entry should be a probability and in
@@ -197,12 +193,24 @@ predictSurvProb.cox.aalen <- function(object,newdata,times,...){
     p
 }
 
-
-##' @S3method predictSurvProb mfp
-predictSurvProb.mfp <- function(object,newdata,times,...){
-    predictSurvProb.coxph(object$fit,newdata=newdata,times=times)
-}
-
+#' Combines the rpart result with a stratified Kaplan-Meier (prodlim) to predict survival
+#'
+#' 
+#' @title Predict survival based on rpart tree object
+#' @param formula passed to rpart
+#' @param data passed to rpart
+#' @param ... passed to rpart
+#' @return list with three elements: ctree and call
+#' @examples
+#' library(prodlim)
+#' library(rpart)
+#' library(survival)
+#' set.seed(50)
+#' d <- SimSurv(50)
+#' nd <- data.frame(X1=c(0,1,0),X2=c(-1,0,1))
+#' f <- pecRpart(Surv(time,status)~X1+X2,data=d)
+#' predictSurvProb(f,newdata=nd,times=c(3,8))
+#' @export 
 pecRpart <- function(formula,data,...){
     robj <- rpart::rpart(formula=formula,data=data,...)
     nclass <- length(unique(robj$where))
@@ -214,39 +222,14 @@ pecRpart <- function(formula,data,...){
     out
 }
 
+##' @S3method predictSurvProb pecRpart
 predictSurvProb.pecRpart <- function(object,newdata,times,...){
-  newdata$rpartFactor <- factor(predict(object$rpart,newdata=newdata),
-                                levels=object$levels)
-  p <- predictSurvProb(object$survfit,newdata=newdata,times=times)
-  p
+    newdata$rpartFactor <- factor(predict(object$rpart,newdata=newdata),
+                                  levels=object$levels)
+    p <- predictSurvProb(object$survfit,newdata=newdata,times=times)
+    p
 }
     
-predictSurvProb.rpart <- function(object,newdata,times,train.data,...){
-  learndat <- train.data
-  nclass <- length(unique(object$where))
-  learndat$rpartFactor <- factor(predict(object,newdata=train.data,...))
-  newdata$rpartFactor <- factor(predict(object,newdata=newdata))
-  rpart.form <- reformulate("rpartFactor",eval(object$call$formula)[[2]])  
-  fit.rpart <- prodlim::prodlim(rpart.form,data=learndat)
-  p <- predictSurvProb(fit.rpart,newdata=newdata,times=times)
-  p
-}
-
-
-
-##' @S3method predictSurvProb rpart
-predictSurvProb.rpart <- function(object,newdata,times,train.data,...){
-  learndat <- train.data
-  nclass <- length(unique(object$where))
-  learndat$rpartFactor <- factor(predict(object,newdata=train.data,...))
-  newdata$rpartFactor <- factor(predict(object,newdata=newdata))
-  rpart.form <- reformulate("rpartFactor",eval(object$call$formula)[[2]])  
-  fit.rpart <- prodlim::prodlim(rpart.form,data=learndat)
-  p <- predictSurvProb(fit.rpart,newdata=newdata,times=times)
-  p
-}
-
-
 ##' @S3method predictSurvProb coxph
 predictSurvProb.coxph <- function(object,newdata,times,...){
     ## baselineHazard.coxph(object,times)
@@ -344,6 +327,7 @@ predictSurvProb.prodlim <- function(object,newdata,times,...){
             stop(paste("\nPrediction matrix has wrong dimensions:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
         ## stop("Prediction failed")
     }
+    rownames(p) <- NULL
     p
 }
 
