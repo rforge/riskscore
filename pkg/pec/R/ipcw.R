@@ -316,12 +316,19 @@ ipcw.cox <- function(formula,data,method,args,times,subjectTimes,subjectTimesLag
     if (missing(subjectTimesLag)) subjectTimesLag=1
     if (missing(what)) what=c("IPCW.times","IPCW.subjectTimes")
     call <- match.call()
-    EHF <- prodlim::EventHistory.frame(formula,data,specials=NULL,unspecialsDesign=FALSE)
+    EHF <- prodlim::EventHistory.frame(formula,
+                                       data,
+                                       specials=NULL,
+                                       unspecialsDesign=FALSE)
     wdata <- data.frame(cbind(unclass(EHF$event.history),EHF$design))
     wdata$status <- 1-wdata$status
     wform <- update(formula,"Surv(time,status)~.")
     stopifnot(NROW(na.omit(wdata))>0)
-    fit <- rms::cph(wform,data=wdata,surv=TRUE,x=TRUE,y=TRUE)
+    if (missing(args) || is.null(args))
+        args <- list(x=TRUE,y=TRUE,eps=0.000001)
+    args$surv <- TRUE
+    fit <- do.call(rms::cph,c(list(wform,data=wdata),args))
+    ## fit <- rms::cph(wform,data=wdata,surv=TRUE,x=TRUE,y=TRUE)
     #  weigths at requested times
     if (match("IPCW.times",what,nomatch=FALSE)){
         IPCW.times <- rms::survest(fit,newdata=wdata,times=times,se.fit=FALSE)$surv

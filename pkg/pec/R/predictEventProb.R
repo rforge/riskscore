@@ -137,6 +137,7 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
             stop("Object can be used to predict cause ",object$theCause," but not ",cause,".\nNote: the cause can be specified in CSC(...,cause=).")
     }
     # predict cumulative cause specific hazards
+    ## browser()
     trycumhaz1 <- try(cumHaz1 <- -log(predictSurvProb(object$models[[paste("Cause",cause)]],times=eTimes,newdata=newdata)),silent=FALSE)
     ## trycumhaz1[is.infinite(trycumhaz1)] <- NA
     if (inherits(trycumhaz1,"try-error")==TRUE)
@@ -168,7 +169,7 @@ predictEventProb.CauseSpecificCox <- function (object, newdata, times, cause, ..
     pos <- prodlim::sindex(jump.times=eTimes, eval.times=times)
     p <- cbind(0,cuminc1)[,pos+1,drop=FALSE]
     if (NROW(p) != NROW(newdata) || NCOL(p) != length(times))
-                stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
+        stop(paste("\nPrediction matrix has wrong dimension:\nRequested newdata x times: ",NROW(newdata)," x ",length(times),"\nProvided prediction matrix: ",NROW(p)," x ",NCOL(p),"\n\n",sep=""))
     p
 }
 

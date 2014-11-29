@@ -45,12 +45,12 @@ ElasticNet <- function(formula,
         response <- as.numeric(response==levels(response)[2])
     covariates <- model.matrix(Terms,data=mf)[,-1,drop=FALSE]
     # find lambda via cross-validation
-    pathLambda <- cv.glmnet(x=covariates,
+    pathLambda <- glmnet::cv.glmnet(x=covariates,
                             y=response,
                             nfolds=nfolds,...)
     optlambda <- pathLambda$lambda.min
     # fit elastic net
-    fit.enet <- glmnet(x=covariates,
+    fit.enet <- glmnet::glmnet(x=covariates,
                        y=response,
                        lambda=optlambda,
                        ...)

@@ -2,6 +2,10 @@
 ##'
 ##' Confidence intervals are obtained with \code{binom.test} 
 ##' @aliases Specificity NPV PPV Diagnose
+##' @usage Sensitivity(x,event,cutoff,comparison=">=",...)
+##'        Specificity(x,event,cutoff,comparison=">=",...)
+##'        NPV(x,event,cutoff,comparison=">=",...)
+##'        PPV(x,event,cutoff,comparison=">=",...)
 ##' @title Compute sensitivity, specificity and predictive values
 ##' @param x Either a binary 0,1 variable, or a numeric marker which is cut into binary. 
 ##' @param event Binary response variable. Either a 0,1 variable where 1 means 'event', or a factor where the second level means 'event'.
@@ -25,9 +29,12 @@
 ##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
 Sensitivity <- function(x,event,cutoff,comparison=">=",...){
 stopifnot(length(x)==length(event))
-if (length(unique(x))==2)
-        Test <- x
-    else{
+    if (length(unique(x))<=2){
+        if (is.factor(x))
+            Test <- x==levels(x)[1]
+        else
+            Test <- x
+    } else{
         if (missing(cutoff)) stop("No cutoff given")
         Test <- switch(comparison,"<="=I(x<=cutoff),"<"=I(x<cutoff),">="=I(x>=cutoff),">"=I(x>cutoff))
         Test <- 1*Test
@@ -58,10 +65,13 @@ print.Sensitivity <- function(x,...){
 
 ##' @export
 Specificity <- function(x,event,cutoff,comparison=">=",...){
-stopifnot(length(x)==length(event))
-if (length(unique(x))==2)
-        Test <- x
-    else{
+    stopifnot(length(x)==length(event))
+    if (length(unique(x))<=2){
+        if (is.factor(x))
+            Test <- x==levels(x)[1]
+        else
+            Test <- x
+    } else{
         if (missing(cutoff)) stop("No cutoff given")
         Test <- switch(comparison,"<="=I(x<=cutoff),"<"=I(x<cutoff),">="=I(x>=cutoff),">"=I(x>cutoff))
         Test <- 1*Test
@@ -81,10 +91,13 @@ if (length(unique(x))==2)
 
 ##' @export
 PPV <- function(x,event,cutoff,comparison=">=",...){
-stopifnot(length(x)==length(event))
-if (length(unique(x))==2)
-        Test <- x
-    else{
+    stopifnot(length(x)==length(event))
+    if (length(unique(x))<=2){
+        if (is.factor(x))
+            Test <- x==levels(x)[1]
+        else
+            Test <- x
+    } else{
         if (missing(cutoff)) stop("No cutoff given")
         Test <- switch(comparison,"<="=I(x<=cutoff),"<"=I(x<cutoff),">="=I(x>=cutoff),">"=I(x>cutoff))
         Test <- 1*Test
@@ -103,10 +116,13 @@ if (length(unique(x))==2)
 }
 ##' @export
 NPV <- function(x,event,cutoff,comparison=">=",...){
-stopifnot(length(x)==length(event))
-if (length(unique(x))==2)
-        Test <- x
-    else{
+    stopifnot(length(x)==length(event))
+    if (length(unique(x))<=2){
+        if (is.factor(x))
+            Test <- x==levels(x)[1]
+        else
+            Test <- x
+    } else{
         if (missing(cutoff)) stop("No cutoff given")
         Test <- switch(comparison,"<="=I(x<=cutoff),"<"=I(x<cutoff),">="=I(x>=cutoff),">"=I(x>cutoff))
         Test <- 1*Test
@@ -127,9 +143,12 @@ if (length(unique(x))==2)
 ##' @export
 Diagnose <- function(x,event,cutoff,comparison=">=",...){
     stopifnot(length(x)==length(event))
-    if (length(unique(x))==2)
-        Test <- x
-    else{
+    if (length(unique(x))<=2){
+        if (is.factor(x))
+            Test <- x==levels(x)[1]
+        else
+            Test <- x
+    } else{
         if (missing(cutoff)) stop("No cutoff given")
         Test <- switch(comparison,"<="=I(x<=cutoff),"<"=I(x<cutoff),">="=I(x>=cutoff),">"=I(x>cutoff))
         Test <- 1*Test

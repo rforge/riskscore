@@ -238,8 +238,8 @@ predictSurvProb.coxph <- function(object,newdata,times,...){
     ## original data are included
     ## survival.survfit.coxph <- getFromNamespace("survfit.coxph",ns="survival")
     ## survival.summary.survfit <- getFromNamespace("summary.survfit",ns="survival")
-    ## b <- function(x){browser()}
-    ## b()
+     ## b <- function(x){browser()}
+     ## b()
     survfit.object <- survival::survfit(object,newdata=newdata,se.fit=FALSE,conf.int=FALSE)
     if (is.null(attr(object$terms,"specials")$strata)){
         ## case without strata 
