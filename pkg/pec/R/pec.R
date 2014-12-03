@@ -262,7 +262,6 @@
 #' @keywords survival
 #' @examples
 #' 
-#' 
 #' # simulate an artificial data frame
 #' # with survival response and two predictors
 #' 
@@ -662,11 +661,11 @@ if (missing(maxtime) || is.null(maxtime))
 # {{{ ---------------------------Apparent error---------------------------
 
   AppErr <- lapply(1:NF,function(f){
-    ## message(f)
-    fit <- object[[f]]
-    extraArgs <- model.args[[f]]
-    if (predictHandlerFun=="predictEventProb"){ # competing risks
-      pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,cause=cause),extraArgs))
+      ## message(f)
+      fit <- object[[f]]
+      extraArgs <- model.args[[f]]
+      if (predictHandlerFun=="predictEventProb"){ # competing risks
+          pred <- do.call(predictHandlerFun,c(list(object=fit,newdata=data,times=times,cause=cause),extraArgs))
       if (class(object[[f]])[[1]]=="matrix") pred <- pred[neworder,,drop=FALSE]
       .C("pecCR",pec=double(NT),as.double(Y),as.double(status),as.double(event),as.double(times),as.double(pred),as.double(ipcw$IPCW.times),as.double(ipcw$IPCW.subjectTimes),as.integer(N),as.integer(NT),as.integer(ipcw$dim),as.integer(is.null(dim(pred))),NAOK=TRUE,PACKAGE="pec")$pec
     }
