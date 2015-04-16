@@ -53,15 +53,17 @@ pseudoPec <- function(object,
   }
   # }}}
   # {{{ formula
-
   if (missing(formula)){
-    formula <- eval(object[[1]]$call$formula)
-    if (match("formula",class(formula),nomatch=0)==0)
-      stop("Argument formula is missing.")
-    else if (verbose)
-      warning("Argument formula is missing. I use the formula from the call to the first model instead.")
-  }
-  
+      if (length(grep("~",as.character(object[[1]]$call$formula)))==0){
+          stop(paste("Argument formula is missing and first model has no usable formula:",as.character(object[[1]]$call$formula)))
+      } else{
+          ftry <- try(formula <- eval(object[[1]]$call$formula),silent=TRUE)
+          if ((class(ftry)=="try-error") || match("formula",class(formula),nomatch=0)==0)
+              stop("Argument formula is missing and first model has no usable formula.")
+          else if (verbose)
+              warning("Formula missing. Using formula from first model")
+      }
+  }  
   formula.names <- try(all.names(formula),silent=TRUE)
   if (!(formula.names[1]=="~")
       ||

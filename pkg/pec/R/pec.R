@@ -428,35 +428,38 @@ pec <- function(object,
   }
   # }}}
   # {{{ formula
-  
   if (missing(formula)){
-    ftry <- try(formula <- eval(object[[1]]$call$formula),silent=TRUE)
-    if ((class(ftry)=="try-error") || match("formula",class(formula),nomatch=0)==0)
-      stop("Argument formula is missing.")
-    else if (verbose)
-      warning("Formula missing. Using formula from first model")
+      if (length(grep("~",as.character(object[[1]]$call$formula)))==0){
+          stop(paste("Argument formula is missing and first model has no usable formula:",as.character(object[[1]]$call$formula)))
+      } else{
+          ftry <- try(formula <- eval(object[[1]]$call$formula),silent=TRUE)
+          if ((class(ftry)=="try-error") || match("formula",class(formula),nomatch=0)==0)
+              stop("Argument formula is missing and first model has no usable formula.")
+          else if (verbose)
+              warning("Formula missing. Using formula from first model")
+      }
   }
   formula.names <- try(all.names(formula),silent=TRUE)
   if (!(formula.names[1]=="~")
       ||
       (match("$",formula.names,nomatch=0)+match("[",formula.names,nomatch=0)>0)){
-    stop("Invalid specification of formula.\n Could be that you forgot the right hand side:\n ~covariate1 + covariate2 + ...?\nNote that any subsetting, ie data$var or data[,\"var\"], is not supported by this function.")
+      stop("Invalid specification of formula.\n Could be that you forgot the right hand side:\n ~covariate1 + covariate2 + ...?\nNote that any subsetting, ie data$var or data[,\"var\"], is not supported by this function.")
   }
   else{
-    if (!(formula.names[2] %in% c("Surv","Hist")))
-      survp <- FALSE
-    else
-      survp <- TRUE
+      if (!(formula.names[2] %in% c("Surv","Hist")))
+          survp <- FALSE
+      else
+          survp <- TRUE
   }
   # }}}
   # {{{ data
   if (missing(data)){
-    data <- eval(object[[1]]$call$data)
-    if (match("data.frame",class(data),nomatch=0)==0)
-      stop("Argument data is missing.")
-    else
-      if (verbose)
-        warning("Argument data is missing. I use the data from the call to the first model instead.")
+      data <- eval(object[[1]]$call$data)
+      if (match("data.frame",class(data),nomatch=0)==0)
+          stop("Argument data is missing.")
+      else
+          if (verbose)
+              warning("Argument data is missing. I use the data from the call to the first model instead.")
   }
   # }}}
   # {{{ censoring model

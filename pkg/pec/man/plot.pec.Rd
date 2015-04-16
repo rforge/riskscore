@@ -41,9 +41,8 @@
   \item{type}{Plotting type: either \code{"l"} or
   \code{"s"}, see \code{lines}.}
 
-  \item{smooth}{Logical. If \code{TRUE} the plotting values
-  are smoothed with the function \code{\link{smooth}}
-  kind="3R".}
+  \item{smooth}{Logical. If \code{TRUE} the plotting type
+  for lines is \code{'l'} else \code{'s'}.}
 
   \item{add.refline}{Logical. If \code{TRUE} a dotted
   horizontal line is drawn as a symbol for the naive rule

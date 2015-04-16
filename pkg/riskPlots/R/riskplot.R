@@ -1,8 +1,30 @@
-
-# get plot obs on the plot
-## bla
-
-riskplotTest <- function(object,
+##' bla bla
+##'
+##' bla bla
+##' @title Risk plots 
+##' @param object fit
+##' @param formula formula
+##' @param data data
+##' @param horizon time point
+##' @param cause caus of interst
+##' @param ...
+##' @examples
+##' 
+##' expit <- function(x){exp(x)/(1+exp(x))}
+##' partyData <- function(N){
+##'   Age <- runif(N,.5,15)
+##'   Parasites <- rnorm(N,mean=3.5-0.03*Age)
+##'   Fever <- rbinom(N,1,expit(-3.5-.3*Age+.55*Parasites+0.15*Age*Parasites))
+##'   data.frame(Fever,Age,Parasites)
+##' }
+##' d <- partyData(100)
+##' f <- glm(Fever~Age+Parasites,data=d,family="binomial")
+##' riskplot(f,Fever~Age+Parasites,d)
+##' 
+##' 
+##' @export 
+##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
+riskplot <- function(object,
                          formula,
                          data = parent.frame(),
                          horizon=NULL,

@@ -1,8 +1,5 @@
 # methods for competing risk regression
 # --------------------------------------------------------------------
-
-
-
 #' Predicting life years lost (cumulative cumulative incidences) in competing
 #' risk models.
 #' 

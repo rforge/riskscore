@@ -139,8 +139,8 @@ calPlot <- function(object,
                     diag=!add,
                     legend=!add,
                     axes=!add,
-                    xlim,
-                    ylim,
+                    xlim=c(0,1),
+                    ylim=c(0,1),
                     xlab = "Predicted event probability",
                     ylab = "Pseudo-observed event status",
                     col,
@@ -193,12 +193,17 @@ calPlot <- function(object,
                 warning("Argument data is missing. I use the data from the call to the first model instead.")
     }
     if (missing(formula)){
-        formula <- eval(object[[1]]$call$formula)
-        if (match("formula",class(formula),nomatch=0)==0)
-            stop("Argument formula is missing.")
-        else if (verbose)
-            warning("Argument formula is missing. I use the formula from the call to the first model instead.")
+        if (length(grep("~",as.character(object[[1]]$call$formula)))==0){
+            stop(paste("Argument formula is missing and first model has no usable formula:",as.character(object[[1]]$call$formula)))
+        } else{
+            ftry <- try(formula <- eval(object[[1]]$call$formula),silent=TRUE)
+            if ((class(ftry)=="try-error") || match("formula",class(formula),nomatch=0)==0)
+                stop("Argument formula is missing and first model has no usable formula.")
+            else if (verbose)
+                warning("Formula missing. Using formula from first model")
+        }
     }
+    
     m <- model.frame(formula,data,na.action=na.action)
     response <- model.response(m)
     if (match("Surv",class(response),nomatch=FALSE))
@@ -246,7 +251,7 @@ calPlot <- function(object,
 
     # }}}
     # {{{ call smartControls
-    axis1.DefaultArgs <- list(side=1,las=1,at=seq(0,1,.25))
+    axis1.DefaultArgs <- list(side=1,las=1,at=seq(0,ylim[2],ylim[2]/4))
     ## if (showPseudo==TRUE){
     ## at2 <- seq(0,1,.25)
     ## if (min(jack)<0) at2 <- c(round(min(jack),2),at2)
@@ -254,7 +259,7 @@ calPlot <- function(object,
     ## axis2.DefaultArgs <- list(side=2,las=2,at=at2,mgp=c(4,1,0))
     ## }
     ## else{
-    axis2.DefaultArgs <- list(side=2,las=2,at=seq(0,1,.25),mgp=c(4,1,0))
+    axis2.DefaultArgs <- list(side=2,las=2,at=seq(0,ylim[2],ylim[2]/4),mgp=c(4,1,0))
     ## }
     legend.DefaultArgs <- list(legend=names(object),lwd=lwd,col=col,lty=lty,cex=1.5,bty="n",y.intersp=1.3,x="topleft")
     lines.DefaultArgs <- list(type="l")
