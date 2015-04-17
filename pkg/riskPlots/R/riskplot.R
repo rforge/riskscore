@@ -46,6 +46,10 @@
 ##' timeHorizon <- floor(median(sdat$time))
 ##' riskplot(cox, survForm, data = sdat, horizon = timeHorizon)
 ##'
+##' survForm2 = Surv(time,status) ~ strata(X1) + X2 + X3
+##' cox2 <- coxph(survForm2, data = sdat)
+##' riskplot(cox2, survForm2, data = sdat, horizon = timeHorizon)
+##'
 ##' # ---------- competing risks --------------------
 ##'
 ##' # -- simulate an artificial data frame
