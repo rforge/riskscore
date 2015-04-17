@@ -10,6 +10,8 @@
 ##' @param ...
 ##' @examples
 ##' 
+##' # ---------- logistic regression --------------------
+##'
 ##' expit <- function(x){exp(x)/(1+exp(x))}
 ##' partyData <- function(N){
 ##'   Age <- runif(N,.5,15)
@@ -20,7 +22,51 @@
 ##' d <- partyData(100)
 ##' f <- glm(Fever~Age+Parasites,data=d,family="binomial")
 ##' riskplot(f,Fever~Age+Parasites,d)
+##'
+##' # ---------- survival analysis --------------------
+##'
+##' # --simulate an artificial data frame
+##' # with survival response and three predictors
 ##' 
+##' library(survival)
+##' library(prodlim)
+##' survData <- function( N ){
+##'   sdata <- SimSurv( N )
+##'   sdata$X3 <- rnorm(N)
+##'   sdata
+##' }
+##' set.seed(140515)
+##' sdat <- survData(100)
+##'
+##' # -- fit a Cox regression model 
+##' survForm = Surv(time,status) ~ X2 + X3
+##' cox <- coxph(survForm, data = sdat)
+##'
+##' # --choose a time horizon for the predictions and plot the risks
+##' timeHorizon <- floor(median(sdat$time))
+##' riskplot(cox, survForm, data = sdat, horizon = timeHorizon)
+##'
+##' # ---------- competing risks --------------------
+##'
+##' # -- simulate an artificial data frame
+##' # with competing cause response and three predictors
+##' library(cmprsk)
+##' library(riskRegression)
+##' compRiskData <- function( N ){
+##'   crdata <- SimCompRisk( N )
+##'   crdata$X3 <- rnorm(N)
+##'   crdata
+##' }
+##' set.seed(140515)
+##' crdat <- compRiskData(1000)
+##'
+##' # -- fit a cause-specific Cox regression model
+##' crForm <- Hist(time,event)~X2+X3
+##' csCox  <- CSC(crForm, data=crdat)
+##'
+##' # -- choose a time horizon and plot the risk for a given cause
+##' timeHorizon <- floor(median(crdat$time))
+##' riskplot(csCox, crForm, data = crdat, horizon = timeHorizon, cause = 1)
 ##' 
 ##' @export 
 ##' @author Thomas A. Gerds <tag@@biostat.ku.dk>
