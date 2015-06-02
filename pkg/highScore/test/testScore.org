@@ -1,4 +1,3 @@
-
 * Binary outcome
 ** Training and validation set
    
@@ -34,6 +33,7 @@ system.time(u <- score(list(f1,f2,f3),data=train.d,splitMethod="none"))
    
 #+BEGIN_SRC R :exports both :results output 
 library(lava)
+library(prodlim)
 Source(highScore)
 library(ModelGood)
 library(pec)
@@ -46,12 +46,8 @@ test.d <- SimSurv(M)
 f12 <- coxph(Surv(time,status)~X1+X2,data=train.d)
 f1 <- coxph(Surv(time,status)~X1,data=train.d)
 f2 <- coxph(Surv(time,status)~X2,data=train.d)
-u <- score(list(f1,f2,f3),data=test.d)
-system.time(u <- score(list(f1,f2,f12),data=train.d,censModel="marginal",splitMethod="none"))
-library(ModelGood)
-system.time(v <- Brier(list(f1,f2,f3),data=train.d,splitMethod="none",verbose=FALSE))
-library(doMC)
-registerDoMC()
-system.time(u <- score(list(f1,f2,f3),data=train.d,splitMethod="none"))
+survscore1 <- score(list(f1,f2,f12),data=test.d,formula=Surv(time,status)~1)
+survscore1 <- score(list(f1,f2,f12),data=test.d)
+survscore2 <- score(list(f1,f2,f12),data=train.d,censModel="marginal",splitMethod="none")
 #+END_SRC
    

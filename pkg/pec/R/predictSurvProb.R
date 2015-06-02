@@ -106,7 +106,20 @@
 ##' library(randomForestSRC)
 ##' rsfmodel <- rfsrc(Surv(time,status)~X1+X2,data=d)
 ##' predictSurvProb(rsfmodel,newdata=ndat,times=ttt)
- 
+##' 
+##' predictSurvProb.R
+##' 
+##' ## Cox with ridge option
+##' f1 <- coxph(Surv(time,status)~X1+X2,data=learndat)
+##' f2 <- coxph(Surv(time,status)~ridge(X1)+ridge(X2),data=learndat)
+##' plot(predictSurvProb(f1,newdata=valdat,times=10),
+##'      pec:::predictSurvProb.coxph(f2,newdata=valdat,times=10),
+##'      xlim=c(0,1),
+##'      ylim=c(0,1),
+##'      xlab="Unpenalized predicted survival chance at 10",
+##'      ylab="Ridge predicted survival chance at 10")
+##'
+##' 
 #' @export predictSurvProb
 predictSurvProb <- function(object,newdata,times,...){
     UseMethod("predictSurvProb",object)

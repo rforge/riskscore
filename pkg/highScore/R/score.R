@@ -22,7 +22,7 @@ score <- function(object,...){
 ##' @param times 
 ##' @param maxtime 
 ##' @param landmarks 
-##' @param useObservedTimes 
+##' @param useEventTimes 
 ##' @param nullModel 
 ##' @param censMethod 
 ##' @param censModel 
@@ -37,11 +37,13 @@ score.list <- function(object,
                        formula,
                        data,
                        event,
-                       metrics=c("Auc","Brier","cindex","Roc","calPlot"),
+                       metrics=c("Auc","Brier","cindex"),
+                       tests=c("t.test"),
+                       plots=c("Roc","Cal"),
                        times,
                        maxtime,
                        landmarks,
-                       useObservedTimes=TRUE,
+                       useEventTimes=TRUE,
                        nullModel=TRUE,
                        censMethod="ipcw",
                        censModel="cox",
@@ -74,7 +76,8 @@ score.list <- function(object,
   splitIndex <- splitMethod$index
   do.resample <- !(is.null(splitIndex))
   # }}}
-  # {{{ Checking the models for predictHandlerFunction
+  # {{{ Checking the models
+  # for predictHandlerFunction
   allmethods <- methods(predictHandlerFun)
   wantedMethods <- lapply(object,function(o){
     candidateMethods <- paste(predictHandlerFun,class(o),sep=".")
@@ -113,13 +116,13 @@ score.list <- function(object,
     if (missing(landmarks)){
       start <- 0
       if (missing(times)){
-        if (useObservedTimes==TRUE)
+        if (useEventTimes==TRUE)
           times <- unique(c(start,eventTimes))
         else
           times <- seq(start,maxtime,(maxtime - start)/100)
       }
       else{
-        if (useObservedTimes==TRUE) 
+        if (useEventTimes==TRUE) 
           times <- sort(c(start,unique(times),eventTimes))
         else
           times <- sort(unique(c(start,times)))
@@ -136,15 +139,23 @@ score.list <- function(object,
   }
 
   # }}}
-  # -----------------deal with censored data------------------
+  # -----------------method to deal with censored data------------------
   # {{{ 
   if (censType=="rightCensored"){
     if (censMethod=="ipcw"){
-      weights <- getCensoringWeights(formula=formula,data=data,times=times,censModel=censModel,responseType=responseType)
+        weights <- getCensoringWeights(formula=formula,
+                                       data=data,
+                                       times=times,
+                                       censModel=censModel,
+                                       responseType=responseType)
     }
     else{
       censMethod <- "jackknife.pseudo.values"
-      pseudoResponse <- getPseudoValues(formula=formula,data=data,responseType=responseType,times=times,event=event)
+      pseudoResponse <- getPseudoValues(formula=formula,
+                                        data=data,
+                                        responseType=responseType,
+                                        times=times,
+                                        event=event)
     }
   }
   else{
@@ -173,48 +184,44 @@ score.list <- function(object,
   # -----------------output structure: performance----------------------
   # {{{
 
-  ## Metrics <- na.omit(match(tolower(metrics),tolower(c("AUC","Brier","cindex","Roc","calPlot"))))
-  Metrics <- lapply(metrics,grep,c("AUC","Brier","cindex","Roc","calPlot"),ignore.case=TRUE,value=TRUE)
+  Metrics <- lapply(metrics,grep,c("AUC","Brier","cindex"),ignore.case=TRUE,value=TRUE)
+  Plots <- lapply(plots,grep,c("Roc","Cal"),ignore.case=TRUE,value=TRUE)
   performance <- lapply(Metrics,function(m){
-    vector(NF,mode="list")
-  })
+                            vector(NF,mode="list")
+                        })
   names(performance) <- Metrics
   # metrics list
-  mlist <- list(response=response,"prediction"=NULL)
+  input <- list(response=response,"prediction"=NULL)
   if (predictHandlerFun %in% c("predictSurvProb","predictEventProb")){
-    mlist <- c(mlist,list(times=times))
-    if (censMethod=="ipcw"){
-      mlist <- c(mlist,list(weights=weights))
-    }
+      input <- c(input,list(times=times))
+      if (censMethod=="ipcw"){
+          input <- c(input,list(weights=weights))
+      }
   }
-
   # }}}
-  # -----------------apparent performance---------------------
-  # {{{
-  calcPerf <- function(b=0,traindata,trainseed,testdata){
+  # {{{ 
+  assessPerformance <- function(object,traindata,testdata,trainseed,metrics,tests,NF){
       plist[["newdata"]] <- testdata
       model.perf <- lapply(1:NF,function(f){
-          if (!is.null(traindata)){
-              set.seed(trainseed)
-              trained.model <- trainModel(model=object[[f]],data=traindata)
-          }
-          else{
-              trained.model <- object[[f]]
-          }
-           ## if (f==2)browser()
-          ## pred <- do.call(predictHandlerFun,list(object=trained.model,newdata=plist$newdata,times=plist$times))
-          pred <- do.call(predictHandlerFun,c(list(object=trained.model),plist))
-          mlist[["prediction"]] <- pred
-          mlist[["response"]] <- getResponse(formula=responseFormula,
-                                             data=testdata,
-                                             event=event,
-                                             verbose=verbose)
-          metric <- lapply(c("Brier","AUC"),function(m){
-              do.call(paste(m,responseType,sep="."),mlist)
-          })
-          names(metric) <- c("Brier","AUC")
-          metric
-      })
+                               if (!is.null(traindata)){
+                                   set.seed(trainseed)
+                                   trained.model <- trainModel(model=object[[f]],data=traindata)
+                               }
+                               else{
+                                   trained.model <- object[[f]]
+                               }
+                               pred <- do.call(predictHandlerFun,c(list(object=trained.model),plist))
+                               input[["prediction"]] <- pred
+                               input[["response"]] <- getResponse(formula=responseFormula,
+                                                                  data=testdata,
+                                                                  event=event,
+                                                                  verbose=verbose)
+                               metric <- lapply(c("Brier","AUC"),function(m){
+                                                     do.call(paste(m,responseType,sep="."),input)
+                                                 })
+                               names(metric) <- c("Brier","AUC")
+                               metric
+                           })
       names(model.perf) <- names(object)
       model.perf
   }
@@ -222,7 +229,11 @@ score.list <- function(object,
       model$call$data <- data
       try(eval(model$call),silent=TRUE)
   }
-  noSplit <- calcPerf(b=0,traindata=NULL,testdata=data)
+
+  # }}}
+  # -----------------apparent nosplit performance---------------------
+  # {{{
+  noSplit <- assessPerformance(traindata=NULL,testdata=data,trainseed=NULL)
   crossval <- NULL
   if (splitMethod$name=="BootCv"){
       message("Running cross-validation")
@@ -230,11 +241,11 @@ score.list <- function(object,
           trainseeds <- sample(1:1000000,size=B,replace=FALSE)
       if (require(foreach)){
           crossval <- foreach (b=1:B) %dopar% {
-              calcPerf(b,
-                       traindata=data[splitMethod$index[,b],,drop=FALSE],
-                       trainseed=trainseeds[b],
-                       testdata=data[match(1:N,unique(splitMethod$index[,b]),nomatch=0)==0,,drop=FALSE])
-          }
+                                           assessPerformance(b,
+                                                             traindata=data[splitMethod$index[,b],,drop=FALSE],
+                                                             trainseed=trainseeds[b],
+                                                             testdata=data[match(1:N,unique(splitMethod$index[,b]),nomatch=0)==0,,drop=FALSE])
+                                       }
       }
   }
   # }}}
@@ -313,8 +324,6 @@ AUC.survival <- function(response,prediction,times,weights){
     # Create some weights
     Weightscasesall <- 1/(weights$IPCW.subjectTimes*n)
     Weightscasesall <- Weightscasesall[ordermarker]
-    # }}}
-    # {{{ loop on all timepoints t
     # internal fonction to compute an area under a curve by trapezoidal rule
     AireTrap <- function(a,o){n <- length(a);sum((a[-1]-a[-n])*o[-n]+o[-1]/2)}
     for(t in 1:ntimes){
@@ -361,24 +370,4 @@ AUC.survival <- function(response,prediction,times,weights){
         ## surv[t] <- c(denFP1t)
         Stats[t,] <- c(sum(Cases),sum(Controls1),sum(Controls2),n-sum(Cases)-sum(Controls1)-sum(Controls2))
     }
-
-
-    NT  <-  length(times)
-    N  <-  NROW(response)
-    Y  <-  response[,"time"]
-    status  <-  response[,"status"]
-    .C("pec",
-       pec=double(NT),
-       as.double(Y),
-       as.double(status),
-       as.double(times),
-       as.double(prediction),
-       as.double(weights$IPCW.times),
-       as.double(weights$IPCW.subjectTimes),
-       as.integer(N),
-       as.integer(NT),
-       as.integer(weights$dim),
-       as.integer(is.null(dim(prediction))),
-       NAOK=TRUE,
-       PACKAGE="pec")$pec    
 }
